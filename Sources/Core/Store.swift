@@ -6,6 +6,27 @@ struct PrayerItem: Codable, Identifiable, Equatable {
     var text: String
     var created = Date()
     var answered = false
+    /// The prayer garden (Android PrayerRequest): who it's for, the different days it was prayed, and its bed.
+    var forWhom = ""
+    var daysPrayed = 0
+    var lastPrayedDay = ""
+    var testimony = ""
+    var bed = 0
+
+    init(text: String, forWhom: String = "", bed: Int = 0) { self.text = text; self.forWhom = forWhom; self.bed = bed }
+
+    init(from d: Decoder) throws {
+        let c = try d.container(keyedBy: CodingKeys.self)
+        id = try c.decode(UUID.self, forKey: .id)
+        text = try c.decode(String.self, forKey: .text)
+        created = try c.decodeIfPresent(Date.self, forKey: .created) ?? Date()
+        answered = try c.decodeIfPresent(Bool.self, forKey: .answered) ?? false
+        forWhom = try c.decodeIfPresent(String.self, forKey: .forWhom) ?? ""
+        daysPrayed = try c.decodeIfPresent(Int.self, forKey: .daysPrayed) ?? 0
+        lastPrayedDay = try c.decodeIfPresent(String.self, forKey: .lastPrayedDay) ?? ""
+        testimony = try c.decodeIfPresent(String.self, forKey: .testimony) ?? ""
+        bed = try c.decodeIfPresent(Int.self, forKey: .bed) ?? 0
+    }
 }
 
 struct JournalEntry: Codable, Identifiable, Equatable {

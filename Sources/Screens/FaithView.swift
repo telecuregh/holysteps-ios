@@ -198,6 +198,7 @@ struct FaithView: View {
 
     @ViewBuilder private var pray: some View {
         let answered = store.prayers.filter(\.answered).count
+        PrayerGardenCard().padding(.top, 12)
         ToolSection(title: "Ways to pray", items: [
             ToolItem(symbol: "checklist", color: HS.peach, title: "Prayer List", sub: "\(store.prayers.count - answered) praying · \(answered) answered",
                      destination: AnyView(PrayerJournalView(section: 0))),
