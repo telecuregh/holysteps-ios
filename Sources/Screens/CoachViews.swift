@@ -87,7 +87,10 @@ struct DailyCoachCard: View {
 /// The 10-second check-in: mood, energy, peace, and how you slept.
 struct CheckInSheet: View {
     @Environment(\.dismiss) private var dismiss
-    @State private var mood = 3, energy = 3, peace = 3, clarity = 3
+    @State private var mood = 3
+    @State private var energy = 3
+    @State private var peace = 3
+    @State private var clarity = 3
     @State private var sleep = ""
 
     var body: some View {
