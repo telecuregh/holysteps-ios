@@ -53,7 +53,7 @@ struct GoldButton: View {
     let action: () -> Void
     var body: some View {
         Button(action: action) {
-            Text(title)
+            Text(verbatim: tr(title))
                 .font(.system(size: 16, weight: .semibold))
                 .foregroundStyle(HS.onGold)
                 .frame(maxWidth: .infinity)
@@ -66,7 +66,7 @@ struct GoldButton: View {
 struct ScreenTitle: View {
     let text: String
     var body: some View {
-        Text(text)
+        Text(verbatim: tr(text))
             .font(.system(size: 30, weight: .regular, design: .serif))
             .foregroundStyle(HS.text)
     }

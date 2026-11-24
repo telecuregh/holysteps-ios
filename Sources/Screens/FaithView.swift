@@ -11,15 +11,16 @@ struct FaithView: View {
                 HSBackground()
                 VStack(alignment: .leading, spacing: 14) {
                     ScreenTitle(text: "Faith")
+                    BibleHomeCard()
                     Picker("", selection: $section) {
-                        Text("Prayer list").tag(0)
-                        Text("Journal").tag(1)
+                        T("Prayer list").tag(0)
+                        T("Journal").tag(1)
                     }
                     .pickerStyle(.segmented)
                     HStack {
-                        TextField(section == 0 ? "Add a prayer request" : "Write a reflection", text: $draft, axis: .vertical)
+                        TextField(tr(section == 0 ? "Add a prayer request" : "Write a reflection"), text: $draft, axis: .vertical)
                             .textFieldStyle(.roundedBorder)
-                        Button("Add") { add() }
+                        Button(tr("Add")) { add() }
                             .buttonStyle(.borderedProminent).tint(HS.goldButton).foregroundStyle(HS.onGold)
                             .disabled(draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
                     }

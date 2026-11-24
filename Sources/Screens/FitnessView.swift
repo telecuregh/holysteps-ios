@@ -23,7 +23,7 @@ final class StepsModel: ObservableObject {
         guard available else { return }
         let cal = Calendar.current
         var rows: [(String, Int)] = []
-        let f = DateFormatter(); f.dateFormat = "EEE"
+        let f = DateFormatter(); f.locale = I18n.shared.locale; f.dateFormat = "EEE"
         for offset in stride(from: 6, through: 0, by: -1) {
             guard let d = cal.date(byAdding: .day, value: -offset, to: Date()) else { continue }
             let start = cal.startOfDay(for: d)
@@ -64,20 +64,20 @@ struct FitnessView: View {
                                         .stroke(HS.body, style: StrokeStyle(lineWidth: 14, lineCap: .round))
                                         .rotationEffect(.degrees(-90))
                                     VStack {
-                                        Text("\(model.today)").font(.system(size: 34, weight: .semibold)).foregroundStyle(HS.text)
-                                        Text("of \(goal) steps").font(.footnote).foregroundStyle(HS.textMuted)
+                                        T("\(model.today)").font(.system(size: 34, weight: .semibold)).foregroundStyle(HS.text)
+                                        T("of \(goal) steps").font(.footnote).foregroundStyle(HS.textMuted)
                                     }
                                 }
                                 .frame(width: 170, height: 170)
                                 .frame(maxWidth: .infinity)
-                                Stepper("Daily goal: \(goal)", value: $goal, in: 2000...30000, step: 500)
+                                Stepper(tr("Daily goal: \(goal)"), value: $goal, in: 2000...30000, step: 500)
                                     .foregroundStyle(HS.textSecondary)
                             }
                         }
                         if !model.week.isEmpty {
                             GlassCard {
                                 VStack(alignment: .leading, spacing: 8) {
-                                    Text("Last 7 days").font(.subheadline).foregroundStyle(HS.textMuted)
+                                    T("Last 7 days").font(.subheadline).foregroundStyle(HS.textMuted)
                                     HStack(alignment: .bottom, spacing: 10) {
                                         ForEach(Array(model.week.enumerated()), id: \.offset) { _, r in
                                             VStack(spacing: 4) {
@@ -95,7 +95,7 @@ struct FitnessView: View {
                         if model.available && !model.asked {
                             GoldButton(title: "Connect Apple Health") { Task { await model.request() } }
                         } else if !model.available {
-                            Text("Apple Health isn't available on this device.").font(.footnote).foregroundStyle(HS.textMuted)
+                            T("Apple Health isn't available on this device.").font(.footnote).foregroundStyle(HS.textMuted)
                         }
                     }
                     .padding(20)

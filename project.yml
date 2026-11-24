@@ -12,7 +12,15 @@ targets:
   HolySteps:
     type: application
     platform: iOS
-    sources: [Sources, Assets.xcassets]
+    sources:
+      - path: Sources
+      - path: Assets.xcassets
+      - path: Resources
+        buildPhase: resources
+    info:
+      path: Info.plist
+      properties:
+        UIBackgroundModes: [audio]
     entitlements:
       path: HolySteps.entitlements
       properties:

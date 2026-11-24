@@ -20,13 +20,13 @@ struct HomeView: View {
                         ScreenTitle(text: greeting)
                         GlassCard {
                             VStack(alignment: .leading, spacing: 10) {
-                                Text("VERSE OF THE DAY").font(.caption.weight(.semibold)).foregroundStyle(HS.gold)
-                                Text(verse.text)
+                                T("VERSE OF THE DAY").font(.caption.weight(.semibold)).foregroundStyle(HS.gold)
+                                Text(verbatim: verse.shown)
                                     .font(.system(size: 20, design: .serif).italic())
                                     .foregroundStyle(HS.peach)
-                                Text(verse.ref).font(.subheadline).foregroundStyle(HS.textMuted)
-                                ShareLink(item: "\"\(verse.text)\" — \(verse.ref)") {
-                                    Label("Share", systemImage: "square.and.arrow.up").font(.subheadline)
+                                T(verse.ref).font(.subheadline).foregroundStyle(HS.textMuted)
+                                ShareLink(item: "\"\(verse.shown)\" — \(tr(verse.ref))") {
+                                    Label(tr("Share"), systemImage: "square.and.arrow.up").font(.subheadline)
                                 }
                                 .tint(HS.goldButton)
                             }
@@ -34,13 +34,13 @@ struct HomeView: View {
                         GlassCard {
                             HStack {
                                 VStack(alignment: .leading, spacing: 4) {
-                                    Text("Reading streak").font(.subheadline).foregroundStyle(HS.textMuted)
-                                    Text("\(store.readStreak) day\(store.readStreak == 1 ? "" : "s")")
+                                    T("Reading streak").font(.subheadline).foregroundStyle(HS.textMuted)
+                                    T(store.readStreak == 1 ? "1 day" : "\(store.readStreak) days")
                                         .font(.system(size: 26, weight: .semibold)).foregroundStyle(HS.text)
                                 }
                                 Spacer()
                                 let done = store.readDays.contains(AppStore.dayKey())
-                                Button(done ? "Read today ✓" : "I read today") {
+                                Button(tr(done ? "Read today ✓" : "I read today")) {
                                     store.readDays.insert(AppStore.dayKey())
                                 }
                                 .disabled(done)
@@ -51,8 +51,8 @@ struct HomeView: View {
                         }
                         GlassCard {
                             VStack(alignment: .leading, spacing: 6) {
-                                Text("Today's prayer prompt").font(.subheadline).foregroundStyle(HS.textMuted)
-                                Text(AppContent.prayerPrompts[(Calendar.current.ordinality(of: .day, in: .year, for: Date()) ?? 0) % AppContent.prayerPrompts.count])
+                                T("Today's prayer prompt").font(.subheadline).foregroundStyle(HS.textMuted)
+                                T(AppContent.prayerPrompts[(Calendar.current.ordinality(of: .day, in: .year, for: Date()) ?? 0) % AppContent.prayerPrompts.count])
                                     .foregroundStyle(HS.text)
                             }
                         }
