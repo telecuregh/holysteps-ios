@@ -15,21 +15,22 @@ struct RootTabView: View {
     }
 
     var body: some View {
-        ZStack {
-            HSBackground()
-            ForEach(0..<5, id: \.self) { i in
-                page(i)
-                    .opacity(tab == i ? 1 : 0)
-                    .allowsHitTesting(tab == i)
-                    .accessibilityHidden(tab != i)
+        // The screens sit above the bar, never under it (Android's Scaffold gives them the bar's height as padding).
+        VStack(spacing: 0) {
+            ZStack {
+                HSBackground()
+                ForEach(0..<5, id: \.self) { i in
+                    page(i)
+                        .opacity(tab == i ? 1 : 0)
+                        .allowsHitTesting(tab == i)
+                        .accessibilityHidden(tab != i)
+                }
             }
+            .frame(maxHeight: .infinity)
+            NowPlayingBar()
+            bar
         }
-        .safeAreaInset(edge: .bottom, spacing: 0) {
-            VStack(spacing: 0) {
-                NowPlayingBar()
-                bar
-            }
-        }
+        .background(HS.bgBottom.ignoresSafeArea())
         .environment(\.locale, i18n.locale)
         .environment(\.font, .hs(16))
         .id(i18n.language)   // redraw every screen in the new language
