@@ -3,6 +3,7 @@ import HealthKit
 
 @MainActor
 final class StepsModel: ObservableObject {
+    static let shared = StepsModel()
     @Published var today: Int = 0
     @Published var week: [(day: String, steps: Int)] = []
     @Published var available = HKHealthStore.isHealthDataAvailable()
@@ -46,7 +47,7 @@ final class StepsModel: ObservableObject {
 }
 
 struct FitnessView: View {
-    @StateObject private var model = StepsModel()
+    @ObservedObject private var model = StepsModel.shared
     @AppStorage("stepGoal") private var goal = 8000
 
     var body: some View {

@@ -26,6 +26,12 @@ final class AppStore: ObservableObject {
     /// Faith → Today's prayer log (Morning, Gratitude, Intercession, Evening), and the days anything was prayed.
     @Published var prayerLog: [String: [Bool]] { didSet { UserDefaults.standard.set(prayerLog.filter { $0.key >= AppStore.dayKey(Date().addingTimeInterval(-40 * 86400)) }, forKey: "prayerLog") } }
 
+    /// Android UserProfile defaults: a 28-day cycle with a 5-day period, and 8,000 steps a day.
+    @Published var cycleLength: Int { didSet { UserDefaults.standard.set(cycleLength, forKey: "cycleLength") } }
+    @Published var periodLength: Int { didSet { UserDefaults.standard.set(periodLength, forKey: "periodLength") } }
+    var stepGoal: Int { let g = UserDefaults.standard.integer(forKey: "stepGoal"); return g > 0 ? g : 8000 }
+    var journaledToday: Bool { journal.contains { Calendar.current.isDateInToday($0.created) } }
+
     var prayerDoneToday: [Bool] { prayerLog[AppStore.dayKey()] ?? [false, false, false, false] }
     var prayerDays: Set<String> { Set(prayerLog.filter { $0.value.contains(true) }.keys) }
     /// Days in a row with a prayer, ending today (or yesterday while today is open).
@@ -54,6 +60,8 @@ final class AppStore: ObservableObject {
         periodStarts = AppStore.load("periodStarts") ?? []
         readDays = Set(d.stringArray(forKey: "readDays") ?? [])
         prayerLog = d.dictionary(forKey: "prayerLog") as? [String: [Bool]] ?? [:]
+        cycleLength = d.integer(forKey: "cycleLength") > 0 ? d.integer(forKey: "cycleLength") : 28
+        periodLength = d.integer(forKey: "periodLength") > 0 ? d.integer(forKey: "periodLength") : 5
     }
 
     private func save<T: Encodable>(_ value: T, _ key: String) {

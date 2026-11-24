@@ -7,7 +7,8 @@ struct RootTabView: View {
     @EnvironmentObject var i18n: I18n
     @EnvironmentObject var store: AppStore
     @EnvironmentObject var appearance: Appearance
-    @State private var tab = 0
+    @ObservedObject private var router = TabRouter.shared
+    private var tab: Int { router.tab }
 
     private var tabs: [(label: String, symbol: String)] {
         [("Home", "house.fill"), ("Faith", "cross"), ("Fitness", "figure.run"),
@@ -56,7 +57,7 @@ struct RootTabView: View {
         return HStack(spacing: 0) {
             ForEach(Array(tabs.enumerated()), id: \.offset) { i, t in
                 let on = tab == i
-                Button { tab = i } label: {
+                Button { router.tab = i } label: {
                     Group {
                         if labelled {
                             VStack(spacing: 4) {
@@ -108,6 +109,12 @@ struct RootTabView: View {
         if symbol == "cross" { CrossShape().stroke(style: StrokeStyle(lineWidth: 1.9, lineCap: .round)).frame(width: size + 2, height: size + 2) }
         else { Image(systemName: symbol).font(.system(size: size, weight: .regular)) }
     }
+}
+
+/// Which tab is showing, so a card on one tab can open another (Android's onNavigate to a top-level route).
+final class TabRouter: ObservableObject {
+    static let shared = TabRouter()
+    @Published var tab = 0
 }
 
 /// The thin outline cross Android draws for the Faith tab ("M12,3 L12,21 M6.5,8.5 L17.5,8.5" on a 24 grid).

@@ -51,6 +51,21 @@ jobs:
             test | tee test.log | grep -E "error:|Test Case .*(passed|failed)|XCTAssert|TEST (SUCCEEDED|FAILED)|Executed" || true
           grep -q "TEST SUCCEEDED" test.log
 
+      - name: Collect crash reports
+        if: failure()
+        run: |
+          mkdir -p crashes
+          find ~/Library/Logs/DiagnosticReports -iname "*HolySteps*" -mmin -60 -exec cp {} crashes/ ; 2>/dev/null || true
+          xcrun xcresulttool get test-results tests --path TestResults.xcresult > crashes/tests.json 2>/dev/null || true
+          ls crashes
+
+      - name: Upload crash reports
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: crashes
+          path: crashes
+
       - name: Upload screenshots
         if: always()
         uses: actions/upload-artifact@v4
