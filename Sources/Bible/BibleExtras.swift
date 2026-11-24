@@ -3,7 +3,7 @@ import Foundation
 /// Cross-references from OpenBible.info (CC BY), bundled as Resources/xref.txt.gz.
 /// Each line: "bookIdx.ch.v<TAB>target;target;…", a target being "b.c.v" or a range "b.c.v-c.v" / "b.c.v-b.c.v".
 enum CrossRefs {
-    static let attribution = "Cross references: OpenBible.info, CC BY"
+    static let attribution = "Cross-references: OpenBible.info, CC BY"
 
     struct Ref: Identifiable, Hashable {
         let book: String

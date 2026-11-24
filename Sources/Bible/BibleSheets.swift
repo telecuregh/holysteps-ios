@@ -323,7 +323,7 @@ struct CommentaryView: View {
     @State private var showAll = false
 
     var body: some View {
-        HSSheet(title: "\(bookTitle) \(ch) · \(Commentary.name)") {
+        HSSheet(title: "\(bookTitle) \(ch) · \(tr(Commentary.name))") {
             Group {
                 if loading {
                     VStack(spacing: 8) {

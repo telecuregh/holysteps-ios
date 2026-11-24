@@ -498,8 +498,8 @@ actor BibleRepository {
 }
 
 enum Commentary {
-    static let name = "Matthew Henry"
-    static let attribution = "Matthew Henry's Commentary on the Whole Bible (1706), public domain"
+    static let name = "Matthew Henry's Commentary"
+    static let attribution = "Matthew Henry, Commentary on the Whole Bible (1706–1721), public domain"
     struct Section: Identifiable { let fromVerse: Int; let toVerse: Int; let text: String; var id: Int { fromVerse * 1000 + toVerse } }
     struct Chapter {
         let intro: String

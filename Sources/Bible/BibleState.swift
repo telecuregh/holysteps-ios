@@ -9,16 +9,18 @@ enum ReaderFont: String, Codable, CaseIterable, Identifiable {
 
 /// How the reader shows the text. Kept on this phone.
 struct ReaderPrefs: Codable, Equatable {
-    static let sizes = 14...30
-    static let lines: [Double] = [1.3, 1.5, 1.7, 2.0]
+    static let sizes = 13...32
+    static let lines: [Double] = [1.3, 1.45, 1.6, 1.8, 2.0]
 
-    var textSize: Int = 19
-    var lineSpacing: Double = 1.5
-    var font: ReaderFont = .serif
+    var textSize: Int = 17
+    var lineSpacing: Double = 1.6
+    var font: ReaderFont = .sans
     var highContrast = false
     var verseNumbers = true
 
-    var lineGap: CGFloat { CGFloat(Double(textSize) * (lineSpacing - 1.0)) }
+    /// Android sets the whole line height (size × spacing); iOS adds space between lines, and a font's own line
+    /// is about 1.2 × its size, so the gap is the difference.
+    var lineGap: CGFloat { CGFloat(max(0, Double(textSize) * (lineSpacing - 1.2))) }
 }
 
 /// Where the person is in the Bible, which translation they read, their highlights and notes, the chapters they've
