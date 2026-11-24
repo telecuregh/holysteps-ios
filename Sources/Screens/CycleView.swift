@@ -344,53 +344,187 @@ struct LogPeriodSheet: View {
     }
 }
 
-/// Men's wellness: the week's rhythm (Android MensPhase: push Monday and Tuesday, build midweek, rest Friday, reset
-/// at the weekend) with today's focus.
+/// Android's MensHealthScreen: the week's rhythm (push Monday and Tuesday, build midweek, rest Friday, reset at the
+/// weekend), today's energy and focus, and the phase's move and nourish plan (the whole plan comes with Wellness).
 struct MensWellnessView: View {
+    @EnvironmentObject var store: AppStore
+    @ObservedObject private var checkIns = CheckInStore.shared
+    @ObservedObject private var account = AccountStore.shared
+    @ObservedObject private var steps = StepsModel.shared
+    @State private var tab = 0
+    @State private var planTab = 0
+    @State private var energy = 0
+    @State private var focus: Set<String> = []
+    @State private var paywall = false
+
+    private static let colors: [MensPhase: UInt32] = [.peak: 0x10B981, .build: 0xF59E0B, .rest: 0x8B5CF6, .reset: 0xF43F5E]
+
     var body: some View {
-        let today = MensPhase.today()
+        let phase = MensPhase.today()
+        let color = HS.readable(Self.colors[phase] ?? 0x10B981)
         NavigationStack {
             ZStack {
                 HSBackground()
                 ScrollView {
                     VStack(alignment: .leading, spacing: 0) {
-                        ScreenPhoto(name: "screen_wellness_men")
-                        VStack(alignment: .leading, spacing: 0) {
-                            T("Men's Wellness").font(.hs(28)).foregroundStyle(HS.text)
-                            ItalicAccent(text: "strength, energy & rhythm", size: 19)
+                        ScreenPhoto(name: ScreenPhoto.daily("screen_wellness_men"))
+                        VStack(alignment: .leading, spacing: 4) {
+                            T("⚡ Men's Wellness").font(.hs(13, .bold)).foregroundStyle(color)
+                            D(tr(greeting) + ", " + (store.name.isEmpty ? tr("Brother") : store.name)).font(.hs(22, .bold)).foregroundStyle(HS.text)
+                            D(Date().formatted(.dateTime.weekday(.wide).locale(I18n.shared.locale))).font(.hs(13)).foregroundStyle(HS.textMuted)
                         }
                         .padding(.top, 40).padding(.horizontal, 20).padding(.bottom, 12)
-                        GlassCard(glow: Color(hex: 0x56B892), warm: true) {
-                            VStack(alignment: .leading, spacing: 8) {
-                                T("TODAY").font(.hs(11, .semibold)).tracking(1.4).foregroundStyle(HS.peach)
-                                T("\(today.emoji) \(today.label)").font(.hs(22, .bold)).foregroundStyle(HS.text)
-                                T(today.tip).font(.hs(14)).foregroundStyle(HS.textSecondary)
-                            }
-                        }
-                        .padding(.horizontal, 20)
-                        SectionHeader(title: "Your week").padding(.top, 8)
-                        GlassCard {
-                            VStack(spacing: 10) {
-                                ForEach(0..<7, id: \.self) { i in
-                                    let d = Calendar.current.date(byAdding: .day, value: i, to: startOfWeek) ?? Date()
-                                    let p = MensPhase.today(d)
-                                    let isToday = Calendar.current.isDateInToday(d)
-                                    HStack {
-                                        D(d.formatted(.dateTime.weekday(.wide).locale(I18n.shared.locale))).font(.hs(14, isToday ? .semibold : .regular))
-                                            .foregroundStyle(isToday ? HS.text : HS.textMuted)
-                                        Spacer()
-                                        T("\(p.emoji) \(p.label)").font(.hs(13)).foregroundStyle(isToday ? HS.peach : HS.textSecondary)
-                                    }
-                                }
-                            }
-                        }
-                        .padding(.horizontal, 20)
+                        SubTabs(tabs: ["Today", "Plan"], selected: $tab).padding(.bottom, 16)
+                        if tab == 0 { today(phase, color) } else { plan(phase, color) }
                         Spacer().frame(height: 100)
                     }
                 }
                 .ignoresSafeArea(edges: .top)
             }
             .toolbar(.hidden, for: .navigationBar)
+            .sheet(isPresented: $paywall) { PlansView(feature: .mensHealth) }
+            .onAppear { if energy == 0, let c = checkIns.today { energy = min(5, max(1, c.energy - 1)) } }
+        }
+    }
+
+    private var greeting: String {
+        let h = Calendar.current.component(.hour, from: Date())
+        return h < 12 ? "Good morning" : h < 17 ? "Good afternoon" : "Good evening"
+    }
+
+    @ViewBuilder private func today(_ phase: MensPhase, _ color: Color) -> some View {
+        VStack(alignment: .leading, spacing: 14) {
+            HStack(spacing: 12) {
+                D(phase.emoji).font(.system(size: 32))
+                VStack(alignment: .leading, spacing: 1) {
+                    T(phase.label).font(.hs(18, .bold)).foregroundStyle(color)
+                    T("Today's Energy Mode").font(.hs(12)).foregroundStyle(HS.textMuted)
+                }
+            }
+            T(phase.tip).font(.hs(14)).foregroundStyle(HS.text.opacity(0.85))
+            HStack(spacing: 4) {
+                ForEach(0..<7, id: \.self) { i in
+                    let d = Calendar.current.date(byAdding: .day, value: i, to: startOfWeek) ?? Date()
+                    let p = MensPhase.today(d), on = Calendar.current.isDateInToday(d)
+                    let c = HS.readable(Self.colors[p] ?? 0x10B981)
+                    VStack(spacing: 4) {
+                        D(String(d.formatted(.dateTime.weekday(.narrow).locale(I18n.shared.locale)))).font(.hs(10, on ? .bold : .regular)).foregroundStyle(on ? HS.text : HS.textMuted)
+                        Capsule().fill(on ? c : c.opacity(0.3)).frame(height: 6)
+                    }
+                    .frame(maxWidth: .infinity)
+                }
+            }
+        }
+        .padding(20)
+        .background(RoundedRectangle(cornerRadius: 20).fill(LinearGradient(colors: [color.opacity(0.25), color.opacity(0.08)], startPoint: .topLeading, endPoint: .bottomTrailing)))
+        .overlay(RoundedRectangle(cornerRadius: 20).strokeBorder(color.opacity(0.35), lineWidth: 1))
+        .padding(.horizontal, 20)
+
+        VStack(alignment: .leading, spacing: 10) {
+            T("⚡ Energy Today").font(.hs(12, .semibold)).foregroundStyle(HS.textMuted).tracking(0.8)
+            HStack(spacing: 8) {
+                ForEach(Array([("🪫", "Low"), ("😐", "OK"), ("💪", "Good"), ("⚡", "Peak"), ("🔥", "On Fire")].enumerated()), id: \.offset) { i, e in
+                    let sel = energy == i + 1
+                    Button { energy = i + 1 } label: {
+                        VStack(spacing: 2) { D(e.0).font(.system(size: 18)); T(e.1).font(.hs(9, .medium)).foregroundStyle(HS.textMuted) }
+                            .frame(maxWidth: .infinity).padding(.vertical, 10)
+                            .background(RoundedRectangle(cornerRadius: 10).fill(sel ? color.opacity(0.2) : HS.overlay(0.03)))
+                            .overlay(RoundedRectangle(cornerRadius: 10).strokeBorder(sel ? color.opacity(0.5) : HS.overlay(0.06), lineWidth: 1))
+                    }
+                    .buttonStyle(.plain).accessibilityAddTraits(sel ? .isSelected : [])
+                }
+            }
+            T("🎯 Today's Focus").font(.hs(12, .semibold)).foregroundStyle(HS.textMuted).tracking(0.8).padding(.top, 10)
+            ForEach(Self.focusOptions(phase), id: \.self) { item in
+                let sel = focus.contains(item)
+                Button { if sel { focus.remove(item) } else { focus.insert(item) } } label: {
+                    HStack(spacing: 12) {
+                        Image(systemName: sel ? "checkmark.circle.fill" : "circle").foregroundStyle(sel ? color : HS.textMuted)
+                        T(item).font(.hs(14)).foregroundStyle(sel ? HS.text : HS.text.opacity(0.7))
+                        Spacer(minLength: 0)
+                    }
+                    .padding(.horizontal, 14).padding(.vertical, 12)
+                    .background(RoundedRectangle(cornerRadius: 12).fill(sel ? color.opacity(0.12) : HS.overlay(0.03)))
+                    .overlay(RoundedRectangle(cornerRadius: 12).strokeBorder(sel ? color.opacity(0.4) : HS.overlay(0.06), lineWidth: 1))
+                }
+                .buttonStyle(.plain)
+            }
+            if energy > 0 || checkIns.today != nil {
+                Button { save() } label: {
+                    T(checkIns.today != nil ? "✓ Checked in today · Update" : "Save Today's Check-in").font(.hs(15, .bold)).foregroundStyle(.white)
+                        .frame(maxWidth: .infinity).padding(.vertical, 15).background(RoundedRectangle(cornerRadius: 14).fill(color))
+                }
+                .disabled(energy == 0).padding(.top, 12)
+            }
+        }
+        .padding(.horizontal, 20).padding(.top, 16)
+    }
+
+    @ViewBuilder private func plan(_ phase: MensPhase, _ color: Color) -> some View {
+        let pools = Coach.mens[phase.rawValue]
+        let seed = PhasePlan.epochDay
+        let full = account.canUse(.mensHealth)
+        let ideas = planTab == 0 ? PhasePlan.rotation(pools?.move ?? [], 4, seed) : PhasePlan.rotation(pools?.nourish ?? [], 3, seed)
+        VStack(alignment: .leading, spacing: 10) {
+            D(tr("Your \(phase.label) plan")).font(.hs(12, .semibold)).foregroundStyle(HS.textMuted).tracking(0.8)
+            VStack(alignment: .leading, spacing: 12) {
+                HStack(spacing: 8) {
+                    ForEach(Array(["🏃 Move", "🥗 Nourish"].enumerated()), id: \.offset) { i, l in
+                        Button { planTab = i } label: {
+                            T(l).font(.hs(12, .semibold)).foregroundStyle(HS.text).frame(maxWidth: .infinity).padding(.vertical, 9)
+                                .background(RoundedRectangle(cornerRadius: 10).fill(planTab == i ? color.opacity(0.35) : HS.overlay(0.04)))
+                        }.buttonStyle(.plain)
+                    }
+                }
+                ForEach(full ? ideas : Array(ideas.prefix(1)), id: \.self) { idea in
+                    HStack(alignment: .top, spacing: 8) { D("•").font(.hs(14, .bold)).foregroundStyle(color); T(idea).font(.hs(13)).foregroundStyle(HS.text) }
+                }
+                if full, let tip = PhasePlan.rotation(pools?.mindset ?? [], 1, seed).first {
+                    D("💡 " + tr(tip)).font(.hs(12, .medium)).foregroundStyle(HS.text).padding(10).frame(maxWidth: .infinity, alignment: .leading)
+                        .background(RoundedRectangle(cornerRadius: 10).fill(HS.overlay(0.05)))
+                } else if !full {
+                    Button { paywall = true } label: {
+                        T("👑 See your whole plan: every move, meal and mindset idea, each day. Comes with Wellness.").font(.hs(12, .semibold)).foregroundStyle(HS.text)
+                            .padding(10).frame(maxWidth: .infinity, alignment: .leading).background(RoundedRectangle(cornerRadius: 10).fill(color.opacity(0.18)))
+                    }.buttonStyle(.plain)
+                }
+            }
+            .padding(14)
+            .background(RoundedRectangle(cornerRadius: 16).fill(color.opacity(0.08)))
+            .overlay(RoundedRectangle(cornerRadius: 16).strokeBorder(color.opacity(0.3), lineWidth: 1))
+
+            HStack(spacing: 12) {
+                stat("👟", "Steps", steps.today.formatted(), color)
+                stat("🙏", "Prayer streak", "\(store.prayerStreak)d", color)
+            }
+            .padding(.top, 10)
+        }
+        .padding(.horizontal, 20)
+    }
+
+    private func stat(_ emoji: String, _ label: String, _ value: String, _ color: Color) -> some View {
+        VStack(spacing: 4) {
+            D(emoji).font(.system(size: 20))
+            D(value).font(.hs(18, .bold)).foregroundStyle(color)
+            T(label).font(.hs(11)).foregroundStyle(HS.textMuted)
+        }
+        .frame(maxWidth: .infinity).padding(14)
+        .background(RoundedRectangle(cornerRadius: 14).fill(HS.overlay(0.03)))
+        .overlay(RoundedRectangle(cornerRadius: 14).strokeBorder(HS.overlay(0.07), lineWidth: 1))
+    }
+
+    private func save() {
+        var c = checkIns.today ?? CheckIn(date: AppStore.dayKey(), mood: 3, energy: 3, clarity: 3, peace: 3, sleep: "")
+        c.energy = min(5, energy + 1)
+        checkIns.save(c)
+    }
+
+    static func focusOptions(_ p: MensPhase) -> [String] {
+        switch p {
+        case .peak: ["Hit my step goal — no excuses", "One hard conversation I've been avoiding", "Deep work block — 90 minutes, no distractions", "Train with intensity today"]
+        case .build: ["Consistent, steady pace on all tasks", "Invest in a relationship that matters", "Build a habit — repeat yesterday's discipline", "Morning routine + evening wind-down"]
+        case .rest: ["Active recovery — walk, stretch, breathe", "Listen more than I speak today", "Journal — what this week taught me", "Be fully present with family or friends"]
+        case .reset: ["Full rest — no striving today", "Reflect on the week: wins and lessons", "Recharge — music, time outdoors, gratitude", "Plan next week with priorities first"]
         }
     }
 
