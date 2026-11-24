@@ -1,0 +1,14 @@
+import SwiftUI
+
+@main
+struct HolyStepsApp: App {
+    @StateObject private var store = AppStore()
+
+    var body: some Scene {
+        WindowGroup {
+            RootTabView()
+                .environmentObject(store)
+                .preferredColorScheme(.dark)
+        }
+    }
+}

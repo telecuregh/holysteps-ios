@@ -1,0 +1,6 @@
+build/
+DerivedData/
+*.xcodeproj/
+HolySteps.entitlements
+.DS_Store
+xcuserdata/
