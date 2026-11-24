@@ -20,13 +20,13 @@ struct HomeView: View {
                         ScreenTitle(text: greeting)
                         GlassCard {
                             VStack(alignment: .leading, spacing: 10) {
-                                T("VERSE OF THE DAY").font(.system(size: 11, weight: .semibold)).tracking(1.4).foregroundStyle(HS.peach)
-                                Text(verbatim: verse.shown)
-                                    .font(.system(size: 20, design: .serif).italic())
+                                T("VERSE OF THE DAY").font(.hs(11, .semibold)).tracking(1.4).foregroundStyle(HS.peach)
+                                D(verse.shown)
+                                    .font(.accent(20))
                                     .foregroundStyle(HS.peach)
-                                T(verse.ref).font(.subheadline).foregroundStyle(HS.textMuted)
+                                T(verse.ref).font(.hs(14)).foregroundStyle(HS.textMuted)
                                 ShareLink(item: "\"\(verse.shown)\" — \(tr(verse.ref))") {
-                                    Label(tr("Share"), systemImage: "square.and.arrow.up").font(.subheadline)
+                                    Label(tr("Share"), systemImage: "square.and.arrow.up").font(.hs(14))
                                 }
                                 .tint(HS.goldButton)
                             }
@@ -34,9 +34,9 @@ struct HomeView: View {
                         GlassCard {
                             HStack {
                                 VStack(alignment: .leading, spacing: 4) {
-                                    T("Reading streak").font(.subheadline).foregroundStyle(HS.textMuted)
+                                    T("Reading streak").font(.hs(14)).foregroundStyle(HS.textMuted)
                                     T(store.readStreak == 1 ? "1 day" : "\(store.readStreak) days")
-                                        .font(.system(size: 26, weight: .semibold)).foregroundStyle(HS.text)
+                                        .font(.hs(26, .semibold)).foregroundStyle(HS.text)
                                 }
                                 Spacer()
                                 let done = store.readDays.contains(AppStore.dayKey())
@@ -51,7 +51,7 @@ struct HomeView: View {
                         }
                         GlassCard {
                             VStack(alignment: .leading, spacing: 6) {
-                                T("Today's prayer prompt").font(.subheadline).foregroundStyle(HS.textMuted)
+                                T("Today's prayer prompt").font(.hs(14)).foregroundStyle(HS.textMuted)
                                 T(AppContent.prayerPrompts[(Calendar.current.ordinality(of: .day, in: .year, for: Date()) ?? 0) % AppContent.prayerPrompts.count])
                                     .foregroundStyle(HS.text)
                             }

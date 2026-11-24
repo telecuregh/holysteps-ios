@@ -79,15 +79,15 @@ struct DevotionalCard: View {
                 GlassCard {
                     HStack(alignment: .center, spacing: 12) {
                         VStack(alignment: .leading, spacing: 4) {
-                            T("📖 DAILY DEVOTIONAL").font(.system(size: 11, weight: .semibold)).tracking(1.4).foregroundStyle(HS.peach)
-                            T(plan.days[n - 1].title).font(.system(size: 19, weight: .semibold, design: .serif)).foregroundStyle(HS.text)
+                            T("📖 DAILY DEVOTIONAL").font(.hs(11, .semibold)).tracking(1.4).foregroundStyle(HS.peach)
+                            T(plan.days[n - 1].title).font(.hs(19, .semibold)).foregroundStyle(HS.text)
                                 .multilineTextAlignment(.leading)
-                            Text(verbatim: tr(plan.title) + " · " + tr("Day \(n) of \(plan.days.count)"))
-                                .font(.caption).foregroundStyle(HS.textMuted)
+                            D(tr(plan.title) + " · " + tr("Day \(n) of \(plan.days.count)"))
+                                .font(.hs(12)).foregroundStyle(HS.textMuted)
                         }
                         Spacer()
                         Image(systemName: state.readToday ? "checkmark.circle.fill" : "chevron.right")
-                            .font(state.readToday ? .title2 : .body).foregroundStyle(state.readToday ? HS.body : HS.gold)
+                            .font(.hs(state.readToday ? 22 : 16)).foregroundStyle(state.readToday ? HS.body : HS.gold)
                     }
                 }
             }
@@ -111,42 +111,42 @@ struct DevotionalView: View {
                     VStack(alignment: .leading, spacing: 14) {
                         HStack(alignment: .top) {
                             VStack(alignment: .leading, spacing: 4) {
-                                T("📖 DAILY DEVOTIONAL").font(.system(size: 11, weight: .semibold)).tracking(1.4).foregroundStyle(HS.peach)
-                                T(plan.title).font(.system(size: 24, weight: .light)).foregroundStyle(HS.text)
+                                T("📖 DAILY DEVOTIONAL").font(.hs(11, .semibold)).tracking(1.4).foregroundStyle(HS.peach)
+                                T(plan.title).font(.hs(24, .light)).foregroundStyle(HS.text)
                                 ItalicAccent(text: "Day \(n) of \(plan.days.count)", size: 17)
                             }
                             Spacer()
                             Button { choosing = true } label: {
                                 HStack(spacing: 2) { T("Other devotionals"); Image(systemName: "chevron.right") }
-                                    .font(.caption).foregroundStyle(HS.gold)
+                                    .font(.hs(12)).foregroundStyle(HS.gold)
                             }
                         }
                         ProgressView(value: Double(n), total: Double(plan.days.count)).tint(HS.goldButton)
                         GlassCard {
                             VStack(alignment: .leading, spacing: 12) {
-                                T(day.title).font(.system(size: 20, weight: .semibold)).foregroundStyle(HS.text)
-                                Text(verbatim: "\"" + tr(day.scripture) + "\"").font(.system(size: 16).italic()).lineSpacing(10).foregroundStyle(HS.peach)
-                                Text(verbatim: "— " + tr(day.reference)).font(.system(size: 13, weight: .medium)).foregroundStyle(HS.textMuted)
+                                T(day.title).font(.hs(20, .semibold)).foregroundStyle(HS.text)
+                                D("\"" + tr(day.scripture) + "\"").font(.accent(16)).lineSpacing(10).foregroundStyle(HS.peach)
+                                D("— " + tr(day.reference)).font(.hs(13, .medium)).foregroundStyle(HS.textMuted)
                                 ShareLink(item: "“\(tr(day.scripture))” — \(tr(day.reference))") {
-                                    Label(tr("Share"), systemImage: "square.and.arrow.up").font(.footnote)
+                                    Label(tr("Share"), systemImage: "square.and.arrow.up").font(.hs(13))
                                 }
                                 .tint(HS.goldButton)
                             }
                         }
                         section("📝", "Today's Reflection") {
-                            T(day.body).font(.system(size: 15)).foregroundStyle(HS.text.opacity(0.9)).lineSpacing(11)
+                            T(day.body).font(.hs(15)).foregroundStyle(HS.text.opacity(0.9)).lineSpacing(11)
                         }
                         section("🙏", "Prayer") {
-                            T(day.prayer).font(.system(size: 14)).italic().foregroundStyle(HS.faith.opacity(0.9)).lineSpacing(10)
+                            T(day.prayer).font(.accent(14)).foregroundStyle(HS.faith.opacity(0.9)).lineSpacing(10)
                         }
                         section("⚡", "Today's Challenge") {
-                            T(day.challenge).font(.system(size: 14)).foregroundStyle(Color(hex: 0xF59E0B)).lineSpacing(10)
+                            T(day.challenge).font(.hs(14)).foregroundStyle(Color(hex: 0xF59E0B)).lineSpacing(10)
                         }
                         Group {
                             if state.readToday {
                                 HStack(spacing: 8) {
                                     Image(systemName: "checkmark")
-                                    T("Day \(n) done · the next one opens tomorrow").font(.footnote.weight(.semibold))
+                                    T("Day \(n) done · the next one opens tomorrow").font(.hs(13, .semibold))
                                 }
                                 .foregroundStyle(HS.body)
                                 .frame(maxWidth: .infinity).padding(16)
@@ -169,13 +169,13 @@ struct DevotionalView: View {
                 List(DevotionalPlan.plans(for: store.gender)) { p in
                     Button { state.select(p.id); choosing = false } label: {
                         HStack(spacing: 12) {
-                            Text(verbatim: p.emoji).font(.title)
+                            D(p.emoji).font(.hs(26))
                             VStack(alignment: .leading, spacing: 2) {
-                                T(p.title).font(.headline).foregroundStyle(HS.text)
-                                T(p.subtitle).font(.caption).foregroundStyle(HS.textMuted)
+                                T(p.title).font(.hs(16, .semibold)).foregroundStyle(HS.text)
+                                T(p.subtitle).font(.hs(12)).foregroundStyle(HS.textMuted)
                             }
                             Spacer()
-                            if p.id == state.planId { T("Reading").font(.caption.bold()).foregroundStyle(HS.gold) }
+                            if p.id == state.planId { T("Reading").font(.hs(12, .bold)).foregroundStyle(HS.gold) }
                         }
                     }
                     .listRowBackground(HS.card.opacity(0.65))
@@ -197,8 +197,8 @@ struct DevotionalView: View {
         GlassCard {
             VStack(alignment: .leading, spacing: 10) {
                 HStack(spacing: 8) {
-                    Text(verbatim: icon)
-                    T(title).font(.system(size: 12, weight: .semibold)).tracking(0.8).foregroundStyle(HS.textMuted)
+                    D(icon)
+                    T(title).font(.hs(12, .semibold)).tracking(0.8).foregroundStyle(HS.textMuted)
                 }
                 content()
             }

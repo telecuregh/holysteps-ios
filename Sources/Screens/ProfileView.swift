@@ -14,9 +14,9 @@ struct ProfileView: View {
                         ScreenTitle(text: "Profile")
                         GlassCard {
                             VStack(alignment: .leading, spacing: 8) {
-                                T("First name").font(.subheadline).foregroundStyle(HS.textMuted)
+                                T("First name").font(.hs(14)).foregroundStyle(HS.textMuted)
                                 TextField(tr("Your first name"), text: $store.name).textFieldStyle(.roundedBorder)
-                                T("I am").font(.subheadline).foregroundStyle(HS.textMuted).padding(.top, 6)
+                                T("I am").font(.hs(14)).foregroundStyle(HS.textMuted).padding(.top, 6)
                                 Picker("", selection: $store.gender) {
                                     T("A woman").tag("female")
                                     T("A man").tag("male")
@@ -27,19 +27,19 @@ struct ProfileView: View {
                         }
                         GlassCard {
                             VStack(alignment: .leading, spacing: 8) {
-                                T("App language").font(.subheadline).foregroundStyle(HS.textMuted)
+                                T("App language").font(.hs(14)).foregroundStyle(HS.textMuted)
                                 Picker("", selection: Binding(get: { i18n.choice }, set: { i18n.setChoice($0) })) {
                                     ForEach(I18n.Choice.allCases) { c in
-                                        Text(verbatim: c == .system ? tr(c.label) : c.label).tag(c)
+                                        D(c == .system ? tr(c.label) : c.label).tag(c)
                                     }
                                 }
                                 .pickerStyle(.segmented)
-                                T("Automatic follows your iPhone's language.").font(.caption).foregroundStyle(HS.textMuted)
+                                T("Automatic follows your iPhone's language.").font(.hs(12)).foregroundStyle(HS.textMuted)
                             }
                         }
                         GlassCard {
                             VStack(alignment: .leading, spacing: 8) {
-                                T("Privacy").font(.subheadline).foregroundStyle(HS.textMuted)
+                                T("Privacy").font(.hs(14)).foregroundStyle(HS.textMuted)
                                 T("Your prayers, journal, cycle dates, Bible highlights and notes are stored only on this iPhone.")
                                     .foregroundStyle(HS.text)
                             }
@@ -48,7 +48,7 @@ struct ProfileView: View {
                             T("Erase all my data on this phone").frame(maxWidth: .infinity)
                         }
                         .buttonStyle(.bordered)
-                        T("HolySteps 1.0.0").font(.footnote).foregroundStyle(HS.textMuted)
+                        T("HolySteps 1.0.0").font(.hs(13)).foregroundStyle(HS.textMuted)
                     }
                     .padding(20)
                 }

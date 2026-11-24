@@ -23,6 +23,27 @@ final class AppStore: ObservableObject {
     @Published var journal: [JournalEntry] { didSet { save(journal, "journal") } }
     @Published var periodStarts: [Date] { didSet { save(periodStarts, "periodStarts") } }
     @Published var readDays: Set<String> { didSet { UserDefaults.standard.set(Array(readDays), forKey: "readDays") } }
+    /// Faith → Today's prayer log (Morning, Gratitude, Intercession, Evening), and the days anything was prayed.
+    @Published var prayerLog: [String: [Bool]] { didSet { UserDefaults.standard.set(prayerLog.filter { $0.key >= AppStore.dayKey(Date().addingTimeInterval(-40 * 86400)) }, forKey: "prayerLog") } }
+
+    var prayerDoneToday: [Bool] { prayerLog[AppStore.dayKey()] ?? [false, false, false, false] }
+    var prayerDays: Set<String> { Set(prayerLog.filter { $0.value.contains(true) }.keys) }
+    /// Days in a row with a prayer, ending today (or yesterday while today is open).
+    var prayerStreak: Int {
+        let cal = Calendar.current
+        var day = Date()
+        let days = prayerDays
+        if !days.contains(AppStore.dayKey(day)) { day = cal.date(byAdding: .day, value: -1, to: day) ?? day }
+        var n = 0
+        while days.contains(AppStore.dayKey(day)) { n += 1; day = cal.date(byAdding: .day, value: -1, to: day) ?? day }
+        return n
+    }
+    func togglePrayer(_ i: Int) {
+        var today = prayerDoneToday
+        guard today.indices.contains(i) else { return }
+        today[i].toggle()
+        prayerLog[AppStore.dayKey()] = today
+    }
 
     init() {
         let d = UserDefaults.standard
@@ -32,6 +53,7 @@ final class AppStore: ObservableObject {
         journal = AppStore.load("journal") ?? []
         periodStarts = AppStore.load("periodStarts") ?? []
         readDays = Set(d.stringArray(forKey: "readDays") ?? [])
+        prayerLog = d.dictionary(forKey: "prayerLog") as? [String: [Bool]] ?? [:]
     }
 
     private func save<T: Encodable>(_ value: T, _ key: String) {

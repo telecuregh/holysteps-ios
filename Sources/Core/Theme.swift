@@ -52,24 +52,30 @@ struct HSBackground: View {
     }
 }
 
+extension Font {
+    /// Android's Harmony type: Inter for all text (Text.kt harmonyAndLinenType). Inter ships Regular, Medium, SemiBold
+    /// and Bold, so lighter weights read as Regular and heavier ones as Bold, as they do on Android.
+    static func hs(_ size: CGFloat, _ weight: Font.Weight = .regular) -> Font {
+        let name: String
+        switch weight {
+        case .medium: name = "Inter-Medium"
+        case .semibold: name = "Inter-SemiBold"
+        case .bold, .heavy, .black: name = "Inter-Bold"
+        default: name = "Inter-Regular"
+        }
+        return .custom(name, size: size)
+    }
+
+    /// Italic text on Android is Playfair Display italic (HarmonySerif).
+    static func accent(_ size: CGFloat) -> Font { .custom("PlayfairDisplay-Italic", size: size) }
+}
+
 /// Android's HarmonyItalicAccent: the Playfair Display italic accent line in soft peach.
 struct ItalicAccent: View {
     let text: String
     var size: CGFloat = 18
     var body: some View {
-        Text(verbatim: tr(text)).font(.custom("PlayfairDisplay-Italic", size: size)).foregroundStyle(HS.peach)
-    }
-}
-
-struct GlassCard<Content: View>: View {
-    let content: Content
-    init(@ViewBuilder content: () -> Content) { self.content = content() }
-    var body: some View {
-        content
-            .padding(16)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background(RoundedRectangle(cornerRadius: 20).fill(HS.card.opacity(0.65)))
-            .overlay(RoundedRectangle(cornerRadius: 20).stroke(HS.gold.opacity(0.24), lineWidth: 1))
+        D(tr(text)).font(.accent(size)).foregroundStyle(HS.peach)
     }
 }
 
@@ -78,8 +84,8 @@ struct GoldButton: View {
     let action: () -> Void
     var body: some View {
         Button(action: action) {
-            Text(verbatim: tr(title))
-                .font(.system(size: 16, weight: .semibold))
+            D(tr(title))
+                .font(.hs(16, .semibold))
                 .foregroundStyle(HS.onGold)
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 14)
@@ -91,8 +97,8 @@ struct GoldButton: View {
 struct ScreenTitle: View {
     let text: String
     var body: some View {
-        Text(verbatim: tr(text))
-            .font(.system(size: 30, weight: .regular, design: .serif))
+        D(tr(text))
+            .font(.hs(30, .regular))
             .foregroundStyle(HS.text)
     }
 }

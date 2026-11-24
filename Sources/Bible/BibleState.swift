@@ -35,6 +35,9 @@ final class BibleState: ObservableObject {
     @Published private(set) var highlights: [Highlight] { didSet { saveHighlights() } }
     @Published private(set) var chaptersRead: Set<String> { didSet { d.set(Array(chaptersRead), forKey: "bibleChaptersRead") } }
     @Published var planStart: Date? { didSet { d.set(planStart, forKey: "biblePlanStart") } }
+    /// Android's Bible reading plan counter: the next day of the one-year plan to read, and the date the last was done.
+    @Published private(set) var readingDay: Int { didSet { d.set(readingDay, forKey: "bibleReadingDay") } }
+    @Published private(set) var readingDate: String { didSet { d.set(readingDate, forKey: "bibleReadingDate") } }
     @Published var prefs: ReaderPrefs { didSet { if let data = try? JSONEncoder().encode(prefs) { d.set(data, forKey: "bibleReaderPrefs") } } }
 
     private let d = UserDefaults.standard
@@ -46,6 +49,8 @@ final class BibleState: ObservableObject {
         lastCh = max(1, d.integer(forKey: "bibleLastCh"))
         chaptersRead = Set(d.stringArray(forKey: "bibleChaptersRead") ?? [])
         planStart = d.object(forKey: "biblePlanStart") as? Date
+        readingDay = max(1, d.integer(forKey: "bibleReadingDay"))
+        readingDate = d.string(forKey: "bibleReadingDate") ?? ""
         prefs = (d.data(forKey: "bibleReaderPrefs")).flatMap { try? JSONDecoder().decode(ReaderPrefs.self, from: $0) } ?? ReaderPrefs()
         if let data = d.data(forKey: "bibleHighlights"), let list = try? JSONDecoder().decode([Highlight].self, from: data) {
             highlights = Highlights.keepNewestPerVerse(Array(list.suffix(Highlights.max)))
@@ -90,9 +95,22 @@ final class BibleState: ObservableObject {
         let k = BibleState.chapterKey(book, ch)
         if !chaptersRead.contains(k) { chaptersRead.insert(k) }
         store?.readDays.insert(AppStore.dayKey())
+        // Reading every chapter of today's plan completes the day.
+        if !bibleReadToday, BiblePlan.chapters(day: shownDay).allSatisfy({ isRead($0.book, $0.ch) }) { completeBibleReading(store: store) }
     }
 
     // MARK: One-year plan
+
+    var bibleReadToday: Bool { readingDate == AppStore.dayKey() }
+    /// Once today's reading is done the plan keeps showing today's day (the next one opens tomorrow).
+    var shownDay: Int { (max(1, bibleReadToday ? readingDay - 1 : readingDay) - 1) % BiblePlan.days + 1 }
+
+    func completeBibleReading(store: AppStore?) {
+        guard !bibleReadToday else { return }
+        readingDate = AppStore.dayKey()
+        readingDay += 1
+        store?.readDays.insert(AppStore.dayKey())
+    }
 
     var planDay: Int? {
         guard let start = planStart else { return nil }
@@ -109,6 +127,8 @@ final class BibleState: ObservableObject {
         highlights = []
         chaptersRead = []
         planStart = nil
+        readingDay = 1
+        readingDate = ""
     }
 
     func planDone(day: Int) -> Bool { BiblePlan.chapters(day: day).allSatisfy { isRead($0.book, $0.ch) } }

@@ -99,7 +99,7 @@ struct MusicView: View {
                 Picker("", selection: $tab) {
                     T("Gospel").tag(0)
                     T("Hymns").tag(1)
-                    Text(verbatim: tr("Mine") + " (\(mine.tracks.count))").tag(2)
+                    D(tr("Mine") + " (\(mine.tracks.count))").tag(2)
                     T("Library").tag(3)
                 }
                 .pickerStyle(.segmented)
@@ -137,7 +137,7 @@ struct MusicView: View {
 
     @ViewBuilder private var gospel: some View {
         Section {
-            T("What are you carrying today?").font(.footnote).foregroundStyle(HS.textSecondary).listRowBackground(Color.clear)
+            T("What are you carrying today?").font(.hs(13)).foregroundStyle(HS.textSecondary).listRowBackground(Color.clear)
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 6) {
                     chip(tr("All"), on: need == nil) { need = nil }
@@ -176,9 +176,9 @@ struct MusicView: View {
                 Label(tr("Add songs from Files"), systemImage: "plus.circle.fill").foregroundStyle(HS.goldButton)
             }
             .listRowBackground(Color.clear)
-            if !note.isEmpty { Text(verbatim: note).font(.caption).foregroundStyle(HS.textMuted).listRowBackground(Color.clear) }
+            if !note.isEmpty { D(note).font(.hs(12)).foregroundStyle(HS.textMuted).listRowBackground(Color.clear) }
             T("Your songs play from where they are. HolySteps keeps only their names on this phone and never copies or uploads them.")
-                .font(.caption).foregroundStyle(HS.textMuted).listRowBackground(Color.clear)
+                .font(.hs(12)).foregroundStyle(HS.textMuted).listRowBackground(Color.clear)
         }
         Section {
             ForEach(Array(mine.tracks.enumerated()), id: \.element.id) { i, t in
@@ -197,7 +197,7 @@ struct MusicView: View {
         } else {
             libraryRows(libMusic)
             T("This music is added by HolySteps and streamed, so the first play of a song needs a connection.")
-                .font(.caption).foregroundStyle(HS.textMuted).listRowBackground(Color.clear)
+                .font(.hs(12)).foregroundStyle(HS.textMuted).listRowBackground(Color.clear)
         }
     }
 
@@ -208,9 +208,9 @@ struct MusicView: View {
                 trackRow(item, scripture: nil) { player.play(playable, start: playable.firstIndex(of: item) ?? 0) }
             } else {
                 HStack {
-                    VStack(alignment: .leading) { Text(verbatim: li.title).foregroundStyle(HS.textMuted); Text(verbatim: li.author).font(.caption).foregroundStyle(HS.textMuted) }
+                    VStack(alignment: .leading) { D(li.title).foregroundStyle(HS.textMuted); D(li.author).font(.hs(12)).foregroundStyle(HS.textMuted) }
                     Spacer()
-                    T("Premium").font(.caption2).foregroundStyle(HS.textMuted)
+                    T("Premium").font(.hs(11)).foregroundStyle(HS.textMuted)
                 }
                 .listRowBackground(HS.card.opacity(0.4))
             }
@@ -220,12 +220,12 @@ struct MusicView: View {
     // MARK: Pieces
 
     private func header(_ s: String) -> some View {
-        T(s).font(.footnote.weight(.semibold)).foregroundStyle(HS.textSecondary)
+        T(s).font(.hs(13, .semibold)).foregroundStyle(HS.textSecondary)
     }
 
     private func chip(_ s: String, on: Bool, _ action: @escaping () -> Void) -> some View {
         Button(action: action) {
-            Text(verbatim: s).font(.caption.weight(.semibold)).foregroundStyle(on ? HS.onGold : HS.text)
+            D(s).font(.hs(12, .semibold)).foregroundStyle(on ? HS.onGold : HS.text)
                 .padding(.horizontal, 12).padding(.vertical, 7)
                 .background(Capsule().fill(on ? HS.goldButton : Color.white.opacity(0.07)))
         }
@@ -238,11 +238,11 @@ struct MusicView: View {
         return Button(action: { now ? player.toggle() : play() }) {
             HStack(spacing: 12) {
                 Image(systemName: now && player.playing ? "speaker.wave.2.fill" : "play.circle.fill")
-                    .font(.title2).foregroundStyle(HS.goldButton).frame(width: 30)
+                    .font(.hs(22)).foregroundStyle(HS.goldButton).frame(width: 30)
                 VStack(alignment: .leading, spacing: 2) {
-                    T(item.title).font(.subheadline.weight(.semibold)).foregroundStyle(now ? HS.gold : HS.text)
-                    T(item.subtitle).font(.caption).foregroundStyle(HS.textMuted).lineLimit(2)
-                    if let scripture { T(scripture).font(.caption2).foregroundStyle(HS.faith) }
+                    T(item.title).font(.hs(14, .semibold)).foregroundStyle(now ? HS.gold : HS.text)
+                    T(item.subtitle).font(.hs(12)).foregroundStyle(HS.textMuted).lineLimit(2)
+                    if let scripture { T(scripture).font(.hs(11)).foregroundStyle(HS.faith) }
                 }
                 Spacer()
             }
@@ -267,26 +267,26 @@ struct PlayerCard: View {
             VStack(spacing: 8) {
                 HStack {
                     VStack(alignment: .leading, spacing: 2) {
-                        T(item.title).font(.subheadline.weight(.semibold)).foregroundStyle(HS.text).lineLimit(1)
-                        T(item.subtitle).font(.caption).foregroundStyle(HS.textMuted).lineLimit(1)
+                        T(item.title).font(.hs(14, .semibold)).foregroundStyle(HS.text).lineLimit(1)
+                        T(item.subtitle).font(.hs(12)).foregroundStyle(HS.textMuted).lineLimit(1)
                     }
                     Spacer()
-                    Button { p.stop() } label: { Image(systemName: "xmark.circle").font(.title3).foregroundStyle(HS.textMuted) }
+                    Button { p.stop() } label: { Image(systemName: "xmark.circle").font(.hs(20)).foregroundStyle(HS.textMuted) }
                         .accessibilityLabel(tr("Stop"))
                 }
                 Slider(value: Binding(get: { min(p.elapsed, max(p.duration, 0.1)) }, set: { p.seek($0) }), in: 0...max(p.duration, 0.1))
                     .tint(HS.goldButton)
                 HStack {
-                    Text(verbatim: mmss(p.elapsed)).font(.caption2.monospacedDigit())
+                    D(mmss(p.elapsed)).font(.hs(11).monospacedDigit())
                     Spacer()
-                    Text(verbatim: mmss(p.duration)).font(.caption2.monospacedDigit())
+                    D(mmss(p.duration)).font(.hs(11).monospacedDigit())
                 }
                 .foregroundStyle(HS.textMuted)
                 HStack(spacing: 26) {
                     Button { p.setShuffle(!p.shuffle) } label: { Image(systemName: "shuffle").foregroundStyle(p.shuffle ? HS.goldButton : HS.textMuted) }
                         .accessibilityLabel(tr("Shuffle"))
                     Button { p.previous() } label: { Image(systemName: "backward.fill") }.accessibilityLabel(tr("Previous"))
-                    Button { p.toggle() } label: { Image(systemName: p.playing ? "pause.circle.fill" : "play.circle.fill").font(.system(size: 44)) }
+                    Button { p.toggle() } label: { Image(systemName: p.playing ? "pause.circle.fill" : "play.circle.fill").font(.hs(44)) }
                         .foregroundStyle(HS.goldButton)
                         .accessibilityLabel(tr(p.playing ? "Pause" : "Play"))
                     Button { p.next() } label: { Image(systemName: "forward.fill") }.accessibilityLabel(tr("Next"))
@@ -299,7 +299,7 @@ struct PlayerCard: View {
                     } label: { Image(systemName: p.sleepEndsAt == nil ? "moon" : "moon.fill").foregroundStyle(p.sleepEndsAt == nil ? HS.textMuted : HS.goldButton) }
                         .accessibilityLabel(tr("Sleep timer"))
                 }
-                .font(.title3)
+                .font(.hs(20))
                 .foregroundStyle(HS.text)
             }
             .padding(14)
@@ -318,7 +318,7 @@ struct MusicCard: View {
             GlassCard {
                 HStack(spacing: 12) {
                     VStack(alignment: .leading, spacing: 4) {
-                        T("🎶 CHRISTIAN MUSIC").font(.system(size: 11, weight: .semibold)).tracking(1.4).foregroundStyle(HS.peach)
+                        T("🎶 CHRISTIAN MUSIC").font(.hs(11, .semibold)).tracking(1.4).foregroundStyle(HS.peach)
                         if let item = p.current {
                             T("Now playing: \(tr(item.title))").foregroundStyle(HS.text).lineLimit(1)
                         } else {
@@ -328,7 +328,7 @@ struct MusicCard: View {
                     Spacer()
                     if p.active {
                         Button { p.toggle() } label: {
-                            Image(systemName: p.playing ? "pause.circle.fill" : "play.circle.fill").font(.system(size: 34)).foregroundStyle(HS.goldButton)
+                            Image(systemName: p.playing ? "pause.circle.fill" : "play.circle.fill").font(.hs(34)).foregroundStyle(HS.goldButton)
                         }
                         .buttonStyle(.plain)
                     } else {

@@ -237,5 +237,90 @@ final class I18n: ObservableObject {
 /// Short form used across the app.
 func tr(_ s: String) -> String { I18n.shared.tr(s) }
 
-/// A Text in the app's language.
-func T(_ s: String) -> Text { Text(verbatim: tr(s)) }
+/// A Text in the app's language, shown the way Android's Harmony Text shows it (ui/premium/Text.kt): emoji are left
+/// out of words, and a label that is only an emoji becomes the matching outline icon.
+func T(_ s: String) -> Text { D(tr(s), symbolFor: s) }
+
+/// Shows text that's already in the app's language, with Android's emoji handling.
+func D(_ s: String, symbolFor original: String? = nil) -> Text {
+    let shown = Emoji.strip(s)
+    if shown.trimmingCharacters(in: .whitespaces).isEmpty, !s.trimmingCharacters(in: .whitespaces).isEmpty {
+        if let sym = Emoji.symbol((original ?? s).trimmingCharacters(in: .whitespaces)) { return Text(Image(systemName: sym)) }
+        return Text(verbatim: "")
+    }
+    return Text(verbatim: shown)
+}
+
+enum Emoji {
+    private static func isEmoji(_ v: UInt32) -> Bool {
+        (0x1F000...0x1FAFF).contains(v) || (0x2600...0x2712).contains(v) || (0x2718...0x27BF).contains(v) || v == 0x2B50 || v == 0x2B06 ||
+        (0x2194...0x21FF).contains(v) || v == 0xFE0F || v == 0x200D || v == 0x20E3 || (0xE0020...0xE007F).contains(v)
+    }
+
+    static func strip(_ s: String) -> String {
+        guard s.unicodeScalars.contains(where: { $0.value >= 0x2190 }) else { return s }
+        var out = String.UnicodeScalarView()
+        for u in s.unicodeScalars where !isEmoji(u.value) { out.append(u) }
+        var r = String(out).replacingOccurrences(of: #"[ \t]{2,}"#, with: " ", options: .regularExpression)
+        r = r.replacingOccurrences(of: #"(?m)^ +| +$"#, with: "", options: .regularExpression)
+        return r
+    }
+
+    /// Android's iconFor (Material outlined icons) as SF Symbols.
+    static func symbol(_ e: String) -> String? {
+        switch e.replacingOccurrences(of: "\u{FE0F}", with: "") {
+        case "🔥": return "flame"
+        case "🕊", "🙏", "🤲", "🙌": return "hands.sparkles"
+        case "👑", "🏆", "🥇", "🥈", "🥉", "🏅": return "rosette"
+        case "🌿", "🌱", "🌳", "🌸", "🌼", "🌹": return "leaf"
+        case "✨", "🌟", "⭐", "☀", "🌅", "🌄": return "sun.max"
+        case "🎉": return "party.popper"
+        case "🛡", "🔑", "⚔": return "shield"
+        case "🔒": return "lock"
+        case "👣", "🚶", "🏃", "👟", "🥾", "🦵": return "figure.walk"
+        case "⚡", "🔋": return "bolt"
+        case "📖", "📓", "📚", "✝": return "book"
+        case "💬", "💭": return "bubble.left"
+        case "✅": return "checkmark.circle"
+        case "🌙", "😴", "🌗": return "moon"
+        case "🎯": return "scope"
+        case "💪", "🏋", "🤸": return "dumbbell"
+        case "💛", "❤", "💗", "💞", "💚", "💓", "💔": return "heart"
+        case "📈", "📊": return "chart.line.uptrend.xyaxis"
+        case "🤝": return "hands.clap"
+        case "🎧", "🎙", "🎶", "🎵": return "headphones"
+        case "🧭", "🗺", "📍": return "safari"
+        case "🧠", "🧘": return "figure.mind.and.body"
+        case "⚠", "🚨": return "exclamationmark.triangle"
+        case "🎁": return "gift"
+        case "🏠", "🏡": return "house"
+        case "🛤", "🏞", "⛰", "🏔": return "mountain.2"
+        case "🕯", "💡": return "lightbulb"
+        case "📅", "📆", "🕒": return "calendar"
+        case "💧": return "drop"
+        case "🌧", "☁", "🌦": return "cloud"
+        case "🌊": return "water.waves"
+        case "🌌", "🌃": return "moon.stars"
+        case "🔇": return "speaker.slash"
+        case "🧸", "👶", "🍼": return "figure.and.child.holdinghands"
+        case "🩺", "🏥": return "cross.case"
+        case "📋", "📝", "✏", "✍": return "square.and.pencil"
+        case "👤", "🧍", "👨", "👩": return "person"
+        case "👨‍👩‍👧", "👪": return "person.3"
+        case "🔁", "🔄", "↩": return "arrow.clockwise"
+        case "🔔": return "bell"
+        case "⛪", "🏛", "☦": return "building.columns"
+        case "🗑": return "trash"
+        case "📷": return "camera"
+        case "⏱", "⏰": return "timer"
+        case "🌐", "🌍": return "globe"
+        case "🖼": return "photo"
+        case "🔗": return "link"
+        case "🖍": return "highlighter"
+        case "⇄": return "arrow.left.arrow.right"
+        case "↗": return "square.and.arrow.up"
+        case "🔍": return "magnifyingglass"
+        default: return nil
+        }
+    }
+}

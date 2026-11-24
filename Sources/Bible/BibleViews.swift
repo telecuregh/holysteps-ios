@@ -10,28 +10,28 @@ struct ListeningBar: View {
             HStack(spacing: 10) {
                 Button(action: onGoTo) {
                     VStack(alignment: .leading, spacing: 2) {
-                        Text(verbatim: "🎧 \(l.title)").font(.subheadline.weight(.semibold)).foregroundStyle(HS.text).lineLimit(1)
+                        D("🎧 \(l.title)").font(.hs(14, .semibold)).foregroundStyle(HS.text).lineLimit(1)
                         if l.loading {
-                            T("Opening…").font(.caption).foregroundStyle(HS.textMuted)
+                            T("Opening…").font(.hs(12)).foregroundStyle(HS.textMuted)
                         } else if let e = l.error {
-                            Text(verbatim: e).font(.caption).foregroundStyle(HS.cycle).lineLimit(2)
+                            D(e).font(.hs(12)).foregroundStyle(HS.cycle).lineLimit(2)
                         } else {
-                            T("Verse \(l.verse) of \(l.verseCount)").font(.caption).foregroundStyle(HS.textMuted)
+                            T("Verse \(l.verse) of \(l.verseCount)").font(.hs(12)).foregroundStyle(HS.textMuted)
                         }
                     }
                 }
                 .accessibilityHint(tr("Go to the chapter being read"))
                 Spacer()
                 Button { l.toggle() } label: {
-                    Image(systemName: l.playing ? "pause.circle.fill" : "play.circle.fill").font(.system(size: 34)).foregroundStyle(HS.goldButton)
+                    Image(systemName: l.playing ? "pause.circle.fill" : "play.circle.fill").font(.hs(34)).foregroundStyle(HS.goldButton)
                 }
                 .accessibilityLabel(tr(l.playing ? "Pause" : "Play"))
                 Button { l.nextVerse() } label: {
-                    Image(systemName: "forward.end.fill").font(.system(size: 18)).foregroundStyle(HS.text)
+                    Image(systemName: "forward.end.fill").font(.hs(18)).foregroundStyle(HS.text)
                 }
                 .accessibilityLabel(tr("Next verse"))
                 Button { l.stop() } label: {
-                    Image(systemName: "xmark.circle").font(.system(size: 22)).foregroundStyle(HS.textMuted)
+                    Image(systemName: "xmark.circle").font(.hs(22)).foregroundStyle(HS.textMuted)
                 }
                 .accessibilityLabel(tr("Stop listening"))
             }
@@ -55,13 +55,13 @@ struct ListeningBar: View {
                 Spacer()
                 Menu {
                     ForEach(VoicePacks.narrators) { v in
-                        Button { l.narrator = v.id } label: { Text(verbatim: (l.narrator == v.id ? "✓ " : "") + v.name + " · " + tr(v.description)) }
+                        Button { l.narrator = v.id } label: { D((l.narrator == v.id ? "✓ " : "") + v.name + " · " + tr(v.description)) }
                     }
                     Button { l.narrator = VoicePacks.deviceVoice } label: {
-                        Text(verbatim: (l.narrator == VoicePacks.deviceVoice ? "✓ " : "") + tr("Your phone's voice"))
+                        D((l.narrator == VoicePacks.deviceVoice ? "✓ " : "") + tr("Your phone's voice"))
                     }
                 } label: {
-                    Text(verbatim: "🎙 " + (l.reader.isEmpty ? tr("Your phone's voice") : l.reader)).font(.caption2).foregroundStyle(HS.textMuted)
+                    D("🎙 " + (l.reader.isEmpty ? tr("Your phone's voice") : l.reader)).font(.hs(11)).foregroundStyle(HS.textMuted)
                 }
             }
         }
@@ -70,7 +70,7 @@ struct ListeningBar: View {
     }
 
     private func pill(_ s: String) -> some View {
-        Text(verbatim: s).font(.caption.weight(.semibold)).foregroundStyle(HS.text)
+        D(s).font(.hs(12, .semibold)).foregroundStyle(HS.text)
             .padding(.horizontal, 10).padding(.vertical, 5).background(Capsule().fill(Color.white.opacity(0.08)))
     }
 }
@@ -96,7 +96,7 @@ struct HighlightsView: View {
                 Section {
                     VStack(alignment: .leading, spacing: 10) {
                         T("\(all.filter { $0.isHighlighted }.count) highlighted · \(all.filter { !$0.note.isEmpty }.count) with notes")
-                            .font(.footnote).foregroundStyle(HS.textMuted)
+                            .font(.hs(13)).foregroundStyle(HS.textMuted)
                         HStack(spacing: 8) {
                             filterChip("All", on: filter == nil && !notesOnly) { filter = nil; notesOnly = false }
                             filterChip("📝 Notes", on: notesOnly) { notesOnly = true; filter = nil }
@@ -140,14 +140,14 @@ struct HighlightsView: View {
     private func row(_ h: Highlight) -> some View {
         let content = VStack(alignment: .leading, spacing: 5) {
             HStack(spacing: 8) {
-                if h.isHighlighted { Circle().fill(Color(hex: h.color.hex)).frame(width: 10, height: 10) } else { Text(verbatim: "📝").font(.caption2) }
-                Text(verbatim: "\(tr(h.ref)) · \(h.translation)").font(.footnote.bold()).foregroundStyle(HS.faith)
+                if h.isHighlighted { Circle().fill(Color(hex: h.color.hex)).frame(width: 10, height: 10) } else { D("📝").font(.hs(11)) }
+                D("\(tr(h.ref)) · \(h.translation)").font(.hs(13, .bold)).foregroundStyle(HS.faith)
                 Spacer()
                 Text(Date(timeIntervalSince1970: TimeInterval(h.atMs) / 1000), format: .dateTime.month(.abbreviated).day().year())
-                    .font(.caption2).foregroundStyle(HS.textMuted)
+                    .font(.hs(11)).foregroundStyle(HS.textMuted)
             }
-            Text(verbatim: h.text).foregroundStyle(HS.text)
-            if !h.note.isEmpty { Text(verbatim: "📝 \(h.note)").font(.footnote).foregroundStyle(HS.textSecondary) }
+            D(h.text).foregroundStyle(HS.text)
+            if !h.note.isEmpty { D("📝 \(h.note)").font(.hs(13)).foregroundStyle(HS.textSecondary) }
             HStack(spacing: 16) {
                 Button(tr(h.note.isEmpty ? "Add a note" : "Edit note")) { editing = h }.buttonStyle(.borderless)
                 Button(tr("Make an image")) {
@@ -156,7 +156,7 @@ struct HighlightsView: View {
                 }
                 .buttonStyle(.borderless)
             }
-            .font(.caption).tint(HS.textMuted)
+            .font(.hs(12)).tint(HS.textMuted)
         }
         .padding(.vertical, 4)
         if let onOpen {
@@ -168,7 +168,7 @@ struct HighlightsView: View {
 
     private func filterChip(_ label: String, on: Bool, _ action: @escaping () -> Void) -> some View {
         Button(action: action) {
-            T(label).font(.caption).foregroundStyle(on ? HS.onGold : HS.text)
+            T(label).font(.hs(12)).foregroundStyle(on ? HS.onGold : HS.text)
                 .padding(.horizontal, 12).padding(.vertical, 6)
                 .background(Capsule().fill(on ? HS.goldButton : Color.white.opacity(0.06)))
         }
@@ -193,9 +193,9 @@ struct BiblePlanView: View {
                         let doneCount = BiblePlan.chapters.filter { bible.isRead($0.book, $0.ch) }.count
                         GlassCard {
                             VStack(alignment: .leading, spacing: 8) {
-                                T("Day \(day) of \(BiblePlan.days)").font(.system(size: 11, weight: .semibold)).tracking(1.4).foregroundStyle(HS.peach)
+                                T("Day \(day) of \(BiblePlan.days)").font(.hs(11, .semibold)).tracking(1.4).foregroundStyle(HS.peach)
                                 ProgressView(value: Double(doneCount), total: Double(BiblePlan.totalChapters)).tint(HS.body)
-                                T("\(doneCount) of \(BiblePlan.totalChapters) chapters read").font(.caption).foregroundStyle(HS.textMuted)
+                                T("\(doneCount) of \(BiblePlan.totalChapters) chapters read").font(.hs(12)).foregroundStyle(HS.textMuted)
                             }
                         }
                         ForEach(max(1, day - 1)...(day + 2), id: \.self) { d in dayCard(d, today: d == day) }
@@ -218,7 +218,7 @@ struct BiblePlanView: View {
         GlassCard {
             VStack(alignment: .leading, spacing: 8) {
                 HStack {
-                    T(today ? "Today · Day \(d)" : "Day \(d)").font(.subheadline.weight(.semibold)).foregroundStyle(today ? HS.gold : HS.textMuted)
+                    T(today ? "Today · Day \(d)" : "Day \(d)").font(.hs(14, .semibold)).foregroundStyle(today ? HS.gold : HS.textMuted)
                     Spacer()
                     if bible.planDone(day: d) { Image(systemName: "checkmark.seal.fill").foregroundStyle(HS.body) }
                 }
@@ -229,7 +229,7 @@ struct BiblePlanView: View {
                                 .foregroundStyle(bible.isRead(c.book, c.ch) ? HS.body : HS.textMuted)
                             T("\(c.book) \(c.ch)").foregroundStyle(HS.text)
                             Spacer()
-                            Image(systemName: "chevron.right").font(.caption).foregroundStyle(HS.textMuted)
+                            Image(systemName: "chevron.right").font(.hs(12)).foregroundStyle(HS.textMuted)
                         }
                     }
                 }
@@ -246,18 +246,18 @@ struct BibleHomeCard: View {
         GlassCard {
             VStack(alignment: .leading, spacing: 10) {
                 HStack {
-                    T("BIBLE").font(.system(size: 11, weight: .semibold)).tracking(1.4).foregroundStyle(HS.peach)
+                    T("BIBLE").font(.hs(11, .semibold)).tracking(1.4).foregroundStyle(HS.peach)
                     Spacer()
-                    Text(verbatim: bible.translationId).font(.caption2.weight(.semibold)).foregroundStyle(HS.textMuted)
+                    D(bible.translationId).font(.hs(11, .semibold)).foregroundStyle(HS.textMuted)
                 }
                 NavigationLink { BibleReaderView() } label: {
                     HStack {
                         VStack(alignment: .leading, spacing: 2) {
-                            T("Continue reading").font(.caption).foregroundStyle(HS.textMuted)
-                            T("\(bible.lastBook) \(bible.lastCh)").font(.system(size: 20, weight: .semibold, design: .serif)).foregroundStyle(HS.text)
+                            T("Continue reading").font(.hs(12)).foregroundStyle(HS.textMuted)
+                            T("\(bible.lastBook) \(bible.lastCh)").font(.hs(20, .semibold)).foregroundStyle(HS.text)
                         }
                         Spacer()
-                        Image(systemName: "book.fill").font(.title2).foregroundStyle(HS.faith)
+                        Image(systemName: "book.fill").font(.hs(22)).foregroundStyle(HS.faith)
                     }
                 }
                 HStack(spacing: 8) {
@@ -271,7 +271,7 @@ struct BibleHomeCard: View {
     }
 
     private func smallLink(_ s: String) -> some View {
-        Text(verbatim: s.hasPrefix("🖍") ? "🖍 " + tr("Highlights") : s).font(.caption.weight(.semibold)).foregroundStyle(HS.text).lineLimit(1)
+        D(s.hasPrefix("🖍") ? "🖍 " + tr("Highlights") : s).font(.hs(12, .semibold)).foregroundStyle(HS.text).lineLimit(1)
             .padding(.horizontal, 10).padding(.vertical, 7).background(Capsule().fill(Color.white.opacity(0.08)))
     }
 }

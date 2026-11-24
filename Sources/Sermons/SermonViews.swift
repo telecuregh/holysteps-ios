@@ -33,7 +33,7 @@ struct SermonCard: View {
         GlassCard {
             VStack(alignment: .leading, spacing: 10) {
                 HStack {
-                    T("THIS WEEK'S SERMON").font(.system(size: 11, weight: .semibold)).tracking(1.4).foregroundStyle(HS.peach)
+                    T("THIS WEEK'S SERMON").font(.hs(11, .semibold)).tracking(1.4).foregroundStyle(HS.peach)
                     Spacer()
                     Button { settings = true } label: { Image(systemName: "gearshape").foregroundStyle(HS.textMuted) }
                         .accessibilityLabel(tr("Sermon day"))
@@ -42,21 +42,21 @@ struct SermonCard: View {
                     Button { open = s } label: {
                         HStack(alignment: .center, spacing: 12) {
                             VStack(alignment: .leading, spacing: 3) {
-                                T(s.title).font(.system(size: 20, weight: .semibold, design: .serif)).foregroundStyle(HS.text)
+                                T(s.title).font(.hs(20, .semibold)).foregroundStyle(HS.text)
                                     .multilineTextAlignment(.leading)
-                                T(s.subtitle).font(.caption).foregroundStyle(HS.textMuted).multilineTextAlignment(.leading)
-                                Text(verbatim: s.minutesLabel + (week.heard.contains(s.id) ? " · ✓ " + tr("Heard") : ""))
-                                    .font(.caption2).foregroundStyle(HS.textMuted)
+                                T(s.subtitle).font(.hs(12)).foregroundStyle(HS.textMuted).multilineTextAlignment(.leading)
+                                D(s.minutesLabel + (week.heard.contains(s.id) ? " · ✓ " + tr("Heard") : ""))
+                                    .font(.hs(11)).foregroundStyle(HS.textMuted)
                             }
                             Spacer()
                             Image(systemName: player.sermon == s && player.playing ? "waveform.circle.fill" : "play.circle.fill")
-                                .font(.system(size: 40)).foregroundStyle(HS.goldButton)
+                                .font(.hs(40)).foregroundStyle(HS.goldButton)
                         }
                     }
                     .accessibilityHint(tr("Listen now"))
                     let n = week.daysUntilNext
                     T(n == 0 ? "A new sermon every \(SermonWeekLogic.dayName(week.day))" : (n == 1 ? "New sermon tomorrow" : "New sermon in \(n) days"))
-                        .font(.caption2).foregroundStyle(HS.textMuted)
+                        .font(.hs(11)).foregroundStyle(HS.textMuted)
                 }
                 HStack(spacing: 8) {
                     NavigationLink { SermonTopicsView() } label: { pill("💬", tr("What you're facing")) }
@@ -67,7 +67,7 @@ struct SermonCard: View {
                     Button { open = s } label: {
                         HStack {
                             Image(systemName: player.playing ? "speaker.wave.2.fill" : "pause.fill").foregroundStyle(HS.goldButton)
-                            T("Now playing: \(tr(s.title))").font(.caption).foregroundStyle(HS.text).lineLimit(1)
+                            T("Now playing: \(tr(s.title))").font(.hs(12)).foregroundStyle(HS.text).lineLimit(1)
                             Spacer()
                         }
                     }
@@ -89,8 +89,8 @@ struct SermonCard: View {
 
     private func pill(_ icon: String, _ s: String) -> some View {
         VStack(spacing: 3) {
-            Text(verbatim: icon).font(.body)
-            Text(verbatim: s).font(.caption2.weight(.semibold)).foregroundStyle(HS.text).lineLimit(2).multilineTextAlignment(.center)
+            D(icon).font(.hs(16))
+            D(s).font(.hs(11, .semibold)).foregroundStyle(HS.text).lineLimit(2).multilineTextAlignment(.center)
         }
         .frame(maxWidth: .infinity, minHeight: 56)
         .padding(.horizontal, 4).padding(.vertical, 6)
@@ -106,7 +106,7 @@ struct SermonSettingsView: View {
             Form {
                 Section {
                     Picker(tr("Sermon day"), selection: $week.day) {
-                        ForEach(1...7, id: \.self) { d in Text(verbatim: tr(SermonWeekLogic.dayName(d))).tag(d) }
+                        ForEach(1...7, id: \.self) { d in D(tr(SermonWeekLogic.dayName(d))).tag(d) }
                     }
                     Toggle(tr("Remind me on my sermon day"), isOn: $week.remind).tint(HS.goldButton)
                 } footer: {
@@ -135,17 +135,17 @@ struct SermonPlayerView: View {
             Color.black.opacity(0.25).ignoresSafeArea()
             VStack(spacing: 0) {
                 HStack {
-                    Button { dismiss() } label: { Image(systemName: "chevron.down").font(.title3).foregroundStyle(.white).padding(10) }
+                    Button { dismiss() } label: { Image(systemName: "chevron.down").font(.hs(20)).foregroundStyle(.white).padding(10) }
                         .accessibilityLabel(tr("Close"))
                     Spacer()
                     if isThis {
-                        Button { player.stop(); dismiss() } label: { T("Stop").font(.subheadline).foregroundStyle(.white.opacity(0.8)).padding(10) }
+                        Button { player.stop(); dismiss() } label: { T("Stop").font(.hs(14)).foregroundStyle(.white.opacity(0.8)).padding(10) }
                     }
                 }
                 .padding(.horizontal, 8)
                 VStack(spacing: 4) {
-                    T(sermon.title).font(.system(size: 26, weight: .semibold, design: .serif)).foregroundStyle(.white).multilineTextAlignment(.center)
-                    T(sermon.subtitle).font(.footnote).foregroundStyle(.white.opacity(0.75)).multilineTextAlignment(.center)
+                    T(sermon.title).font(.hs(26, .semibold)).foregroundStyle(.white).multilineTextAlignment(.center)
+                    T(sermon.subtitle).font(.hs(13)).foregroundStyle(.white.opacity(0.75)).multilineTextAlignment(.center)
                 }
                 .padding(.horizontal, 24).padding(.bottom, 12)
                 transcript
@@ -165,8 +165,8 @@ struct SermonPlayerView: View {
                         if !c.isEmpty {
                             let now = isThis && i == player.index
                             Button { player.jump(to: i) } label: {
-                                Text(verbatim: c)
-                                    .font(.system(size: now ? 20 : 17, weight: now ? .semibold : .regular, design: .serif))
+                                D(c)
+                                    .font(.hs(now ? 20 : 17, now ? .semibold : .regular))
                                     .foregroundStyle(.white.opacity(now ? 1 : 0.55))
                                     .multilineTextAlignment(.leading)
                                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -188,24 +188,24 @@ struct SermonPlayerView: View {
         VStack(spacing: 10) {
             ProgressView(value: isThis ? player.progress : 0).tint(HS.goldButton)
             HStack(spacing: 40) {
-                Button { player.skip(-1) } label: { Image(systemName: "backward.end.fill").font(.title2) }
+                Button { player.skip(-1) } label: { Image(systemName: "backward.end.fill").font(.hs(22)) }
                     .accessibilityLabel(tr("Previous paragraph"))
                 Button { isThis ? player.toggle() : player.play(sermon) } label: {
                     if isThis && player.loading { ProgressView().frame(width: 64, height: 64) }
                     else {
-                        Image(systemName: isThis && player.playing ? "pause.circle.fill" : "play.circle.fill").font(.system(size: 64))
+                        Image(systemName: isThis && player.playing ? "pause.circle.fill" : "play.circle.fill").font(.hs(64))
                     }
                 }
                 .accessibilityLabel(tr(isThis && player.playing ? "Pause" : "Play"))
-                Button { player.skip(1) } label: { Image(systemName: "forward.end.fill").font(.title2) }
+                Button { player.skip(1) } label: { Image(systemName: "forward.end.fill").font(.hs(22)) }
                     .accessibilityLabel(tr("Next paragraph"))
             }
             .foregroundStyle(.white)
             HStack {
-                Text(verbatim: sermon.minutesLabel).font(.caption2)
+                D(sermon.minutesLabel).font(.hs(11))
                 Spacer()
-                if isThis && !player.reader.isEmpty { Text(verbatim: "🎙 " + player.reader).font(.caption2) }
-                if isThis && player.finished { T("✓ Finished").font(.caption2) }
+                if isThis && !player.reader.isEmpty { D("🎙 " + player.reader).font(.hs(11)) }
+                if isThis && player.finished { T("✓ Finished").font(.hs(11)) }
             }
             .foregroundStyle(.white.opacity(0.7))
         }
@@ -264,10 +264,10 @@ struct CrisisCard: View {
     var body: some View {
         GlassCard {
             VStack(alignment: .leading, spacing: 8) {
-                T("Thinking about ending your life?").font(.subheadline.weight(.semibold)).foregroundStyle(HS.text)
+                T("Thinking about ending your life?").font(.hs(14, .semibold)).foregroundStyle(HS.text)
                 T(CrisisLine.has988 ? "Call or text 988 now. It's free, open all day and night, and you can talk to someone right away."
                   : "Call your local emergency number now, or find a free crisis line in your country.")
-                    .font(.footnote).foregroundStyle(HS.textSecondary)
+                    .font(.hs(13)).foregroundStyle(HS.textSecondary)
                 HStack(spacing: 10) {
                     if CrisisLine.has988 {
                         Link(destination: URL(string: "tel:988")!) { linkLabel("Call 988", filled: true) }
@@ -281,7 +281,7 @@ struct CrisisCard: View {
     }
 
     private func linkLabel(_ s: String, filled: Bool) -> some View {
-        T(s).font(.subheadline.weight(.semibold)).foregroundStyle(filled ? HS.onGold : HS.text)
+        T(s).font(.hs(14, .semibold)).foregroundStyle(filled ? HS.onGold : HS.text)
             .padding(.horizontal, 14).padding(.vertical, 9)
             .background(RoundedRectangle(cornerRadius: 12).fill(filled ? HS.goldButton : Color.clear))
             .overlay(RoundedRectangle(cornerRadius: 12).stroke(HS.gold.opacity(filled ? 0 : 0.5), lineWidth: 1))
@@ -307,27 +307,27 @@ struct SermonTopicsView: View {
                 VStack(alignment: .leading, spacing: 12) {
                     GlassCard {
                         VStack(alignment: .leading, spacing: 6) {
-                            T("SERMONS FOR WHAT YOU'RE FACING").font(.system(size: 11, weight: .semibold)).tracking(1.4).foregroundStyle(HS.peach)
-                            T("What are you going through?").font(.system(size: 24, weight: .light)).foregroundStyle(HS.text)
+                            T("SERMONS FOR WHAT YOU'RE FACING").font(.hs(11, .semibold)).tracking(1.4).foregroundStyle(HS.peach)
+                            T("What are you going through?").font(.hs(24, .light)).foregroundStyle(HS.text)
                             ItalicAccent(text: "you're not the only one", size: 18)
                             T("Pick what's on your heart and listen to a sermon about it, with what the Bible says and how real people got through it.")
-                                .font(.footnote).foregroundStyle(HS.textSecondary)
+                                .font(.hs(13)).foregroundStyle(HS.textSecondary)
                         }
                     }
                     CrisisCard()
                     ForEach(topicGroups, id: \.self) { g in
-                        T(g.uppercased()).font(.system(size: 11, weight: .semibold)).tracking(1.4).foregroundStyle(HS.peach).padding(.top, 10).padding(.leading, 4)
+                        T(g.uppercased()).font(.hs(11, .semibold)).tracking(1.4).foregroundStyle(HS.peach).padding(.top, 10).padding(.leading, 4)
                             .accessibilityAddTraits(.isHeader)
                         ForEach(topics.filter { $0.group == g }) { t in
                             Button { chosen = t } label: { row(t.name, t.feels) }
                         }
                     }
-                    T("More for hard seasons").font(.headline).foregroundStyle(HS.text).padding(.top, 14)
+                    T("More for hard seasons").font(.hs(16, .semibold)).foregroundStyle(HS.text).padding(.top, 14)
                     ForEach(SermonLibrary.seasons) { s in
                         Button { open = s } label: { row(s.title, s.subtitle) }
                     }
                     T("Sermons can bring comfort and hope, but they don't replace care from a doctor or counselor. If what you're feeling lasts more than two weeks or gets in the way of daily life, please talk to one.")
-                        .font(.caption).foregroundStyle(HS.textMuted).padding(.vertical, 12)
+                        .font(.hs(12)).foregroundStyle(HS.textMuted).padding(.vertical, 12)
                 }
                 .padding(20)
             }
@@ -341,9 +341,9 @@ struct SermonTopicsView: View {
                 message += "\n\n" + tr(CrisisLine.has988 ? "If you're thinking about ending your life, please call or text 988 first."
                                         : "If you're thinking about ending your life, please call your local emergency number first.")
             }
-            return Alert(title: Text(verbatim: tr(s?.title ?? t.name)), message: Text(verbatim: message),
-                         primaryButton: .default(Text(verbatim: tr("Listen now"))) { open = s },
-                         secondaryButton: .cancel(Text(verbatim: tr("Choose another"))))
+            return Alert(title: D(tr(s?.title ?? t.name)), message: D(message),
+                         primaryButton: .default(D(tr("Listen now"))) { open = s },
+                         secondaryButton: .cancel(D(tr("Choose another"))))
         }
         .fullScreenCover(item: $open) { s in SermonPlayerView(sermon: s) }
     }
@@ -351,8 +351,8 @@ struct SermonTopicsView: View {
     private func row(_ title: String, _ sub: String) -> some View {
         HStack {
             VStack(alignment: .leading, spacing: 2) {
-                T(title).font(.headline).foregroundStyle(HS.text).multilineTextAlignment(.leading)
-                T(sub).font(.footnote).foregroundStyle(HS.textMuted).multilineTextAlignment(.leading)
+                T(title).font(.hs(16, .semibold)).foregroundStyle(HS.text).multilineTextAlignment(.leading)
+                T(sub).font(.hs(13)).foregroundStyle(HS.textMuted).multilineTextAlignment(.leading)
             }
             Spacer()
             Image(systemName: "chevron.right").foregroundStyle(HS.gold)
@@ -374,22 +374,22 @@ struct BibleSermonsView: View {
             HSBackground()
             List {
                 T("One sermon through each book of the Bible, Genesis to Revelation. A new book comes out each week on your sermon day.")
-                    .font(.footnote).foregroundStyle(HS.textSecondary).listRowBackground(Color.clear)
+                    .font(.hs(13)).foregroundStyle(HS.textSecondary).listRowBackground(Color.clear)
                 ForEach(Array(SermonLibrary.books.enumerated()), id: \.element.id) { i, s in
                     let out = i < released
                     Button { if out { open = s } } label: {
                         HStack {
                             VStack(alignment: .leading, spacing: 2) {
                                 HStack(spacing: 6) {
-                                    T(s.title).font(.headline).foregroundStyle(out ? HS.text : HS.textMuted)
-                                    if i == released - 1 { T("New").font(.caption2.bold()).foregroundStyle(HS.onGold)
+                                    T(s.title).font(.hs(16, .semibold)).foregroundStyle(out ? HS.text : HS.textMuted)
+                                    if i == released - 1 { T("New").font(.hs(11, .bold)).foregroundStyle(HS.onGold)
                                         .padding(.horizontal, 6).padding(.vertical, 2).background(Capsule().fill(HS.goldButton)) }
                                 }
-                                T(s.subtitle).font(.caption).foregroundStyle(HS.textMuted)
+                                T(s.subtitle).font(.hs(12)).foregroundStyle(HS.textMuted)
                             }
                             Spacer()
                             if out { Image(systemName: week.heard.contains(s.id) ? "checkmark.circle.fill" : "play.circle").foregroundStyle(HS.goldButton) }
-                            else { T(i == released ? "Next week" : "Coming").font(.caption2).foregroundStyle(HS.textMuted) }
+                            else { T(i == released ? "Next week" : "Coming").font(.hs(11)).foregroundStyle(HS.textMuted) }
                         }
                     }
                     .disabled(!out)
@@ -418,11 +418,11 @@ struct SermonLibraryView: View {
                 Button { open = s } label: {
                     HStack {
                         VStack(alignment: .leading, spacing: 2) {
-                            T(s.title).font(.headline).foregroundStyle(HS.text)
-                            T(s.subtitle).font(.caption).foregroundStyle(HS.textMuted)
+                            T(s.title).font(.hs(16, .semibold)).foregroundStyle(HS.text)
+                            T(s.subtitle).font(.hs(12)).foregroundStyle(HS.textMuted)
                         }
                         Spacer()
-                        Text(verbatim: s.minutesLabel).font(.caption2).foregroundStyle(HS.textMuted)
+                        D(s.minutesLabel).font(.hs(11)).foregroundStyle(HS.textMuted)
                         if week.heard.contains(s.id) { Image(systemName: "checkmark.circle.fill").foregroundStyle(HS.body) }
                     }
                 }
@@ -431,7 +431,7 @@ struct SermonLibraryView: View {
             .scrollContentBackground(.hidden)
         }
         .navigationTitle(tr("All sermons"))
-        .searchable(text: $query, prompt: Text(verbatim: tr("Search sermons")))
+        .searchable(text: $query, prompt: D(tr("Search sermons")))
         .fullScreenCover(item: $open) { s in SermonPlayerView(sermon: s) }
     }
 }
@@ -473,5 +473,87 @@ enum SermonReminder {
             }
             date = cal.date(byAdding: .day, value: 1, to: date) ?? date
         }
+    }
+}
+
+/// Android's WeeklySermonCard (FaithScreen.kt): this week's sermon, when the next comes, and the sermon-day picker.
+struct WeeklySermonCard: View {
+    var more = false
+    @ObservedObject private var week = SermonWeek.shared
+    @State private var open: Sermon?
+    @State private var picking = false
+
+    var body: some View {
+        let today = SermonWeekLogic.today()
+        let isDay = SermonWeekLogic.isSermonDay(today, week.day)
+        let dayName = tr(SermonWeekLogic.dayName(week.day))
+        let next = SermonWeekLogic.daysUntil(today, week.day)
+        VStack(alignment: .leading, spacing: 0) {
+            SectionHeader(title: isDay ? "New sermon today" : "This week's sermon")
+            GlassCard {
+                VStack(alignment: .leading, spacing: 0) {
+                    if let s = week.current() {
+                        Button { open = s } label: {
+                            HStack(alignment: .center, spacing: 12) {
+                                VStack(alignment: .leading, spacing: 0) {
+                                    T(s.title).font(.hs(17, .semibold)).foregroundStyle(HS.text).multilineTextAlignment(.leading)
+                                    Spacer().frame(height: 4)
+                                    T(s.subtitle).font(.hs(13)).lineSpacing(5).foregroundStyle(HS.textMuted).multilineTextAlignment(.leading)
+                                    Spacer().frame(height: 6)
+                                    D(tr("Listen") + " · " + s.minutesLabel).font(.hs(13, .semibold)).foregroundStyle(HS.peach)
+                                }
+                                Spacer(minLength: 0)
+                                GoldPlayBadge(size: 38)
+                            }
+                            .contentShape(Rectangle())
+                        }
+                        .buttonStyle(.plain)
+                    }
+                    Spacer().frame(height: 8)
+                    D(I18n.shared.spanish
+                      ? (isDay ? "Un sermón nuevo cada \(dayName)" : "Un sermón nuevo cada \(dayName) · el próximo en \(next) \(next == 1 ? "día" : "días")")
+                      : (isDay ? "A new sermon every \(dayName)" : "A new sermon every \(dayName) · next in \(next) \(next == 1 ? "day" : "days")"))
+                        .font(.hs(12)).foregroundStyle(HS.textSubtle)
+                    Button { picking.toggle() } label: {
+                        T(picking ? "Done" : "Change sermon day").font(.hs(13)).foregroundStyle(HS.peach).frame(minHeight: 44)
+                    }
+                    if picking {
+                        T("Which day do you want your sermon?").font(.hs(13)).foregroundStyle(HS.textMuted)
+                        Spacer().frame(height: 6)
+                        let short = I18n.shared.spanish ? ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"] : ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+                        HStack(spacing: 4) {
+                            ForEach(1...7, id: \.self) { d in
+                                let on = d == week.day
+                                Button { week.day = d } label: {
+                                    D(short[d - 1]).font(.hs(12, on ? .bold : .regular)).foregroundStyle(on ? HS.onGold : HS.text)
+                                        .frame(maxWidth: .infinity, minHeight: 44)
+                                        .background(RoundedRectangle(cornerRadius: 12).fill(on ? HS.goldButton : Color.white.opacity(0.08)))
+                                }
+                                .buttonStyle(.plain)
+                                .accessibilityLabel(tr(SermonWeekLogic.dayName(d)))
+                            }
+                        }
+                        Spacer().frame(height: 8)
+                        Toggle(isOn: $week.remind) {
+                            D(I18n.shared.spanish ? "Recordármelo el \(dayName) por la mañana" : "Remind me on \(dayName) morning")
+                                .font(.hs(14)).foregroundStyle(HS.text)
+                        }
+                        .tint(HS.goldButton)
+                        .frame(minHeight: 44)
+                    }
+                }
+            }
+            .padding(.horizontal, 20)
+        }
+        .fullScreenCover(item: $open) { s in SermonPlayerView(sermon: s) }
+        .task {
+            if !UserDefaults.standard.bool(forKey: "sermonAskedNotify") {
+                UserDefaults.standard.set(true, forKey: "sermonAskedNotify")
+                if week.remind { SermonReminder.requestPermission() }
+            } else {
+                SermonReminder.schedule()
+            }
+        }
+        .onChange(of: week.remind) { _, on in if on { SermonReminder.requestPermission() } }
     }
 }

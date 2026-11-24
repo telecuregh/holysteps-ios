@@ -126,18 +126,18 @@ struct QuizCard: View {
         NavigationLink { BibleQuizView() } label: {
             GlassCard {
                 HStack(spacing: 12) {
-                    Text(verbatim: "🧠").font(.title)
+                    D("🧠").font(.hs(26))
                     VStack(alignment: .leading, spacing: 2) {
-                        T("Daily Bible quiz").font(.headline).foregroundStyle(HS.text)
+                        T("Daily Bible quiz").font(.hs(16, .semibold)).foregroundStyle(HS.text)
                         if let p = played {
-                            Text(verbatim: tr("Today: \(p) of \(BibleQuiz.perDay)") + (quiz.streak > 1 ? " · 🔥 " + tr("\(quiz.streak) days") : "") + " · " + tr("new one tomorrow"))
-                                .font(.caption).foregroundStyle(HS.textMuted)
+                            D(tr("Today: \(p) of \(BibleQuiz.perDay)") + (quiz.streak > 1 ? " · 🔥 " + tr("\(quiz.streak) days") : "") + " · " + tr("new one tomorrow"))
+                                .font(.hs(12)).foregroundStyle(HS.textMuted)
                         } else {
-                            T("3 questions · 30 seconds").font(.caption).foregroundStyle(HS.textMuted)
+                            T("3 questions · 30 seconds").font(.hs(12)).foregroundStyle(HS.textMuted)
                         }
                     }
                     Spacer()
-                    T(played != nil ? "✓" : "Play →").font(.footnote.bold()).foregroundStyle(played != nil ? HS.body : HS.peach)
+                    T(played != nil ? "✓" : "Play →").font(.hs(13, .bold)).foregroundStyle(played != nil ? HS.body : HS.peach)
                 }
             }
         }
@@ -164,8 +164,8 @@ struct BibleQuizView: View {
             HSBackground()
             ScrollView {
                 VStack(alignment: .leading, spacing: 12) {
-                    T("Daily Bible quiz").font(.system(size: 26, weight: .semibold)).foregroundStyle(HS.text)
-                    T("Three questions, about 30 seconds. Everyone gets the same three today.").font(.footnote).foregroundStyle(HS.textMuted)
+                    T("Daily Bible quiz").font(.hs(26, .semibold)).foregroundStyle(HS.text)
+                    T("Three questions, about 30 seconds. Everyone gets the same three today.").font(.hs(13)).foregroundStyle(HS.textMuted)
                     if !finished, index < questions.count {
                         question(questions[index])
                     } else {
@@ -181,8 +181,8 @@ struct BibleQuizView: View {
     @ViewBuilder
     private func question(_ q: QuizQuestion) -> some View {
         ProgressView(value: Double(index), total: Double(questions.count)).tint(HS.goldButton)
-        T("Question \(index + 1) of \(questions.count)").font(.caption.bold()).foregroundStyle(HS.gold)
-        T(q.q).font(.title3.weight(.semibold)).foregroundStyle(HS.text)
+        T("Question \(index + 1) of \(questions.count)").font(.hs(12, .bold)).foregroundStyle(HS.gold)
+        T(q.q).font(.hs(20, .semibold)).foregroundStyle(HS.text)
         ForEach(BibleQuiz.options(q, dateKey: dateKey), id: \.self) { opt in
             let show = picked != nil
             let isRight = opt == q.a
@@ -201,8 +201,8 @@ struct BibleQuizView: View {
             .disabled(show)
         }
         if let p = picked {
-            Text(verbatim: p == q.a ? tr("Correct!") + " · " + tr(q.r) : tr("The answer is") + " " + tr(q.a) + " · " + tr(q.r))
-                .font(.footnote.weight(.semibold)).foregroundStyle(p == q.a ? right : HS.textMuted)
+            D(p == q.a ? tr("Correct!") + " · " + tr(q.r) : tr("The answer is") + " " + tr(q.a) + " · " + tr(q.r))
+                .font(.hs(13, .semibold)).foregroundStyle(p == q.a ? right : HS.textMuted)
             GoldButton(title: index + 1 >= questions.count ? "See my score" : "Next question") {
                 picked = nil
                 index += 1
@@ -220,19 +220,47 @@ struct BibleQuizView: View {
                      : "I got \(score) out of 3 on today's HolySteps Bible quiz. Can you beat me?") + " " + tr("Same three questions for everyone today:") + " " + AppLinks.site
         return GlassCard {
             VStack(spacing: 8) {
-                Text(verbatim: perfect ? "🏆" : (score > 0 ? "📖" : "🌱")).font(.system(size: 44))
-                Text(verbatim: tr("\(score) of \(BibleQuiz.perDay)")).font(.system(size: 30, weight: .heavy)).foregroundStyle(HS.text)
+                D(perfect ? "🏆" : (score > 0 ? "📖" : "🌱")).font(.hs(44))
+                D(tr("\(score) of \(BibleQuiz.perDay)")).font(.hs(30, .heavy)).foregroundStyle(HS.text)
                 T(perfect ? "Perfect!" : (score > 0 ? "Well done." : "Every question is a chance to learn. Try again tomorrow."))
-                    .font(.subheadline.weight(.semibold)).foregroundStyle(HS.gold).multilineTextAlignment(.center)
-                if seconds > 0 && seconds <= 600 { Text(verbatim: "\(seconds)s").font(.caption).foregroundStyle(HS.textMuted) }
-                if quiz.streak > 1 { T("🔥 \(quiz.streak) days in a row").font(.footnote).foregroundStyle(HS.textMuted) }
+                    .font(.hs(14, .semibold)).foregroundStyle(HS.gold).multilineTextAlignment(.center)
+                if seconds > 0 && seconds <= 600 { D("\(seconds)s").font(.hs(12)).foregroundStyle(HS.textMuted) }
+                if quiz.streak > 1 { T("🔥 \(quiz.streak) days in a row").font(.hs(13)).foregroundStyle(HS.textMuted) }
                 ShareLink(item: tr(share)) {
-                    T(perfect ? "Share my perfect score" : "Challenge a friend").font(.headline).foregroundStyle(HS.onGold)
+                    T(perfect ? "Share my perfect score" : "Challenge a friend").font(.hs(16, .semibold)).foregroundStyle(HS.onGold)
                         .frame(maxWidth: .infinity).padding(.vertical, 13).background(RoundedRectangle(cornerRadius: 14).fill(HS.goldButton))
                 }
-                T("A new quiz opens tomorrow.").font(.caption2).foregroundStyle(HS.textMuted)
+                T("A new quiz opens tomorrow.").font(.hs(11)).foregroundStyle(HS.textMuted)
             }
             .frame(maxWidth: .infinity)
         }
+    }
+}
+
+/// Android's BibleQuizCard on Faith → Today.
+struct QuizRow: View {
+    @ObservedObject private var quiz = QuizLog.shared
+
+    var body: some View {
+        let played = quiz.log[AppStore.dayKey()]
+        let streak = quiz.streak
+        NavigationLink { BibleQuizView() } label: {
+            GlassCard {
+                HStack(spacing: 12) {
+                    Image(systemName: "figure.mind.and.body").font(.system(size: 24)).foregroundStyle(HS.textSecondary)
+                    VStack(alignment: .leading, spacing: 2) {
+                        T("Daily Bible quiz").font(.hs(16, .bold)).foregroundStyle(HS.text)
+                        D(played != nil
+                          ? tr("Today: \(played!) of \(BibleQuiz.perDay)") + (streak > 1 ? " · " + tr("\(streak) days") : "") + " · " + tr("new one tomorrow")
+                          : tr("3 questions · 30 seconds"))
+                            .font(.hs(12)).foregroundStyle(HS.textMuted).multilineTextAlignment(.leading)
+                    }
+                    Spacer(minLength: 0)
+                    T(played != nil ? "✓" : "Play →").font(.hs(13, .bold)).foregroundStyle(played != nil ? HS.body : HS.peach)
+                }
+            }
+        }
+        .buttonStyle(.plain)
+        .padding(.horizontal, 20)
     }
 }

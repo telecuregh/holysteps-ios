@@ -64,8 +64,8 @@ struct FitnessView: View {
                                         .stroke(HS.body, style: StrokeStyle(lineWidth: 14, lineCap: .round))
                                         .rotationEffect(.degrees(-90))
                                     VStack {
-                                        T("\(model.today)").font(.system(size: 34, weight: .semibold)).foregroundStyle(HS.text)
-                                        T("of \(goal) steps").font(.footnote).foregroundStyle(HS.textMuted)
+                                        T("\(model.today)").font(.hs(34, .semibold)).foregroundStyle(HS.text)
+                                        T("of \(goal) steps").font(.hs(13)).foregroundStyle(HS.textMuted)
                                     }
                                 }
                                 .frame(width: 170, height: 170)
@@ -77,13 +77,13 @@ struct FitnessView: View {
                         if !model.week.isEmpty {
                             GlassCard {
                                 VStack(alignment: .leading, spacing: 8) {
-                                    T("Last 7 days").font(.subheadline).foregroundStyle(HS.textMuted)
+                                    T("Last 7 days").font(.hs(14)).foregroundStyle(HS.textMuted)
                                     HStack(alignment: .bottom, spacing: 10) {
                                         ForEach(Array(model.week.enumerated()), id: \.offset) { _, r in
                                             VStack(spacing: 4) {
                                                 RoundedRectangle(cornerRadius: 5).fill(HS.body)
                                                     .frame(height: max(4, 90 * CGFloat(min(1, Double(r.steps) / Double(max(goal, 1))))))
-                                                Text(r.day).font(.caption2).foregroundStyle(HS.textMuted)
+                                                Text(r.day).font(.hs(11)).foregroundStyle(HS.textMuted)
                                             }
                                             .frame(maxWidth: .infinity)
                                         }
@@ -95,7 +95,7 @@ struct FitnessView: View {
                         if model.available && !model.asked {
                             GoldButton(title: "Connect Apple Health") { Task { await model.request() } }
                         } else if !model.available {
-                            T("Apple Health isn't available on this device.").font(.footnote).foregroundStyle(HS.textMuted)
+                            T("Apple Health isn't available on this device.").font(.hs(13)).foregroundStyle(HS.textMuted)
                         }
                     }
                     .padding(20)

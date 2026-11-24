@@ -1,7 +1,7 @@
 import XCTest
 
-/// Runs the app on the simulator, walks through the Bible reader in English and Spanish, and saves screenshots so
-/// each build can be checked by eye (CI uploads them).
+/// Runs the app on the simulator, walks through the main screens in English and Spanish, and saves screenshots so
+/// each build can be checked by eye against Android (CI uploads them).
 final class SmokeUITests: XCTestCase {
     override func setUp() { continueAfterFailure = false }
 
@@ -28,19 +28,24 @@ final class SmokeUITests: XCTestCase {
         app.buttons.matching(NSPredicate(format: "label CONTAINS %@", s)).firstMatch
     }
 
+    private func tab(_ app: XCUIApplication, _ label: String) -> XCUIElement { app.buttons[label].firstMatch }
+
+    private func dump(_ app: XCUIApplication, _ ok: Bool) { if !ok { print("UI TREE:\n" + app.debugDescription) } }
+
     func testEnglishBible() {
         let app = launch(["-hs_lang", "en", "-bibleTranslation", "KJV", "-bibleLastBook", "John", "-bibleLastCh", "1"])
-        XCTAssertTrue(app.tabBars.buttons["Home"].waitForExistence(timeout: 20))
+        XCTAssertTrue(tab(app, "Home").waitForExistence(timeout: 20))
         shot(app, "01-home")
-        app.tabBars.buttons["Faith"].tap()
+        tab(app, "Faith").tap()
         shot(app, "02-faith")
-        button(app, containing: "Continue reading").tap()
+        tab(app, "Bible").tap()
+        shot(app, "02c-faith-bible-tab")
+        button(app, containing: "Read the Bible").tap()
         let verse = app.buttons["verse-1"]
         let found = verse.waitForExistence(timeout: 90)
-        shot(app, "03a-after-open")
-        if !found { print("UI TREE:\n" + app.debugDescription) }
-        XCTAssertTrue(found, "KJV should download and open John 1")
         shot(app, "03-reader-john1")
+        dump(app, found)
+        XCTAssertTrue(found, "KJV should download and open John 1")
         verse.tap()
         XCTAssertTrue(app.buttons["Gold highlight"].waitForExistence(timeout: 5))
         app.buttons["Gold highlight"].tap()
@@ -58,10 +63,6 @@ final class SmokeUITests: XCTestCase {
         sleep(3)
         shot(app, "06-search")
         app.navigationBars.buttons["Close"].tap()
-        app.buttons["Text size and style"].tap()
-        sleep(1)
-        shot(app, "07-text-settings")
-        app.navigationBars.buttons["Done"].tap()
         app.buttons["Places on this chapter's map"].tap()
         sleep(3)
         shot(app, "08-map")
@@ -71,36 +72,36 @@ final class SmokeUITests: XCTestCase {
         shot(app, "09-listening")
     }
 
-    func testSermon() {
-        let app = launch(["-hs_lang", "en", "-sermonAskedNotify", "YES"])
-        XCTAssertTrue(app.tabBars.buttons["Faith"].waitForExistence(timeout: 20))
-        app.tabBars.buttons["Faith"].tap()
-        shot(app, "20-faith-with-sermon")
-        button(app, containing: "DAILY DEVOTIONAL").tap()
+    func testFaithTabs() {
+        let app = launch(["-hs_lang", "en"])
+        XCTAssertTrue(tab(app, "Faith").waitForExistence(timeout: 20))
+        tab(app, "Faith").tap()
+        app.swipeUp()
+        shot(app, "20b-faith-today-scrolled")
+        app.swipeDown(); app.swipeDown()
+        tab(app, "Bible").tap()
+        button(app, containing: "Devotional Plans").tap()
         sleep(1)
         shot(app, "19-devotional")
         app.navigationBars.buttons.firstMatch.tap()
-        button(app, containing: "What you're facing").tap()
-        sleep(1)
-        shot(app, "21-sermon-topics")
-        app.navigationBars.buttons.firstMatch.tap()
-        app.swipeUp()
-        shot(app, "20b-faith-scrolled")
-        button(app, containing: "CHRISTIAN MUSIC").tap()
+        tab(app, "Listen").tap()
+        shot(app, "25-faith-listen")
+        button(app, containing: "Gospel songs").tap()
         let song = button(app, containing: "Midnight Praise")
         let found = song.waitForExistence(timeout: 10)
-        shot(app, "24a-music")
-        if !found { print("UI TREE:\n" + app.debugDescription) }
+        dump(app, found)
         XCTAssertTrue(found)
-        button(app, containing: "Midnight Praise").tap()
+        song.tap()
         sleep(3)
         shot(app, "24-music-playing")
-        app.buttons["Stop"].tap()
         app.navigationBars.buttons.firstMatch.tap()
-        button(app, containing: "What you're facing").tap()
+        tab(app, "Mind").tap()
+        shot(app, "26-faith-mind")
+        button(app, containing: "Sermons for what you're facing").tap()
+        sleep(1)
+        shot(app, "21-sermon-topics")
         button(app, containing: "Anxiety and worry").tap()
         XCTAssertTrue(app.alerts.firstMatch.waitForExistence(timeout: 5))
-        shot(app, "22-topic-alert")
         app.alerts.buttons["Listen now"].tap()
         sleep(20)   // the preacher's voice pack downloads, then the first paragraphs play
         shot(app, "23-sermon-player")
@@ -109,16 +110,16 @@ final class SmokeUITests: XCTestCase {
 
     func testSpanishBible() {
         let app = launch(["-hs_lang", "es", "-bibleTranslation", "RVES", "-bibleLastBook", "Psalms", "-bibleLastCh", "23"])
-        XCTAssertTrue(app.tabBars.buttons["Inicio"].waitForExistence(timeout: 30))
+        XCTAssertTrue(tab(app, "Inicio").waitForExistence(timeout: 30))
         shot(app, "10-es-home")
-        app.tabBars.buttons["Fe"].tap()
+        tab(app, "Fe").tap()
         shot(app, "11-es-faith")
-        button(app, containing: "Seguir leyendo").tap()
+        tab(app, "Biblia").tap()
+        button(app, containing: "Leer la Biblia").tap()
         let verse = app.buttons.matching(NSPredicate(format: "label CONTAINS 'pastor'")).firstMatch
         let found = verse.waitForExistence(timeout: 90)
-        shot(app, "12a-after-open")
-        if !found { print("UI TREE:\n" + app.debugDescription) }
-        XCTAssertTrue(found, "RVES should download and open Salmos 23")
         shot(app, "12-es-reader-psalm23")
+        dump(app, found)
+        XCTAssertTrue(found, "RVES should download and open Salmos 23")
     }
 }

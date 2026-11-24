@@ -123,12 +123,12 @@ struct BibleReaderView: View {
     private var header: some View {
         HStack(spacing: 2) {
             Button { dismiss() } label: {
-                Image(systemName: "chevron.left").font(.title3).foregroundStyle(HS.textMuted).padding(10)
+                Image(systemName: "chevron.left").font(.hs(20)).foregroundStyle(HS.textMuted).padding(10)
             }
             .accessibilityLabel(tr("Back"))
             Button { sheet = .picker } label: {
-                Text(verbatim: "\(text?.display(book) ?? tr(Bible.englishDisplay(book))) \(ch) ▾")
-                    .font(.system(size: 20, weight: .bold)).foregroundStyle(HS.text).lineLimit(1).minimumScaleFactor(0.7)
+                D("\(text?.display(book) ?? tr(Bible.englishDisplay(book))) \(ch) ▾")
+                    .font(.hs(20, .bold)).foregroundStyle(HS.text).lineLimit(1).minimumScaleFactor(0.7)
             }
             .accessibilityLabel(tr("Choose a book and chapter"))
             Spacer(minLength: 4)
@@ -143,7 +143,7 @@ struct BibleReaderView: View {
 
     private func headerIcon(_ icon: String, _ label: String, _ action: @escaping () -> Void) -> some View {
         Button(action: action) {
-            Image(systemName: icon).font(.system(size: 16, weight: .semibold)).foregroundStyle(HS.faith).frame(width: 34, height: 36)
+            Image(systemName: icon).font(.hs(16, .semibold)).foregroundStyle(HS.faith).frame(width: 34, height: 36)
         }
         .accessibilityLabel(tr(label))
     }
@@ -153,14 +153,14 @@ struct BibleReaderView: View {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 6) {
                     Button { sheet = .language } label: {
-                        Text(verbatim: "🌐 \(current?.language ?? "English") ▾").font(.caption.weight(.semibold)).foregroundStyle(HS.text)
+                        D("🌐 \(current?.language ?? "English") ▾").font(.hs(12, .semibold)).foregroundStyle(HS.text)
                             .padding(.horizontal, 12).padding(.vertical, 6).background(Capsule().fill(Color.white.opacity(0.10)))
                     }
                     .accessibilityLabel(tr("Change Bible language"))
                     ForEach(translations.filter { $0.lang == lang }) { t in
                         let on = t.id == tid
                         Button { bible.translationId = t.id } label: {
-                            Text(verbatim: t.id + (downloaded.contains(t.id) || on ? "" : " ↓")).font(.caption.weight(.semibold))
+                            D(t.id + (downloaded.contains(t.id) || on ? "" : " ↓")).font(.hs(12, .semibold))
                                 .foregroundStyle(on ? HS.onGold : HS.text)
                                 .padding(.horizontal, 12).padding(.vertical, 6)
                                 .background(Capsule().fill(on ? HS.goldButton : Color.white.opacity(0.06)))
@@ -172,11 +172,11 @@ struct BibleReaderView: View {
                 .padding(.horizontal, 16)
             }
             if let c = current {
-                Text(verbatim: c.name + (c.attribution.isEmpty ? "" : " · \(c.attribution)"))
-                    .font(.system(size: 10)).foregroundStyle(HS.textMuted).lineLimit(1).padding(.horizontal, 20)
+                D(c.name + (c.attribution.isEmpty ? "" : " · \(c.attribution)"))
+                    .font(.hs(10)).foregroundStyle(HS.textMuted).lineLimit(1).padding(.horizontal, 20)
             }
             if let note = Bible.psalmNote(tid, book: book) {
-                T(note).font(.system(size: 11)).foregroundStyle(HS.textMuted).padding(.horizontal, 20)
+                T(note).font(.hs(11)).foregroundStyle(HS.textMuted).padding(.horizontal, 20)
             }
         }
         .padding(.vertical, 6)
@@ -189,7 +189,7 @@ struct BibleReaderView: View {
         if let error {
             VStack(spacing: 12) {
                 Spacer()
-                Text(verbatim: error).foregroundStyle(HS.textSecondary).multilineTextAlignment(.center)
+                D(error).foregroundStyle(HS.textSecondary).multilineTextAlignment(.center)
                 Button(tr("Try again")) { retry += 1 }.buttonStyle(.borderedProminent).tint(HS.goldButton).foregroundStyle(HS.onGold)
                 Spacer()
             }
@@ -221,7 +221,7 @@ struct BibleReaderView: View {
             VStack(spacing: 10) {
                 Spacer()
                 ProgressView().tint(HS.faith)
-                T("Opening the \(current?.name ?? "Bible")… (one-time download)").font(.footnote).foregroundStyle(HS.textMuted)
+                T("Opening the \(current?.name ?? "Bible")… (one-time download)").font(.hs(13)).foregroundStyle(HS.textMuted)
                     .multilineTextAlignment(.center)
                 Spacer()
             }
@@ -243,11 +243,11 @@ struct BibleReaderView: View {
         let reading = readingHere && listening.verse == n
         let size = CGFloat(prefs.textSize)
         let design: Font.Design = prefs.font == .serif ? .serif : .default
-        var line = Text(verbatim: "")
+        var line = D("")
         if prefs.verseNumbers {
-            line = Text(verbatim: "\(n) ").font(.system(size: size * 0.65, weight: .bold, design: design)).foregroundColor(HS.faith)
+            line = D("\(n) ").font(.system(size: size * 0.65, weight: .bold, design: design)).foregroundColor(HS.faith)
         }
-        line = line + Text(verbatim: v).font(.system(size: size, design: design)).foregroundColor(prefs.highContrast ? .white : HS.text)
+        line = line + D(v).font(.system(size: size, design: design)).foregroundColor(prefs.highContrast ? .white : HS.text)
         let bg: Color = mark?.isHighlighted == true ? Color(hex: mark!.color.hex).opacity(0.22)
             : (selected == n ? Color.white.opacity(0.08) : .clear)
         return VStack(alignment: .leading, spacing: 2) {
@@ -263,10 +263,10 @@ struct BibleReaderView: View {
             }
             .buttonStyle(.plain)
             .accessibilityIdentifier("verse-\(n)")
-            .accessibilityLabel(Text(verbatim: reading ? tr("Being read aloud") + ": \(n). \(v)" : "\(n). \(v)"))
+            .accessibilityLabel(D(reading ? tr("Being read aloud") + ": \(n). \(v)" : "\(n). \(v)"))
             .accessibilityHint(tr("Verse options"))
             if let note = mark?.note, !note.isEmpty {
-                Text(verbatim: "📝 \(note)").font(.system(size: size * 0.75)).foregroundStyle(HS.textMuted).lineLimit(3)
+                D("📝 \(note)").font(.hs(size * 0.75)).foregroundStyle(HS.textMuted).lineLimit(3)
                     .padding(.leading, 12).padding(.bottom, 4)
                     .onTapGesture { sheet = .note(n) }
             }
@@ -299,7 +299,7 @@ struct BibleReaderView: View {
         let shareText = tr("\"\(verse)\" — \(ref) (\(tid))") + "\n\n" + tr("Shared from HolySteps. Get the app:") + " " + AppLinks.site
         return VStack(alignment: .leading, spacing: 8) {
             HStack {
-                Text(verbatim: "\(ref) · \(tid)").font(.subheadline.weight(.semibold)).foregroundStyle(HS.text)
+                D("\(ref) · \(tid)").font(.hs(14, .semibold)).foregroundStyle(HS.text)
                 Spacer()
                 Button { selected = nil } label: { Image(systemName: "xmark").foregroundStyle(HS.textMuted).padding(6) }
                     .accessibilityLabel(tr("Close verse options"))
@@ -334,7 +334,7 @@ struct BibleReaderView: View {
     }
 
     private func chipLabel(_ s: String) -> some View {
-        T(s).font(.caption.weight(.semibold)).foregroundStyle(HS.text)
+        T(s).font(.hs(12, .semibold)).foregroundStyle(HS.text)
             .padding(.horizontal, 12).padding(.vertical, 8)
             .background(Capsule().fill(Color.white.opacity(0.08)))
     }

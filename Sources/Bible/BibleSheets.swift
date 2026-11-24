@@ -14,7 +14,7 @@ struct HSSheet<Content: View>: View {
                 HS.bgMid.ignoresSafeArea()
                 content()
             }
-            .navigationTitle(Text(verbatim: title))
+            .navigationTitle(D(title))
             .navigationBarTitleDisplayMode(.inline)
             .toolbarBackground(HS.bgMid, for: .navigationBar)
             .toolbar { ToolbarItem(placement: .confirmationAction) { Button(tr(doneLabel)) { dismiss() }.tint(HS.goldButton) } }
@@ -38,7 +38,7 @@ struct BookPicker: View {
                     LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: 5), spacing: 8) {
                         ForEach(1...max(1, t.chapters(b)), id: \.self) { c in
                             Button { onPick(b, c) } label: {
-                                Text(verbatim: "\(c)").font(.body).foregroundStyle(HS.text)
+                                D("\(c)").font(.hs(16)).foregroundStyle(HS.text)
                                     .frame(maxWidth: .infinity, minHeight: 46)
                                     .background(RoundedRectangle(cornerRadius: 10).fill(Color.white.opacity(0.06)))
                             }
@@ -54,7 +54,7 @@ struct BookPicker: View {
                         Button {
                             if t.chapters(name) == 1 { onPick(name, 1) } else { book = name }
                         } label: {
-                            Text(verbatim: t.display(name, single: false))
+                            D(t.display(name, single: false))
                                 .foregroundStyle(name == current ? HS.faith : HS.text)
                                 .fontWeight(name == current ? .bold : .regular)
                         }
@@ -83,15 +83,15 @@ struct LanguagePicker: View {
                     let n = translations.filter { $0.lang == l.code }.count
                     Button { onPick(l.code) } label: {
                         HStack {
-                            Text(verbatim: l.name).foregroundStyle(l.code == current ? HS.faith : HS.text)
+                            D(l.name).foregroundStyle(l.code == current ? HS.faith : HS.text)
                                 .fontWeight(l.code == current ? .bold : .regular)
                             Spacer()
-                            T(n == 1 ? "1 Bible" : "\(n) Bibles").font(.caption).foregroundStyle(HS.textMuted)
+                            T(n == 1 ? "1 Bible" : "\(n) Bibles").font(.hs(12)).foregroundStyle(HS.textMuted)
                         }
                     }
                     .listRowBackground(HS.card.opacity(0.6))
                 }
-                T("Each Bible downloads once (about 1–2 MB) and then works offline.").font(.caption).foregroundStyle(HS.textMuted)
+                T("Each Bible downloads once (about 1–2 MB) and then works offline.").font(.hs(12)).foregroundStyle(HS.textMuted)
                     .listRowBackground(Color.clear)
             }
             .scrollContentBackground(.hidden)
@@ -116,31 +116,31 @@ struct ReaderSettingsView: View {
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(12)
                         .background(RoundedRectangle(cornerRadius: 10).fill(p.highContrast ? Color(hex: 0x050507) : Color.white.opacity(0.05)))
-                    T("Size  \(p.textSize)").font(.subheadline).foregroundStyle(HS.textSecondary)
+                    T("Size  \(p.textSize)").font(.hs(14)).foregroundStyle(HS.textSecondary)
                     Slider(value: Binding(get: { Double(bible.prefs.textSize) }, set: { bible.prefs.textSize = Int($0.rounded()) }),
                            in: Double(ReaderPrefs.sizes.lowerBound)...Double(ReaderPrefs.sizes.upperBound), step: 1)
                         .tint(HS.goldButton)
-                    T("Line spacing").font(.subheadline).foregroundStyle(HS.textSecondary)
+                    T("Line spacing").font(.hs(14)).foregroundStyle(HS.textSecondary)
                     HStack(spacing: 6) {
                         ForEach(ReaderPrefs.lines, id: \.self) { l in
                             choice(String(format: "%g", l), on: l == p.lineSpacing) { bible.prefs.lineSpacing = l }
                         }
                     }
-                    T("Typeface").font(.subheadline).foregroundStyle(HS.textSecondary)
+                    T("Typeface").font(.hs(14)).foregroundStyle(HS.textSecondary)
                     HStack(spacing: 6) {
                         ForEach(ReaderFont.allCases) { f in choice(tr(f.label), on: f == p.font) { bible.prefs.font = f } }
                     }
                     Toggle(isOn: $bible.prefs.highContrast) {
                         VStack(alignment: .leading) {
                             T("High contrast").foregroundStyle(HS.text)
-                            T("White text on a black page").font(.caption).foregroundStyle(HS.textMuted)
+                            T("White text on a black page").font(.hs(12)).foregroundStyle(HS.textMuted)
                         }
                     }
                     .tint(HS.goldButton)
                     Toggle(isOn: $bible.prefs.verseNumbers) {
                         VStack(alignment: .leading) {
                             T("Verse numbers").foregroundStyle(HS.text)
-                            T("Show the small number before each verse").font(.caption).foregroundStyle(HS.textMuted)
+                            T("Show the small number before each verse").font(.hs(12)).foregroundStyle(HS.textMuted)
                         }
                     }
                     .tint(HS.goldButton)
@@ -153,7 +153,7 @@ struct ReaderSettingsView: View {
 
     private func choice(_ label: String, on: Bool, _ action: @escaping () -> Void) -> some View {
         Button(action: action) {
-            Text(verbatim: label).font(.footnote).foregroundStyle(on ? HS.onGold : HS.text)
+            D(label).font(.hs(13)).foregroundStyle(on ? HS.onGold : HS.text)
                 .padding(.horizontal, 12).padding(.vertical, 7)
                 .background(RoundedRectangle(cornerRadius: 10).fill(on ? HS.goldButton : Color.white.opacity(0.06)))
         }
@@ -181,21 +181,21 @@ struct BibleSearchView: View {
                     .onChange(of: query) { _, v in if v.count > 80 { query = String(v.prefix(80)) } }
                 if let ref {
                     Button { onGo(ref.book, ref.ch, ref.v) } label: {
-                        Text(verbatim: tr("Go to") + " \(t.display(ref.book)) \(ref.ch)" + (ref.v.map { ":\($0)" } ?? "") + " →")
-                            .font(.headline).foregroundStyle(HS.faith).padding(.vertical, 10)
+                        D(tr("Go to") + " \(t.display(ref.book)) \(ref.ch)" + (ref.v.map { ":\($0)" } ?? "") + " →")
+                            .font(.hs(16, .semibold)).foregroundStyle(HS.faith).padding(.vertical, 10)
                     }
                 } else if q.count < 2 {
-                    T("Type a reference to jump there, or words to find every verse that has them.").font(.caption).foregroundStyle(HS.textMuted)
+                    T("Type a reference to jump there, or words to find every verse that has them.").font(.hs(12)).foregroundStyle(HS.textMuted)
                 } else if let list = hits {
                     if list.isEmpty {
-                        T("No verses found. Try fewer or different words.").font(.caption).foregroundStyle(HS.textMuted)
+                        T("No verses found. Try fewer or different words.").font(.hs(12)).foregroundStyle(HS.textMuted)
                     } else {
-                        T(list.count >= 200 ? "First 200 verses" : "\(list.count) verses").font(.caption2).foregroundStyle(HS.textMuted)
+                        T(list.count >= 200 ? "First 200 verses" : "\(list.count) verses").font(.hs(11)).foregroundStyle(HS.textMuted)
                         List(list) { h in
                             Button { onGo(h.book, h.ch, h.v) } label: {
                                 VStack(alignment: .leading, spacing: 3) {
-                                    Text(verbatim: "\(t.display(h.book)) \(h.ch):\(h.v)").font(.footnote.bold()).foregroundStyle(HS.faith)
-                                    Text(verbatim: h.text).font(.footnote).foregroundStyle(HS.text).lineLimit(3)
+                                    D("\(t.display(h.book)) \(h.ch):\(h.v)").font(.hs(13, .bold)).foregroundStyle(HS.faith)
+                                    D(h.text).font(.hs(13)).foregroundStyle(HS.text).lineLimit(3)
                                 }
                             }
                             .listRowBackground(HS.card.opacity(0.6))
@@ -204,7 +204,7 @@ struct BibleSearchView: View {
                         .scrollContentBackground(.hidden)
                     }
                 } else {
-                    HStack(spacing: 8) { ProgressView(); T("Searching…").font(.caption).foregroundStyle(HS.textMuted) }
+                    HStack(spacing: 8) { ProgressView(); T("Searching…").font(.hs(12)).foregroundStyle(HS.textMuted) }
                 }
                 Spacer(minLength: 0)
             }
@@ -237,16 +237,16 @@ struct NoteEditor: View {
     var body: some View {
         NavigationStack {
             VStack(alignment: .leading, spacing: 10) {
-                Text(verbatim: verse).font(.footnote).foregroundStyle(HS.textSecondary).lineLimit(4)
+                D(verse).font(.hs(13)).foregroundStyle(HS.textSecondary).lineLimit(4)
                 TextField(tr("What is God saying to you in this verse?"), text: $note, axis: .vertical)
                     .lineLimit(6...14).textFieldStyle(.roundedBorder)
                     .onChange(of: note) { _, v in if v.count > Highlights.maxNote { note = String(v.prefix(Highlights.maxNote)) } }
-                T("Kept on this phone. \(note.count)/\(Highlights.maxNote)").font(.caption2).foregroundStyle(HS.textMuted)
+                T("Kept on this phone. \(note.count)/\(Highlights.maxNote)").font(.hs(11)).foregroundStyle(HS.textMuted)
                 Spacer()
             }
             .padding(16)
             .background(HS.bgMid.ignoresSafeArea())
-            .navigationTitle(Text(verbatim: ref)).navigationBarTitleDisplayMode(.inline)
+            .navigationTitle(D(ref)).navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) { Button(tr("Cancel")) { dismiss() } }
                 ToolbarItem(placement: .confirmationAction) {
@@ -281,17 +281,17 @@ struct CrossRefsView: View {
                             ForEach(r) { ref in
                                 Button { onOpen(ref) } label: {
                                     VStack(alignment: .leading, spacing: 3) {
-                                        Text(verbatim: ref.label { t.display($0) }).font(.footnote.bold()).foregroundStyle(HS.faith)
+                                        D(ref.label { t.display($0) }).font(.hs(13, .bold)).foregroundStyle(HS.faith)
                                         if let first = t.chapter(ref.book, ref.ch)[safe: ref.v - 1] {
-                                            Text(verbatim: first + (ref.isRange ? " …" : "")).font(.subheadline).foregroundStyle(HS.text).lineLimit(4)
+                                            D(first + (ref.isRange ? " …" : "")).font(.hs(14)).foregroundStyle(HS.text).lineLimit(4)
                                         } else {
-                                            T("Not in this translation").font(.caption).foregroundStyle(HS.textMuted)
+                                            T("Not in this translation").font(.hs(12)).foregroundStyle(HS.textMuted)
                                         }
                                     }
                                 }
                                 .listRowBackground(HS.card.opacity(0.6))
                             }
-                            T(CrossRefs.attribution).font(.caption2).foregroundStyle(HS.textMuted).listRowBackground(Color.clear)
+                            T(CrossRefs.attribution).font(.hs(11)).foregroundStyle(HS.textMuted).listRowBackground(Color.clear)
                         }
                         .scrollContentBackground(.hidden)
                     }
@@ -329,12 +329,12 @@ struct CommentaryView: View {
                     VStack(spacing: 8) {
                         ProgressView()
                         if !downloadedAlready {
-                            T("Downloading the commentary on \(bookTitle) (one time)…").font(.caption).foregroundStyle(HS.textMuted)
+                            T("Downloading the commentary on \(bookTitle) (one time)…").font(.hs(12)).foregroundStyle(HS.textMuted)
                         }
                     }
                 } else if let error {
                     VStack(spacing: 10) {
-                        Text(verbatim: error).foregroundStyle(HS.textSecondary)
+                        D(error).foregroundStyle(HS.textSecondary)
                         Button(tr("Try again")) { retry += 1 }.tint(HS.goldButton)
                     }
                     .padding()
@@ -344,17 +344,17 @@ struct CommentaryView: View {
                     ScrollView {
                         VStack(alignment: .leading, spacing: 10) {
                             if (showAll || forVerse.isEmpty) && !c.intro.isEmpty {
-                                Text(verbatim: c.intro).font(.subheadline).foregroundStyle(HS.textSecondary)
+                                D(c.intro).font(.hs(14)).foregroundStyle(HS.textSecondary)
                             }
                             ForEach(shown) { s in
                                 T(s.fromVerse == s.toVerse ? "Verse \(s.fromVerse)" : "Verses \(s.fromVerse)–\(s.toVerse)")
-                                    .font(.caption.bold()).foregroundStyle(HS.faith)
-                                Text(verbatim: s.text).font(.subheadline).foregroundStyle(HS.text)
+                                    .font(.hs(12, .bold)).foregroundStyle(HS.faith)
+                                D(s.text).font(.hs(14)).foregroundStyle(HS.text)
                             }
                             if !showAll && !forVerse.isEmpty && c.sections.count > forVerse.count {
                                 Button(tr("Read the whole chapter's commentary")) { showAll = true }.tint(HS.goldButton)
                             }
-                            T(Commentary.attribution).font(.caption2).foregroundStyle(HS.textMuted)
+                            T(Commentary.attribution).font(.hs(11)).foregroundStyle(HS.textMuted)
                         }
                         .padding(16)
                     }
@@ -391,12 +391,12 @@ struct CompareView: View {
                 List {
                     ForEach(r) { row in
                         VStack(alignment: .leading, spacing: 3) {
-                            Text(verbatim: row.id).font(.caption.bold()).foregroundStyle(HS.faith)
-                            Text(verbatim: row.text).foregroundStyle(HS.text)
+                            D(row.id).font(.hs(12, .bold)).foregroundStyle(HS.faith)
+                            D(row.text).foregroundStyle(HS.text)
                         }
                         .listRowBackground(HS.card.opacity(0.6))
                     }
-                    T("Choose another translation above to download it and see it here too.").font(.caption2).foregroundStyle(HS.textMuted)
+                    T("Choose another translation above to download it and see it here too.").font(.hs(11)).foregroundStyle(HS.textMuted)
                         .listRowBackground(Color.clear)
                 }
                 .scrollContentBackground(.hidden)
@@ -439,13 +439,13 @@ struct BibleMapView: View {
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 6) {
                             ForEach(places) { p in
-                                Text(verbatim: p.name).font(.caption).foregroundStyle(HS.text)
+                                D(p.name).font(.hs(12)).foregroundStyle(HS.text)
                                     .padding(.horizontal, 10).padding(.vertical, 6).background(Capsule().fill(Color.white.opacity(0.08)))
                             }
                         }
                         .padding(.horizontal, 12).padding(.vertical, 8)
                     }
-                    T(BiblePlaces.attribution).font(.caption2).foregroundStyle(HS.textMuted).padding(.bottom, 8)
+                    T(BiblePlaces.attribution).font(.hs(11)).foregroundStyle(HS.textMuted).padding(.bottom, 8)
                 }
             }
         }
@@ -467,14 +467,14 @@ struct VerseImageView: View {
 
     private var art: some View {
         VStack(spacing: 18) {
-            Text(verbatim: "“\(card.text)”")
-                .font(.system(size: 30, weight: .regular, design: .serif).italic())
+            D("“\(card.text)”")
+                .font(.accent(30))
                 .foregroundStyle(HS.peach).multilineTextAlignment(.center)
-            Text(verbatim: "\(card.ref) · \(card.translation)").font(.system(size: 18, weight: .semibold)).foregroundStyle(HS.gold)
+            D("\(card.ref) · \(card.translation)").font(.hs(18, .semibold)).foregroundStyle(HS.gold)
             if !card.attribution.isEmpty {
-                Text(verbatim: card.attribution).font(.system(size: 11)).foregroundStyle(HS.textMuted)
+                D(card.attribution).font(.hs(11)).foregroundStyle(HS.textMuted)
             }
-            Text(verbatim: "HolySteps").font(.system(size: 14, weight: .medium, design: .serif)).foregroundStyle(HS.textMuted)
+            D("HolySteps").font(.hs(14, .medium)).foregroundStyle(HS.textMuted)
         }
         .padding(48)
         .frame(width: 1080 / 2, height: 1350 / 2)
@@ -489,7 +489,7 @@ struct VerseImageView: View {
                         .clipShape(RoundedRectangle(cornerRadius: 16))
                     if let image {
                         ShareLink(item: image, preview: SharePreview(card.ref, image: image)) {
-                            T("Share image").font(.headline).foregroundStyle(HS.onGold)
+                            T("Share image").font(.hs(16, .semibold)).foregroundStyle(HS.onGold)
                                 .frame(maxWidth: .infinity).padding(.vertical, 14).background(Capsule().fill(HS.goldButton))
                         }
                         .padding(.horizontal, 24)
