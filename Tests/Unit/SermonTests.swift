@@ -65,3 +65,14 @@ final class MusicTests: XCTestCase {
         XCTAssertEqual(MyMusicStore.title(fromFileName: "01_Great_Is_Thy_Faithfulness.mp3"), "01 Great Is Thy Faithfulness")
     }
 }
+
+final class QuizTests: XCTestCase {
+    /// Expected values come from Kotlin's own kotlin-stdlib 2.0.21 (Random(2026).shuffled), run on the JVM.
+    func testSameQuestionsAsAndroid() {
+        XCTAssertEqual(BibleQuiz.all.count, 147)
+        XCTAssertEqual(Array(BibleQuiz.order.prefix(12)), [128, 100, 30, 28, 33, 67, 39, 61, 60, 71, 122, 120])
+        XCTAssertEqual(KotlinRandom.javaHash("2026-11-24Who built the ark?"), 104122140)
+        let ark = BibleQuiz.all.first { $0.q == "Who built the ark?" }!
+        XCTAssertEqual(BibleQuiz.options(ark, dateKey: "2026-11-24"), ["Moses", "Enoch", "Noah", "Abraham"])
+    }
+}

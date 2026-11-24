@@ -1,0 +1,1472 @@
+[
+{
+"q": "What did God create on the first day?",
+"a": "Light",
+"w": [
+"The sun",
+"Animals",
+"Man"
+],
+"r": "Genesis 1:3"
+},
+{
+"q": "What did God make Eve from?",
+"a": "One of Adam's ribs",
+"w": [
+"Dust of the ground",
+"Clay",
+"A tree"
+],
+"r": "Genesis 2:22"
+},
+{
+"q": "Who killed Abel?",
+"a": "Cain",
+"w": [
+"Seth",
+"Adam",
+"Lamech"
+],
+"r": "Genesis 4:8"
+},
+{
+"q": "Who built the ark?",
+"a": "Noah",
+"w": [
+"Moses",
+"Abraham",
+"Enoch"
+],
+"r": "Genesis 6:14"
+},
+{
+"q": "How many days and nights did it rain in the flood?",
+"a": "40",
+"w": [
+"7",
+"12",
+"100"
+],
+"r": "Genesis 7:12"
+},
+{
+"q": "Where did the ark come to rest?",
+"a": "The mountains of Ararat",
+"w": [
+"Mount Sinai",
+"Mount Carmel",
+"Mount Zion"
+],
+"r": "Genesis 8:4"
+},
+{
+"q": "What did the dove bring back to Noah?",
+"a": "An olive leaf",
+"w": [
+"A fig",
+"A stone",
+"A cedar twig"
+],
+"r": "Genesis 8:11"
+},
+{
+"q": "What sign did God set in the sky after the flood?",
+"a": "A rainbow",
+"w": [
+"A star",
+"A cloud",
+"A comet"
+],
+"r": "Genesis 9:13"
+},
+{
+"q": "Who lived the longest, 969 years?",
+"a": "Methuselah",
+"w": [
+"Noah",
+"Adam",
+"Enoch"
+],
+"r": "Genesis 5:27"
+},
+{
+"q": "Who was Abraham's wife?",
+"a": "Sarah",
+"w": [
+"Rebekah",
+"Rachel",
+"Leah"
+],
+"r": "Genesis 17:15"
+},
+{
+"q": "Which son was born to Abraham and Sarah in their old age?",
+"a": "Isaac",
+"w": [
+"Ishmael",
+"Jacob",
+"Esau"
+],
+"r": "Genesis 21:3"
+},
+{
+"q": "What happened to Lot's wife when she looked back?",
+"a": "She became a pillar of salt",
+"w": [
+"She went blind",
+"She was carried off",
+"She fell asleep"
+],
+"r": "Genesis 19:26"
+},
+{
+"q": "Which two cities did God destroy with fire?",
+"a": "Sodom and Gomorrah",
+"w": [
+"Tyre and Sidon",
+"Nineveh and Babylon",
+"Jericho and Ai"
+],
+"r": "Genesis 19:24"
+},
+{
+"q": "Who tricked his father to get his brother's blessing?",
+"a": "Jacob",
+"w": [
+"Esau",
+"Joseph",
+"Reuben"
+],
+"r": "Genesis 27"
+},
+{
+"q": "What did Jacob dream about at Bethel?",
+"a": "A ladder reaching to heaven",
+"w": [
+"Seven fat cows",
+"A burning bush",
+"A great flood"
+],
+"r": "Genesis 28:12"
+},
+{
+"q": "What new name did God give Jacob?",
+"a": "Israel",
+"w": [
+"Abraham",
+"Judah",
+"Peter"
+],
+"r": "Genesis 32:28"
+},
+{
+"q": "How many sons did Jacob have?",
+"a": "12",
+"w": [
+"10",
+"7",
+"13"
+],
+"r": "Genesis 35:22"
+},
+{
+"q": "What special gift did Jacob give Joseph?",
+"a": "A coat of many colors",
+"w": [
+"A gold ring",
+"A sword",
+"A donkey"
+],
+"r": "Genesis 37:3"
+},
+{
+"q": "Who was sold into slavery by his brothers?",
+"a": "Joseph",
+"w": [
+"Benjamin",
+"Reuben",
+"Judah"
+],
+"r": "Genesis 37:28"
+},
+{
+"q": "Whose dreams did Joseph explain, about cows and grain?",
+"a": "Pharaoh's",
+"w": [
+"Nebuchadnezzar's",
+"Potiphar's",
+"Jacob's"
+],
+"r": "Genesis 41"
+},
+{
+"q": "Who led Israel out of Egypt?",
+"a": "Moses",
+"w": [
+"Joshua",
+"Aaron",
+"Joseph"
+],
+"r": "Exodus 12–14"
+},
+{
+"q": "How did God first speak to Moses in the wilderness?",
+"a": "From a burning bush",
+"w": [
+"In a dream",
+"Through a prophet",
+"From a cloud"
+],
+"r": "Exodus 3:2"
+},
+{
+"q": "Who was Moses' brother, who spoke for him?",
+"a": "Aaron",
+"w": [
+"Joshua",
+"Caleb",
+"Levi"
+],
+"r": "Exodus 4:14"
+},
+{
+"q": "Who was Moses' sister?",
+"a": "Miriam",
+"w": [
+"Martha",
+"Deborah",
+"Zipporah"
+],
+"r": "Exodus 15:20"
+},
+{
+"q": "How many plagues did God send on Egypt?",
+"a": "10",
+"w": [
+"7",
+"12",
+"5"
+],
+"r": "Exodus 7–12"
+},
+{
+"q": "What was the last plague on Egypt?",
+"a": "Death of the firstborn",
+"w": [
+"Locusts",
+"Darkness",
+"Frogs"
+],
+"r": "Exodus 12:29"
+},
+{
+"q": "Which sea did God part for Israel?",
+"a": "The Red Sea",
+"w": [
+"The Dead Sea",
+"The Sea of Galilee",
+"The Mediterranean"
+],
+"r": "Exodus 14"
+},
+{
+"q": "What food did God send from heaven in the wilderness?",
+"a": "Manna",
+"w": [
+"Barley bread",
+"Figs",
+"Honeycomb"
+],
+"r": "Exodus 16:15"
+},
+{
+"q": "On which mountain did Moses receive the Ten Commandments?",
+"a": "Mount Sinai",
+"w": [
+"Mount Carmel",
+"Mount of Olives",
+"Mount Ararat"
+],
+"r": "Exodus 19–20"
+},
+{
+"q": "What did Aaron make while Moses was on the mountain?",
+"a": "A golden calf",
+"w": [
+"A bronze serpent",
+"A stone altar",
+"A silver idol"
+],
+"r": "Exodus 32:4"
+},
+{
+"q": "How many years did Israel wander in the wilderness?",
+"a": "40",
+"w": [
+"7",
+"12",
+"70"
+],
+"r": "Numbers 14:33"
+},
+{
+"q": "Whose donkey spoke to him?",
+"a": "Balaam's",
+"w": [
+"Abraham's",
+"Saul's",
+"Samson's"
+],
+"r": "Numbers 22:28"
+},
+{
+"q": "Who led Israel into the Promised Land after Moses?",
+"a": "Joshua",
+"w": [
+"Caleb",
+"Aaron",
+"Gideon"
+],
+"r": "Joshua 1"
+},
+{
+"q": "Whose walls fell down after Israel marched around them?",
+"a": "Jericho's",
+"w": [
+"Ai's",
+"Jerusalem's",
+"Babylon's"
+],
+"r": "Joshua 6:20"
+},
+{
+"q": "Who hid the two spies in Jericho?",
+"a": "Rahab",
+"w": [
+"Ruth",
+"Deborah",
+"Miriam"
+],
+"r": "Joshua 2"
+},
+{
+"q": "Which judge of Israel was a woman?",
+"a": "Deborah",
+"w": [
+"Ruth",
+"Esther",
+"Hannah"
+],
+"r": "Judges 4:4"
+},
+{
+"q": "What did Gideon use to test God's answer?",
+"a": "A fleece of wool",
+"w": [
+"A staff",
+"A jar of oil",
+"A stone"
+],
+"r": "Judges 6:37"
+},
+{
+"q": "How many men were left in Gideon's army?",
+"a": "300",
+"w": [
+"3,000",
+"30",
+"12"
+],
+"r": "Judges 7:7"
+},
+{
+"q": "Whose great strength was tied to his uncut hair?",
+"a": "Samson's",
+"w": [
+"Gideon's",
+"David's",
+"Saul's"
+],
+"r": "Judges 16:17"
+},
+{
+"q": "Who betrayed Samson to the Philistines?",
+"a": "Delilah",
+"w": [
+"Jezebel",
+"Rahab",
+"Ruth"
+],
+"r": "Judges 16"
+},
+{
+"q": "Who said, \"Whither thou goest, I will go\"?",
+"a": "Ruth",
+"w": [
+"Naomi",
+"Esther",
+"Hannah"
+],
+"r": "Ruth 1:16"
+},
+{
+"q": "Who was Ruth's mother-in-law?",
+"a": "Naomi",
+"w": [
+"Orpah",
+"Hannah",
+"Sarah"
+],
+"r": "Ruth 1"
+},
+{
+"q": "Whom did Ruth marry in Bethlehem?",
+"a": "Boaz",
+"w": [
+"Obed",
+"Jesse",
+"Elkanah"
+],
+"r": "Ruth 4:13"
+},
+{
+"q": "Who prayed for a son and gave him to the Lord?",
+"a": "Hannah",
+"w": [
+"Sarah",
+"Elizabeth",
+"Rachel"
+],
+"r": "1 Samuel 1"
+},
+{
+"q": "Which boy heard God calling his name at night?",
+"a": "Samuel",
+"w": [
+"David",
+"Joseph",
+"Daniel"
+],
+"r": "1 Samuel 3"
+},
+{
+"q": "Who was the first king of Israel?",
+"a": "Saul",
+"w": [
+"David",
+"Solomon",
+"Samuel"
+],
+"r": "1 Samuel 10"
+},
+{
+"q": "What instrument did David play for King Saul?",
+"a": "A harp",
+"w": [
+"A trumpet",
+"A flute",
+"Cymbals"
+],
+"r": "1 Samuel 16:23"
+},
+{
+"q": "Who killed the giant Goliath?",
+"a": "David",
+"w": [
+"Saul",
+"Jonathan",
+"Samson"
+],
+"r": "1 Samuel 17"
+},
+{
+"q": "How many smooth stones did David choose from the brook?",
+"a": "5",
+"w": [
+"1",
+"3",
+"7"
+],
+"r": "1 Samuel 17:40"
+},
+{
+"q": "Who was David's closest friend?",
+"a": "Jonathan",
+"w": [
+"Absalom",
+"Nathan",
+"Joab"
+],
+"r": "1 Samuel 18:1"
+},
+{
+"q": "Which prophet confronted David about Bathsheba?",
+"a": "Nathan",
+"w": [
+"Samuel",
+"Elijah",
+"Isaiah"
+],
+"r": "2 Samuel 12"
+},
+{
+"q": "Who was the son of David who rebelled against him?",
+"a": "Absalom",
+"w": [
+"Solomon",
+"Jonathan",
+"Ishbosheth"
+],
+"r": "2 Samuel 15"
+},
+{
+"q": "Which king asked God for wisdom?",
+"a": "Solomon",
+"w": [
+"David",
+"Saul",
+"Hezekiah"
+],
+"r": "1 Kings 3:9"
+},
+{
+"q": "Who built the first temple in Jerusalem?",
+"a": "Solomon",
+"w": [
+"David",
+"Herod",
+"Nehemiah"
+],
+"r": "1 Kings 6"
+},
+{
+"q": "What fed Elijah by the brook Cherith?",
+"a": "Ravens",
+"w": [
+"Doves",
+"Eagles",
+"Angels"
+],
+"r": "1 Kings 17:6"
+},
+{
+"q": "On which mountain did Elijah call down fire from heaven?",
+"a": "Mount Carmel",
+"w": [
+"Mount Sinai",
+"Mount Hermon",
+"Mount Nebo"
+],
+"r": "1 Kings 18"
+},
+{
+"q": "How was Elijah taken up to heaven?",
+"a": "In a whirlwind",
+"w": [
+"On a cloud",
+"Up a ladder",
+"In his sleep"
+],
+"r": "2 Kings 2:11"
+},
+{
+"q": "Who took up Elijah's mantle after him?",
+"a": "Elisha",
+"w": [
+"Isaiah",
+"Jonah",
+"Gehazi"
+],
+"r": "2 Kings 2:13"
+},
+{
+"q": "Naaman was healed by washing seven times in which river?",
+"a": "The Jordan",
+"w": [
+"The Nile",
+"The Euphrates",
+"The Tigris"
+],
+"r": "2 Kings 5:14"
+},
+{
+"q": "Which king was given 15 more years to live?",
+"a": "Hezekiah",
+"w": [
+"Josiah",
+"Ahab",
+"Saul"
+],
+"r": "2 Kings 20:6"
+},
+{
+"q": "How old was Josiah when he became king?",
+"a": "8",
+"w": [
+"12",
+"16",
+"30"
+],
+"r": "2 Kings 22:1"
+},
+{
+"q": "Who rebuilt the walls of Jerusalem?",
+"a": "Nehemiah",
+"w": [
+"Ezra",
+"Haggai",
+"Daniel"
+],
+"r": "Nehemiah 2–6"
+},
+{
+"q": "Which queen risked her life to save her people from Haman?",
+"a": "Esther",
+"w": [
+"Vashti",
+"Jezebel",
+"Sheba"
+],
+"r": "Esther 4:16"
+},
+{
+"q": "Who lost nearly everything yet would not curse God?",
+"a": "Job",
+"w": [
+"Jonah",
+"Lot",
+"Solomon"
+],
+"r": "Job 1–2"
+},
+{
+"q": "Which book has 150 chapters?",
+"a": "Psalms",
+"w": [
+"Proverbs",
+"Isaiah",
+"Genesis"
+],
+"r": "Psalms"
+},
+{
+"q": "\"The LORD is my shepherd\" begins which psalm?",
+"a": "Psalm 23",
+"w": [
+"Psalm 1",
+"Psalm 91",
+"Psalm 119"
+],
+"r": "Psalm 23:1"
+},
+{
+"q": "Which is the longest chapter in the Bible?",
+"a": "Psalm 119",
+"w": [
+"Psalm 23",
+"Isaiah 53",
+"Genesis 1"
+],
+"r": "Psalm 119"
+},
+{
+"q": "\"Trust in the LORD with all thine heart\" is in which book?",
+"a": "Proverbs",
+"w": [
+"Psalms",
+"Job",
+"Ecclesiastes"
+],
+"r": "Proverbs 3:5"
+},
+{
+"q": "Which prophet wrote, \"a virgin shall conceive, and bear a son\"?",
+"a": "Isaiah",
+"w": [
+"Jeremiah",
+"Micah",
+"Malachi"
+],
+"r": "Isaiah 7:14"
+},
+{
+"q": "Which prophet named Bethlehem as the birthplace of the coming ruler?",
+"a": "Micah",
+"w": [
+"Isaiah",
+"Hosea",
+"Amos"
+],
+"r": "Micah 5:2"
+},
+{
+"q": "Which prophet saw a valley of dry bones come to life?",
+"a": "Ezekiel",
+"w": [
+"Daniel",
+"Isaiah",
+"Jeremiah"
+],
+"r": "Ezekiel 37"
+},
+{
+"q": "Who was thrown into the lions' den?",
+"a": "Daniel",
+"w": [
+"Joseph",
+"Jeremiah",
+"Shadrach"
+],
+"r": "Daniel 6"
+},
+{
+"q": "Who were thrown into the fiery furnace?",
+"a": "Shadrach, Meshach and Abednego",
+"w": [
+"Peter, James and John",
+"Abraham, Isaac and Jacob",
+"Shem, Ham and Japheth"
+],
+"r": "Daniel 3"
+},
+{
+"q": "Which king saw a hand writing on the wall?",
+"a": "Belshazzar",
+"w": [
+"Nebuchadnezzar",
+"Darius",
+"Cyrus"
+],
+"r": "Daniel 5"
+},
+{
+"q": "Who was swallowed by a great fish?",
+"a": "Jonah",
+"w": [
+"Elijah",
+"Peter",
+"Jeremiah"
+],
+"r": "Jonah 1:17"
+},
+{
+"q": "Which city did Jonah not want to preach to?",
+"a": "Nineveh",
+"w": [
+"Babylon",
+"Tarshish",
+"Joppa"
+],
+"r": "Jonah 1:2"
+},
+{
+"q": "How long was Jonah inside the fish?",
+"a": "3 days and 3 nights",
+"w": [
+"1 day",
+"7 days",
+"40 days"
+],
+"r": "Jonah 1:17"
+},
+{
+"q": "What is the last book of the Old Testament?",
+"a": "Malachi",
+"w": [
+"Zechariah",
+"Daniel",
+"Nehemiah"
+],
+"r": "Malachi"
+},
+{
+"q": "In which town was Jesus born?",
+"a": "Bethlehem",
+"w": [
+"Nazareth",
+"Jerusalem",
+"Capernaum"
+],
+"r": "Luke 2:4–7"
+},
+{
+"q": "Who first heard the angels announce Jesus' birth?",
+"a": "Shepherds",
+"w": [
+"Wise men",
+"Priests",
+"Fishermen"
+],
+"r": "Luke 2:8–11"
+},
+{
+"q": "What gifts did the wise men bring?",
+"a": "Gold, frankincense and myrrh",
+"w": [
+"Silver, bread and wine",
+"Spices, oil and honey",
+"Jewels, cloth and gold"
+],
+"r": "Matthew 2:11"
+},
+{
+"q": "Who was king of Judea when Jesus was born?",
+"a": "Herod",
+"w": [
+"Pilate",
+"Caesar Augustus",
+"David"
+],
+"r": "Matthew 2:1"
+},
+{
+"q": "Where did Joseph take Mary and Jesus to escape Herod?",
+"a": "Egypt",
+"w": [
+"Babylon",
+"Rome",
+"Galilee"
+],
+"r": "Matthew 2:14"
+},
+{
+"q": "In which town did Jesus grow up?",
+"a": "Nazareth",
+"w": [
+"Bethlehem",
+"Bethany",
+"Jericho"
+],
+"r": "Matthew 2:23"
+},
+{
+"q": "Where was 12-year-old Jesus found after three days?",
+"a": "In the temple",
+"w": [
+"At the market",
+"By the sea",
+"In a synagogue in Nazareth"
+],
+"r": "Luke 2:46"
+},
+{
+"q": "Who was the cousin who prepared the way for Jesus?",
+"a": "John the Baptist",
+"w": [
+"James",
+"Andrew",
+"Zacchaeus"
+],
+"r": "Luke 1:36; Matthew 3:3"
+},
+{
+"q": "What did John the Baptist eat in the wilderness?",
+"a": "Locusts and wild honey",
+"w": [
+"Bread and fish",
+"Figs and dates",
+"Manna"
+],
+"r": "Matthew 3:4"
+},
+{
+"q": "In which river was Jesus baptized?",
+"a": "The Jordan",
+"w": [
+"The Nile",
+"The Euphrates",
+"The Kidron"
+],
+"r": "Matthew 3:13"
+},
+{
+"q": "How long did Jesus fast in the wilderness?",
+"a": "40 days",
+"w": [
+"7 days",
+"3 days",
+"12 days"
+],
+"r": "Matthew 4:2"
+},
+{
+"q": "How many apostles did Jesus choose?",
+"a": "12",
+"w": [
+"7",
+"10",
+"70"
+],
+"r": "Luke 6:13"
+},
+{
+"q": "Who was Peter's brother?",
+"a": "Andrew",
+"w": [
+"John",
+"James",
+"Philip"
+],
+"r": "Matthew 4:18"
+},
+{
+"q": "Which brothers did Jesus call the sons of thunder?",
+"a": "James and John",
+"w": [
+"Peter and Andrew",
+"Philip and Bartholomew",
+"Thomas and Matthew"
+],
+"r": "Mark 3:17"
+},
+{
+"q": "What was Matthew's job before he followed Jesus?",
+"a": "Tax collector",
+"w": [
+"Fisherman",
+"Tentmaker",
+"Carpenter"
+],
+"r": "Matthew 9:9"
+},
+{
+"q": "Where did Jesus turn water into wine?",
+"a": "Cana",
+"w": [
+"Bethany",
+"Nazareth",
+"Jericho"
+],
+"r": "John 2:1–11"
+},
+{
+"q": "How many loaves fed the 5,000?",
+"a": "5",
+"w": [
+"2",
+"7",
+"12"
+],
+"r": "Matthew 14:17"
+},
+{
+"q": "How many fish fed the 5,000?",
+"a": "2",
+"w": [
+"5",
+"3",
+"7"
+],
+"r": "Matthew 14:17"
+},
+{
+"q": "Which disciple walked on the water toward Jesus?",
+"a": "Peter",
+"w": [
+"John",
+"James",
+"Andrew"
+],
+"r": "Matthew 14:29"
+},
+{
+"q": "Who came to talk with Jesus at night?",
+"a": "Nicodemus",
+"w": [
+"Zacchaeus",
+"Lazarus",
+"Joseph of Arimathaea"
+],
+"r": "John 3:1–2"
+},
+{
+"q": "Who climbed a sycamore tree to see Jesus?",
+"a": "Zacchaeus",
+"w": [
+"Nicodemus",
+"Bartimaeus",
+"Matthew"
+],
+"r": "Luke 19:4"
+},
+{
+"q": "Which blind beggar did Jesus heal near Jericho?",
+"a": "Bartimaeus",
+"w": [
+"Lazarus",
+"Malchus",
+"Jairus"
+],
+"r": "Mark 10:46–52"
+},
+{
+"q": "Whom did Jesus raise after four days in the tomb?",
+"a": "Lazarus",
+"w": [
+"Jairus' daughter",
+"Dorcas",
+"Eutychus"
+],
+"r": "John 11"
+},
+{
+"q": "Who were Lazarus' sisters?",
+"a": "Mary and Martha",
+"w": [
+"Ruth and Naomi",
+"Leah and Rachel",
+"Anna and Elizabeth"
+],
+"r": "John 11:1"
+},
+{
+"q": "What is the shortest verse in the King James Bible?",
+"a": "\"Jesus wept.\"",
+"w": [
+"\"Rejoice evermore.\"",
+"\"Pray without ceasing.\"",
+"\"God is love.\""
+],
+"r": "John 11:35"
+},
+{
+"q": "Where did Jesus preach the Beatitudes?",
+"a": "On a mountain",
+"w": [
+"In a boat",
+"In the temple",
+"In a synagogue"
+],
+"r": "Matthew 5:1–12"
+},
+{
+"q": "Faith as small as what can move mountains?",
+"a": "A grain of mustard seed",
+"w": [
+"A drop of water",
+"A grain of sand",
+"A barley seed"
+],
+"r": "Matthew 17:20"
+},
+{
+"q": "How many times did Jesus tell Peter to forgive?",
+"a": "Seventy times seven",
+"w": [
+"Seven times",
+"Three times",
+"Twelve times"
+],
+"r": "Matthew 18:22"
+},
+{
+"q": "In the parable, who stopped to help the beaten man?",
+"a": "A Samaritan",
+"w": [
+"A priest",
+"A Levite",
+"An innkeeper"
+],
+"r": "Luke 10:33"
+},
+{
+"q": "How many sheep did the shepherd leave to find the lost one?",
+"a": "99",
+"w": [
+"9",
+"49",
+"100"
+],
+"r": "Luke 15:4"
+},
+{
+"q": "Which parable tells of a son who wasted his inheritance?",
+"a": "The prodigal son",
+"w": [
+"The lost sheep",
+"The sower",
+"The talents"
+],
+"r": "Luke 15:11–32"
+},
+{
+"q": "Who said, \"I am the way, the truth, and the life\"?",
+"a": "Jesus",
+"w": [
+"Paul",
+"Peter",
+"John the Baptist"
+],
+"r": "John 14:6"
+},
+{
+"q": "Which verse begins \"For God so loved the world\"?",
+"a": "John 3:16",
+"w": [
+"Romans 8:28",
+"John 1:1",
+"Psalm 23:1"
+],
+"r": "John 3:16"
+},
+{
+"q": "What did Jesus calm on the Sea of Galilee?",
+"a": "A storm",
+"w": [
+"A crowd",
+"A fire",
+"A flood"
+],
+"r": "Mark 4:39"
+},
+{
+"q": "Who betrayed Jesus?",
+"a": "Judas Iscariot",
+"w": [
+"Peter",
+"Thomas",
+"Matthew"
+],
+"r": "Matthew 26:14–16"
+},
+{
+"q": "For how many pieces of silver was Jesus betrayed?",
+"a": "30",
+"w": [
+"10",
+"20",
+"50"
+],
+"r": "Matthew 26:15"
+},
+{
+"q": "In which garden did Jesus pray before His arrest?",
+"a": "Gethsemane",
+"w": [
+"Eden",
+"Bethany",
+"Siloam"
+],
+"r": "Matthew 26:36"
+},
+{
+"q": "Who denied knowing Jesus three times?",
+"a": "Peter",
+"w": [
+"Judas",
+"Thomas",
+"John"
+],
+"r": "Matthew 26:69–75"
+},
+{
+"q": "Which Roman governor sentenced Jesus?",
+"a": "Pontius Pilate",
+"w": [
+"Herod",
+"Felix",
+"Festus"
+],
+"r": "Matthew 27:26"
+},
+{
+"q": "Who was made to carry Jesus' cross?",
+"a": "Simon of Cyrene",
+"w": [
+"Simon Peter",
+"Joseph of Arimathaea",
+"John"
+],
+"r": "Luke 23:26"
+},
+{
+"q": "What was the place of the crucifixion called?",
+"a": "Golgotha",
+"w": [
+"Gethsemane",
+"Bethel",
+"Mount Nebo"
+],
+"r": "Matthew 27:33"
+},
+{
+"q": "In whose new tomb was Jesus laid?",
+"a": "Joseph of Arimathaea's",
+"w": [
+"Lazarus'",
+"Peter's",
+"Pilate's"
+],
+"r": "Matthew 27:57–60"
+},
+{
+"q": "To whom did the risen Jesus appear first?",
+"a": "Mary Magdalene",
+"w": [
+"Peter",
+"Thomas",
+"His mother Mary"
+],
+"r": "Mark 16:9"
+},
+{
+"q": "Which disciple would not believe until he saw Jesus' wounds?",
+"a": "Thomas",
+"w": [
+"Peter",
+"Andrew",
+"Philip"
+],
+"r": "John 20:24–29"
+},
+{
+"q": "How many days did Jesus appear on earth before His ascension?",
+"a": "40",
+"w": [
+"3",
+"7",
+"50"
+],
+"r": "Acts 1:3"
+},
+{
+"q": "What came on the disciples at Pentecost?",
+"a": "The Holy Spirit, with tongues like fire",
+"w": [
+"A great earthquake",
+"A flood",
+"A pillar of cloud"
+],
+"r": "Acts 2:1–4"
+},
+{
+"q": "Who preached at Pentecost, when about 3,000 believed?",
+"a": "Peter",
+"w": [
+"Paul",
+"Stephen",
+"John"
+],
+"r": "Acts 2:41"
+},
+{
+"q": "Who was the first Christian martyr?",
+"a": "Stephen",
+"w": [
+"James",
+"Peter",
+"Paul"
+],
+"r": "Acts 7:59–60"
+},
+{
+"q": "Where was Saul going when he met Jesus in a bright light?",
+"a": "Damascus",
+"w": [
+"Jerusalem",
+"Rome",
+"Antioch"
+],
+"r": "Acts 9:3"
+},
+{
+"q": "What was Paul's name before he became known as Paul?",
+"a": "Saul",
+"w": [
+"Simon",
+"Silas",
+"Stephen"
+],
+"r": "Acts 13:9"
+},
+{
+"q": "Whom did Peter raise from the dead at Joppa?",
+"a": "Dorcas (Tabitha)",
+"w": [
+"Lydia",
+"Priscilla",
+"Eutychus"
+],
+"r": "Acts 9:36–41"
+},
+{
+"q": "Where were the disciples first called Christians?",
+"a": "Antioch",
+"w": [
+"Jerusalem",
+"Rome",
+"Corinth"
+],
+"r": "Acts 11:26"
+},
+{
+"q": "What did Lydia sell?",
+"a": "Purple cloth",
+"w": [
+"Pottery",
+"Perfume",
+"Bread"
+],
+"r": "Acts 16:14"
+},
+{
+"q": "Where did Paul and Silas sing hymns in prison at midnight?",
+"a": "Philippi",
+"w": [
+"Rome",
+"Ephesus",
+"Athens"
+],
+"r": "Acts 16:25"
+},
+{
+"q": "Who fell from a window during Paul's long sermon?",
+"a": "Eutychus",
+"w": [
+"Timothy",
+"Silas",
+"Barnabas"
+],
+"r": "Acts 20:9"
+},
+{
+"q": "What was Paul's trade?",
+"a": "Tentmaker",
+"w": [
+"Fisherman",
+"Carpenter",
+"Shepherd"
+],
+"r": "Acts 18:3"
+},
+{
+"q": "Which young helper did Paul call his son in the faith?",
+"a": "Timothy",
+"w": [
+"Titus",
+"Mark",
+"Luke"
+],
+"r": "1 Timothy 1:2"
+},
+{
+"q": "Which gospel writer was a doctor?",
+"a": "Luke",
+"w": [
+"Mark",
+"Matthew",
+"John"
+],
+"r": "Colossians 4:14"
+},
+{
+"q": "What is the first book of the Bible?",
+"a": "Genesis",
+"w": [
+"Exodus",
+"Matthew",
+"Psalms"
+],
+"r": "Genesis"
+},
+{
+"q": "What is the last book of the Bible?",
+"a": "Revelation",
+"w": [
+"Jude",
+"Malachi",
+"Acts"
+],
+"r": "Revelation"
+},
+{
+"q": "How many books are in the Protestant Bible?",
+"a": "66",
+"w": [
+"39",
+"73",
+"27"
+],
+"r": "The whole Bible"
+},
+{
+"q": "How many books are in the New Testament?",
+"a": "27",
+"w": [
+"39",
+"66",
+"12"
+],
+"r": "The New Testament"
+},
+{
+"q": "Which chapter is known as the love chapter?",
+"a": "1 Corinthians 13",
+"w": [
+"Romans 8",
+"John 15",
+"Psalm 91"
+],
+"r": "1 Corinthians 13"
+},
+{
+"q": "Which of these is part of the fruit of the Spirit?",
+"a": "Love, joy, peace",
+"w": [
+"Wealth, power, fame",
+"Gold, silver, bronze",
+"Strength, speed, skill"
+],
+"r": "Galatians 5:22–23"
+},
+{
+"q": "\"I can do all things through Christ which strengtheneth me\" is in which book?",
+"a": "Philippians",
+"w": [
+"Romans",
+"Hebrews",
+"James"
+],
+"r": "Philippians 4:13"
+},
+{
+"q": "\"The wages of sin is death\" is in which book?",
+"a": "Romans",
+"w": [
+"Galatians",
+"Hebrews",
+"Proverbs"
+],
+"r": "Romans 6:23"
+},
+{
+"q": "Which book defines faith as \"the substance of things hoped for\"?",
+"a": "Hebrews",
+"w": [
+"James",
+"Romans",
+"1 Peter"
+],
+"r": "Hebrews 11:1"
+},
+{
+"q": "On which island did John receive the Revelation?",
+"a": "Patmos",
+"w": [
+"Cyprus",
+"Crete",
+"Malta"
+],
+"r": "Revelation 1:9"
+},
+{
+"q": "Who wrote most of the New Testament letters?",
+"a": "Paul",
+"w": [
+"Peter",
+"John",
+"James"
+],
+"r": "Romans–Philemon"
+}
+]

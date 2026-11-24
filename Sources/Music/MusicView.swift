@@ -24,7 +24,7 @@ final class MyMusicStore: ObservableObject {
     private func save() { if let d = try? JSONEncoder().encode(tracks) { UserDefaults.standard.set(d, forKey: "myMusic") } }
 
     /// "01_Great_Is_Thy_Faithfulness.mp3" → "01 Great Is Thy Faithfulness".
-    static func title(fromFileName name: String) -> String {
+    nonisolated static func title(fromFileName name: String) -> String {
         let base = (name as NSString).deletingPathExtension.replacingOccurrences(of: "_", with: " ")
             .split(whereSeparator: \.isWhitespace).joined(separator: " ")
         return String((base.isEmpty ? "Untitled track" : base).prefix(120))
