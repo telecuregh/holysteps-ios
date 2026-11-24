@@ -87,7 +87,7 @@ final class SmokeUITests: XCTestCase {
         app.swipeUp()
         shot(app, "20b-faith-scrolled")
         button(app, containing: "CHRISTIAN MUSIC").tap()
-        let song = button(app, containing: "Water Into Wine")
+        let song = button(app, containing: "Midnight Praise")
         let found = song.waitForExistence(timeout: 10)
         shot(app, "24a-music")
         if !found { print("UI TREE:\n" + app.debugDescription) }
