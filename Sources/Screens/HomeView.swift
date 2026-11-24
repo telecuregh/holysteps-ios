@@ -145,7 +145,7 @@ struct HomeView: View {
                 VStack(spacing: 14) {
                     T("TODAY'S HARMONY").font(.hs(11, .semibold)).tracking(1.4).foregroundStyle(HS.peach).frame(maxWidth: .infinity)
                     HStack(spacing: 18) {
-                        HarmonyRings(score: score, faith: faith, body: body, mind: mind, cycle: cycle).frame(width: 124, height: 124)
+                        HarmonyRings(score: score, faith: faith, steps: body, mind: mind, cycle: cycle).frame(width: 124, height: 124)
                         VStack(alignment: .leading, spacing: 0) {
                             T("Step Progress").font(.hs(14)).foregroundStyle(HS.textSecondary)
                             HStack(alignment: .lastTextBaseline, spacing: 0) {
@@ -212,8 +212,8 @@ struct HomeView: View {
                 }
                 pillar(symbol: "camera.macro", tint: 0xE57A9E, glow: 0xD27C86, title: "Know Your Season", action: { router.tab = 3 }) {
                     VStack(alignment: .leading, spacing: 0) {
-                        D("\(tr("Energy:")) \(tr(zone.label))").font(.hs(13)).foregroundStyle(HS.textMuted).lineLimit(1)
-                        D("\(tr("Focus:")) \(tr(male ? rhythm.mens.label : (rhythm.phase.map { $0.label + " Phase" } ?? "Steady day")))")
+                        T("Energy: \(tr(zone.label))").font(.hs(13)).foregroundStyle(HS.textMuted).lineLimit(1)
+                        T("Focus: \(tr(male ? rhythm.mens.label : (rhythm.phase.map { $0.label + " Phase" } ?? "Steady day")))")
                             .font(.hs(13)).foregroundStyle(HS.textSecondary).lineLimit(1)
                     }
                 }
@@ -425,7 +425,7 @@ struct HomeView: View {
 /// cycle and mind, and the percentage in the middle.
 struct HarmonyRings: View {
     let score: Int
-    let faith: Double, body: Double, mind: Double, cycle: Double
+    let faith: Double, steps: Double, mind: Double, cycle: Double
 
     var body: some View {
         ZStack {
@@ -446,7 +446,7 @@ struct HarmonyRings: View {
                 let subR = cx * 0.40, off = cx * 0.23, stroke = 4.2
                 let rings: [(CGPoint, UInt32, Double)] = [
                     (CGPoint(x: cx - off, y: cy - off), 0x9D7FEA, faith),
-                    (CGPoint(x: cx + off, y: cy - off), 0x56B892, body),
+                    (CGPoint(x: cx + off, y: cy - off), 0x56B892, steps),
                     (CGPoint(x: cx + off, y: cy + off), 0xE57A9E, cycle),
                     (CGPoint(x: cx - off, y: cy + off), 0x64A5E8, mind),
                 ]
