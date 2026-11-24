@@ -15,7 +15,7 @@ struct HomeView: View {
     @ObservedObject private var router = TabRouter.shared
     @State private var showSearch = false
     @State private var showVerseImage = false
-    @State private var path: [HomeRoute] = []
+    @State private var route: HomeRoute?
     @State private var playing: Sermon?
     @State private var showGoal = false
     @Environment(\.openURL) private var openURL
@@ -32,7 +32,7 @@ struct HomeView: View {
     private var evening: Bool { let h = Calendar.current.component(.hour, from: Date()); return h >= 19 || h < 4 }
 
     var body: some View {
-        NavigationStack(path: $path) {
+        NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
                     hero
@@ -48,7 +48,7 @@ struct HomeView: View {
             .ignoresSafeArea(edges: .top)
             .background(HSBackground())
             .toolbar(.hidden, for: .navigationBar)
-            .navigationDestination(for: HomeRoute.self) { r in
+            .navigationDestination(item: $route) { r in
                 switch r {
                 case .sleep: SleepView()
                 case .recap: WeeklyRecapView()
@@ -183,7 +183,7 @@ struct HomeView: View {
 
     private var nextItem: NextItem {
         if evening, let story = SleepLibrary.byId(SleepLibrary.firstStory) {
-            return NextItem(symbol: "moon.stars", tint: 0x64A5E8, title: "A bedtime story", sub: "\(tr(story.title)) · \(tr(story.minutesLabel))") { path.append(.sleep) }
+            return NextItem(symbol: "moon.stars", tint: 0x64A5E8, title: "A bedtime story", sub: "\(tr(story.title)) · \(tr(story.minutesLabel))") { route = .sleep }
         }
         let verse = AppContent.verseOfTheDay()
         return NextItem(symbol: "book", tint: 0x9D7FEA, title: "Today's verse", sub: verse.ref) { listenToVerse() }
@@ -195,11 +195,11 @@ struct HomeView: View {
             if !log.did(.verse, on: AppStore.dayKey()) { listenToVerse() }
             else { router.open(tab: 2) }
         case 2: playing = SleepLibrary.byId(SleepLibrary.shortPrayer)
-        case 3: path.append(.sleep)
+        case 3: route = .sleep
         case 4: if store.gender == "female" { router.open(tab: 3) } else { showGoal = true }
         case 5: playing = sermons.current()
-        case 6: path.append(QuizLog.shared.log[AppStore.dayKey()] == nil ? .quiz : .journal)
-        default: path.append(.recap)
+        case 6: route = QuizLog.shared.log[AppStore.dayKey()] == nil ? .quiz : .journal
+        default: route = .recap
         }
     }
 
@@ -286,7 +286,7 @@ struct HomeView: View {
         let cv = last.split(separator: ":")
         let ch = Int(cv.first ?? "")
         let verse = cv.count > 1 ? Int(cv[1].split(separator: "-").first ?? "") : nil
-        path.append(.bible(Bible.canonNames.contains(book) ? book : nil, ch, verse))
+        route = .bible(Bible.canonNames.contains(book) ? book : nil, ch, verse)
     }
 
     private func listenToVerse() {
@@ -306,7 +306,7 @@ struct HomeView: View {
             }
             HStack(spacing: 14) {
                 tile(cycleTitle, male ? "Strength and energy" : "Your rhythm, day by day", male ? "dumbbell" : "camera.macro", 0xE57A9E, 0xD27C86) { router.open(tab: 3) }
-                tile("Sleep", "Stories and night prayers", "moon.stars", 0x64A5E8, 0x5FA3A8) { path.append(.sleep) }
+                tile("Sleep", "Stories and night prayers", "moon.stars", 0x64A5E8, 0x5FA3A8) { route = .sleep }
             }
         }
     }
@@ -328,7 +328,7 @@ struct HomeView: View {
     // MARK: This week and help
 
     private var weekStrip: some View {
-        Button { path.append(.recap) } label: {
+        Button { route = .recap } label: {
             GlassCard(padding: 14) {
                 HStack(spacing: 12) {
                     Image(systemName: "calendar.badge.clock").font(.system(size: 20)).foregroundStyle(HS.gold)
