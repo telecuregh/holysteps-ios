@@ -36,7 +36,10 @@ final class SmokeUITests: XCTestCase {
         shot(app, "02-faith")
         button(app, containing: "Continue reading").tap()
         let verse = app.staticTexts.matching(NSPredicate(format: "label CONTAINS 'In the beginning was the Word'")).firstMatch
-        XCTAssertTrue(verse.waitForExistence(timeout: 90), "KJV should download and open John 1")
+        let found = verse.waitForExistence(timeout: 90)
+        shot(app, "03a-after-open")
+        if !found { print("UI TREE:\n" + app.debugDescription) }
+        XCTAssertTrue(found, "KJV should download and open John 1")
         shot(app, "03-reader-john1")
         verse.tap()
         XCTAssertTrue(app.buttons["Gold highlight"].waitForExistence(timeout: 5))
@@ -76,7 +79,10 @@ final class SmokeUITests: XCTestCase {
         shot(app, "11-es-faith")
         button(app, containing: "Seguir leyendo").tap()
         let verse = app.staticTexts.matching(NSPredicate(format: "label CONTAINS 'pastor'")).firstMatch
-        XCTAssertTrue(verse.waitForExistence(timeout: 90), "RVES should download and open Salmos 23")
+        let found = verse.waitForExistence(timeout: 90)
+        shot(app, "12a-after-open")
+        if !found { print("UI TREE:\n" + app.debugDescription) }
+        XCTAssertTrue(found, "RVES should download and open Salmos 23")
         shot(app, "12-es-reader-psalm23")
     }
 }
