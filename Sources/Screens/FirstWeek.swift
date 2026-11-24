@@ -11,18 +11,20 @@ final class FirstWeek: ObservableObject {
     @Published private(set) var dismissed: Bool { didSet { d.set(dismissed, forKey: "firstWeekDismissed") } }
 
     private init() {
-        if let s = d.string(forKey: "firstWeekStart") {
+        let ud = UserDefaults.standard
+        let today = AppStore.dayKey()
+        if let s = ud.string(forKey: "firstWeekStart") {
             start = s
-            dismissed = d.bool(forKey: "firstWeekDismissed")
+            dismissed = ud.bool(forKey: "firstWeekDismissed")
         } else {
-            start = AppStore.dayKey()
             // Only for new people: a phone that already held HolySteps data skips the path.
-            let existing = ["name", "prayerLog", "readDays", "bibleLastBook", "journal"].contains { d.object(forKey: $0) != nil }
+            let existing = ["name", "prayerLog", "readDays", "bibleLastBook", "journal"].contains { ud.object(forKey: $0) != nil }
+            start = today
             dismissed = existing
-            d.set(start, forKey: "firstWeekStart")
-            d.set(existing, forKey: "firstWeekDismissed")
+            ud.set(today, forKey: "firstWeekStart")
+            ud.set(existing, forKey: "firstWeekDismissed")
         }
-        done = Set((d.array(forKey: "firstWeekDone") as? [Int]) ?? [])
+        done = Set((ud.array(forKey: "firstWeekDone") as? [Int]) ?? [])
     }
 
     var startDate: Date { AppStore.date(fromKey: start) ?? Date() }
