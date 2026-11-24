@@ -241,6 +241,10 @@ struct FaithView: View {
             ToolItem(symbol: "book", color: HS.faith, title: "Sermons through the Bible", sub: "A new book every week, Genesis to Revelation",
                      destination: AnyView(BibleSermonsView())),
         ])
+        ToolSection(title: "Calm", items: [
+            ToolItem(symbol: "heart.text.square", color: HS.mind, title: "Calm check", sub: "Your heart rate and calm in 30 seconds",
+                     destination: AnyView(CalmCheckView())),
+        ])
     }
 }
 

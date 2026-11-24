@@ -42,6 +42,7 @@ targets:
         INFOPLIST_KEY_NSHealthUpdateUsageDescription: HolySteps does not write health data.
         INFOPLIST_KEY_ITSAppUsesNonExemptEncryption: NO
         INFOPLIST_KEY_NSLocationWhenInUseUsageDescription: HolySteps draws your walk on the map and measures how far you went. Your routes stay on your phone.
+        INFOPLIST_KEY_NSCameraUsageDescription: HolySteps uses the camera only during a calm check, to see your fingertip's color. No pictures are taken or saved.
         INFOPLIST_KEY_NSMotionUsageDescription: HolySteps counts the steps and pace of your walks.
         ENABLE_PREVIEWS: YES
   HolyStepsTests:
