@@ -19,7 +19,7 @@ final class SmokeUITests: XCTestCase {
 
     private func launch(_ args: [String]) -> XCUIApplication {
         let app = XCUIApplication()
-        app.launchArguments = args + ["-sermonAskedNotify", "YES"]
+        app.launchArguments = args + ["-sermonAskedNotify", "YES"] + (args.contains("-onboarded") ? [] : ["-onboarded", "YES"])
         app.launch()
         return app
     }
@@ -38,6 +38,35 @@ final class SmokeUITests: XCTestCase {
     }
 
     private func dump(_ app: XCUIApplication, _ ok: Bool) { if !ok { print("UI TREE:\n" + app.debugDescription) } }
+
+    /// First launch: setup for a woman, from welcome to the ready plan, then into the app.
+    func testOnboarding() {
+        let app = launch(["-onboarded", "NO", "-AppleLanguages", "(en)"])
+        shot(app, "onb-01-welcome")
+        button(app, containing: "Get Started").tap()
+        button(app, containing: "a Woman").tap()
+        button(app, containing: "Continue").tap()
+        app.textFields.firstMatch.tap(); app.textFields.firstMatch.typeText("Ama\n")
+        button(app, containing: "Continue").tap()
+        button(app, containing: "I have periods").tap()
+        shot(app, "onb-02-season")
+        button(app, containing: "Continue").tap()
+        button(app, containing: "Today").tap()
+        button(app, containing: "Continue").tap()
+        button(app, containing: "Continue").tap()                        // cycle details: keep the defaults
+        button(app, containing: "Track my period").tap(); button(app, containing: "Continue").tap()
+        button(app, containing: "Growing").tap(); button(app, containing: "Continue").tap()
+        button(app, containing: "Protestant").tap(); button(app, containing: "Continue").tap()
+        button(app, containing: "Lightly active").tap(); button(app, containing: "Continue").tap()
+        button(app, containing: "prayer life").tap(); button(app, containing: "Continue").tap()
+        button(app, containing: "No reminders").tap(); button(app, containing: "Continue").tap()
+        let ready = app.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", "your plan")).firstMatch.waitForExistence(timeout: 5)
+        shot(app, "onb-03-ready")
+        dump(app, ready)
+        XCTAssertTrue(ready)
+        button(app, containing: "Start My Journey").tap()
+        XCTAssertTrue(tab(app, "Faith").waitForExistence(timeout: 10))
+    }
 
     func testEnglishBible() {
         let app = launch(["-hs_lang", "en", "-bibleTranslation", "KJV", "-bibleLastBook", "John", "-bibleLastCh", "1"])

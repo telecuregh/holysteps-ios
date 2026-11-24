@@ -284,6 +284,15 @@ struct PrayerJournalView: View {
     @EnvironmentObject var store: AppStore
     @State var section = 0
     @State private var draft = ""
+    @State private var paywall = false
+    @ObservedObject private var account = AccountStore.shared
+
+    /// Android's visibleJournal: the last 7 days are free; any plan opens the whole journal (nothing is deleted).
+    private var visibleJournal: [JournalEntry] {
+        if account.canUse(.journalHistory) { return store.journal }
+        let cutoff = Date().addingTimeInterval(-7 * 86400)
+        return store.journal.filter { $0.created >= cutoff }
+    }
 
     var body: some View {
         ZStack {
@@ -317,20 +326,33 @@ struct PrayerJournalView: View {
                         }
                         .onDelete { store.prayers.remove(atOffsets: $0) }
                     } else {
-                        ForEach(store.journal) { e in
+                        let visible = visibleJournal
+                        ForEach(visible) { e in
                             VStack(alignment: .leading, spacing: 4) {
                                 Text(e.created, style: .date).font(.hs(12)).foregroundStyle(HS.peach)
                                 D(e.text).font(.hs(15)).foregroundStyle(HS.text)
                             }
                             .listRowBackground(HS.cardFill)
                         }
-                        .onDelete { store.journal.remove(atOffsets: $0) }
+                        .onDelete { offs in let ids = offs.map { visible[$0].id }; store.journal.removeAll { ids.contains($0.id) } }
+                        let hidden = store.journal.count - visible.count
+                        if hidden > 0 {
+                            Button { paywall = true } label: {
+                                VStack(alignment: .leading, spacing: 4) {
+                                    D(hidden == 1 ? tr("👑 1 older entry") : tr("👑 \(hidden) older entries")).font(.hs(15, .semibold)).foregroundStyle(HS.text)
+                                    T("Free shows your last 7 days. Everything you wrote is safe on this phone, and any plan opens your whole journal.")
+                                        .font(.hs(13)).foregroundStyle(HS.textMuted)
+                                }
+                            }
+                            .listRowBackground(HS.goldButton.opacity(0.16))
+                        }
                     }
                 }
                 .scrollContentBackground(.hidden)
             }
             .padding(20)
         }
+        .sheet(isPresented: $paywall) { PlansView(feature: .journalHistory) }
         .navigationTitle(tr(section == 0 ? "Prayer List" : "Faith Journal"))
         .navigationBarTitleDisplayMode(.inline)
     }
