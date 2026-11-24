@@ -77,6 +77,7 @@ final class BibleListening: NSObject, ObservableObject, AVSpeechSynthesizerDeleg
     /// Starts reading `book` `ch` of `translation` from `fromVerse`.
     func play(translation: String, lang: String, book: String, ch: Int, fromVerse: Int = 1) {
         SermonPlayer.shared.stop()
+        MusicPlayer.shared.stop()
         generation += 1
         let gen = generation
         synth.stopSpeaking(at: .immediate)

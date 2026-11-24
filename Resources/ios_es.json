@@ -109,5 +109,16 @@
  "I am": "Soy",
  "A woman": "Una mujer",
  "A man": "Un hombre",
- "Not set": "Sin indicar"
+ "Not set": "Sin indicar",
+ "Add songs from Files": "Agregar canciones desde Archivos",
+ "My music": "Mi música",
+ "Repeat": "Repetir",
+ "Those files are already in your list.": "Esos archivos ya están en tu lista.",
+ "Added 1 song": "Se agregó 1 canción",
+ "Added {0} songs": "Se agregaron {0} canciones",
+ "Worship songs, sung hymns and your own music": "Canciones de adoración, himnos cantados y tu propia música",
+ "Your songs play from where they are. HolySteps keeps only their names on this phone and never copies or uploads them.": "Tus canciones se reproducen desde donde están. HolySteps solo guarda sus nombres en este teléfono y nunca las copia ni las sube.",
+ "🎶 CHRISTIAN MUSIC": "🎶 MÚSICA CRISTIANA",
+ "This song can't be played.": "No se puede reproducir esta canción.",
+ "Mine": "Mías"
 }

@@ -14,6 +14,7 @@ struct FaithView: View {
                         BibleHomeCard()
                         DevotionalCard()
                         SermonCard()
+                        MusicCard()
                         NavigationLink { PrayerJournalView(section: 0) } label: {
                             GlassCard {
                                 HStack {

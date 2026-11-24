@@ -45,3 +45,23 @@ final class DevotionalTests: XCTestCase {
         XCTAssertEqual(DevotionalPlan.all[0].days[0].reference, "Psalm 46:10")
     }
 }
+
+final class MusicTests: XCTestCase {
+    func testEverySongIsBundled() {
+        XCTAssertEqual(WorshipMusic.all.count, 37)
+        XCTAssertEqual(Set(WorshipMusic.all.map(\.id)).count, 37)
+        for t in WorshipMusic.all { XCTAssertNotNil(t.url, "\(t.id).m4a missing from the bundle") }
+    }
+
+    func testRemixesAreLabeled() {
+        for t in WorshipMusic.all where t.id.range(of: #"_\d$"#, options: .regularExpression) != nil {
+            XCTAssertTrue(t.title.contains("(Remix"), t.title)
+        }
+    }
+
+    func testNeeds() {
+        XCTAssertEqual(WorshipMusic.forNeed(.MARRIAGE).first?.id, "water_into_wine")
+        XCTAssertEqual(WorshipMusic.recommend(asked: .MONEY_WORK).first?.id, "manna_in_the_morning")
+        XCTAssertEqual(MyMusicStore.title(fromFileName: "01_Great_Is_Thy_Faithfulness.mp3"), "01 Great Is Thy Faithfulness")
+    }
+}

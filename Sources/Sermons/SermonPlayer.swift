@@ -48,6 +48,7 @@ final class SermonPlayer: NSObject, ObservableObject, AVSpeechSynthesizerDelegat
     // MARK: Control
 
     func play(_ s: Sermon, from start: Int = 0) {
+        MusicPlayer.shared.stop()
         BibleListening.shared.stop()
         stopPlayback()
         sermon = s
