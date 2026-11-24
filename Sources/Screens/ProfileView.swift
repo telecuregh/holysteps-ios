@@ -84,7 +84,7 @@ struct ProfileView: View {
                     DevotionalState.shared.eraseAll()
                     SermonWeek.shared.eraseHeard()
                     QuizLog.shared.erase()
-                    ActivityLog.shared.erase(); FirstWeek.shared.eraseAll(); CycleLog.shared.erase()
+                    ActivityLog.shared.erase(); FirstWeek.shared.eraseAll(); CycleLog.shared.erase(); CheckInStore.shared.erase(); CoachLog.shared.erase()
                 }
                 Button(tr("Cancel"), role: .cancel) {}
             } message: { T("This removes your prayers, journal, cycle dates, reading streak, Bible highlights and notes from this phone.") }

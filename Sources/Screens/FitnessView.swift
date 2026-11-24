@@ -109,6 +109,8 @@ final class StepsModel: ObservableObject {
 /// with the map, the Form Coach, leagues and circles come with the health and community phases; until then they are
 /// left out rather than shown empty.
 struct FitnessView: View {
+    @EnvironmentObject var store: AppStore
+    @ObservedObject private var checkIns = CheckInStore.shared
     @ObservedObject private var model = StepsModel.shared
     @ObservedObject private var router = TabRouter.shared
     @AppStorage("stepGoal") private var goal = 8000
@@ -174,8 +176,12 @@ struct FitnessView: View {
 
     // MARK: Today
 
+    /// Android's todayStepTarget: the goal scaled to today's energy (high 115 %, steady 100 %, gentle 80 %, rest 60 %).
+    private var dayTarget: Int { max(1, Int((Double(goal) * Coach.plan(store: store).stepMultiplier).rounded())) }
+
     @ViewBuilder private var today: some View {
-        let progress = min(1, Double(model.today) / Double(max(1, goal)))
+        let target = dayTarget
+        let progress = min(1, Double(model.today) / Double(max(1, target)))
         let km = Double(model.today) * 0.70 / 1000
         let kcal = Int((km * 70 * 0.78).rounded())
         GlassCard {
@@ -191,10 +197,11 @@ struct FitnessView: View {
                     }
                 }
                 .frame(width: 168, height: 168)
-                T("Goal: \(goal.formatted()) steps").font(.hs(13)).foregroundStyle(HS.textMuted).padding(.top, 12)
+                T(target < goal ? "Goal today: \(target.formatted()) steps (a gentler day; usually \(goal.formatted()))" : "Goal: \(goal.formatted()) steps")
+                    .font(.hs(13)).foregroundStyle(HS.textMuted).multilineTextAlignment(.center).padding(.top, 12)
                 T(progress >= 1 ? "Goal reached! +20 pts earned"
-                  : (progress >= 0.75 ? "So close — \((goal - model.today).formatted()) more steps to your goal"
-                     : "\((goal - model.today).formatted()) steps to your goal · +20 pts when you hit it"))
+                  : (progress >= 0.75 ? "So close — \((target - model.today).formatted()) more steps to your goal"
+                     : "\((target - model.today).formatted()) steps to your goal · +20 pts when you hit it"))
                     .font(.hs(13, .semibold)).foregroundStyle(progress >= 1 ? HS.body : HS.gold)
                     .multilineTextAlignment(.center).padding(.top, 6)
             }
@@ -228,6 +235,7 @@ struct FitnessView: View {
             }
             .buttonStyle(.plain).padding(.horizontal, 20).padding(.top, 12)
         }
+        DailyCoachCard().padding(.horizontal, 20).padding(.top, 14)
         SectionHeader(title: "For the walk").padding(.top, 10)
         Button { music = true } label: {
             GlassCard {
@@ -265,6 +273,8 @@ struct FitnessView: View {
 
     private var train: some View {
         ToolSection(title: "Train", items: [
+            ToolItem(symbol: "figure.strengthtraining.traditional", color: HS.body, title: "Workouts", sub: "\(Coach.routines.count - 1) guided sessions with a coach's voice",
+                     destination: AnyView(WorkoutLibraryView())),
             ToolItem(symbol: "plus", color: HS.mind, title: "Log a Walk", sub: "Walked without your phone? Add it", action: { showManual = true }),
             ToolItem(symbol: "target", color: HS.body, title: "Step goal", sub: "\(goal.formatted()) steps a day", action: { showGoal = true }),
             ToolItem(symbol: "music.note", color: HS.peach, title: "Walking music", sub: "Gospel songs to walk with", destination: AnyView(MusicView(tab: 0))),
