@@ -306,13 +306,22 @@ struct HomeView: View {
             }
             HStack(spacing: 14) {
                 tile(cycleTitle, male ? "Strength and energy" : "Your rhythm, day by day", male ? "dumbbell" : "camera.macro", 0xE57A9E, 0xD27C86) { router.open(tab: 3) }
-                tile("Sleep", "Stories and night prayers", "moon.stars", 0x64A5E8, 0x5FA3A8) { route = .sleep }
+                tile("Sleep", "Stories and night prayers", "moon.stars", 0x64A5E8, 0x5FA3A8, sleepLink: true)
             }
         }
     }
 
-    private func tile(_ title: String, _ sub: String, _ symbol: String, _ tint: UInt32, _ glow: UInt32, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
+    @ViewBuilder
+    private func tile(_ title: String, _ sub: String, _ symbol: String, _ tint: UInt32, _ glow: UInt32, sleepLink: Bool = false, action: @escaping () -> Void = {}) -> some View {
+        if sleepLink {
+            NavigationLink { SleepView() } label: { tileFace(title, sub, symbol, tint, glow) }.buttonStyle(.plain)
+        } else {
+            Button(action: action) { tileFace(title, sub, symbol, tint, glow) }.buttonStyle(.plain)
+        }
+    }
+
+    private func tileFace(_ title: String, _ sub: String, _ symbol: String, _ tint: UInt32, _ glow: UInt32) -> some View {
+        Group {
             GlassCard(glow: Color(hex: glow)) {
                 VStack(alignment: .leading, spacing: 0) {
                     IconBadge(symbol: symbol, size: 40, tint: tint)
@@ -322,7 +331,6 @@ struct HomeView: View {
                 .frame(maxWidth: .infinity, minHeight: 110, alignment: .topLeading)
             }
         }
-        .buttonStyle(.plain)
     }
 
     // MARK: This week and help

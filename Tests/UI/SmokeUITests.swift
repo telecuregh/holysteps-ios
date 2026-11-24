@@ -175,6 +175,17 @@ final class SmokeUITests: XCTestCase {
         XCTAssertTrue(opened, "Sleep should open from Home")
         let back = app.navigationBars.buttons.allElementsBoundByIndex.first { $0.isHittable }
         back?.tap()
+        sleep(1)
+        // Today's verse → Open goes to the reader (a programmatic route).
+        let open = tab(app, "Open")
+        if open.exists {
+            open.tap()
+            let reader = app.buttons["verse-1"].waitForExistence(timeout: 60)
+            shot(app, "44a-verse-open")
+            XCTAssertTrue(reader, "Open should show the verse in the Bible")
+            app.navigationBars.buttons.allElementsBoundByIndex.first { $0.isHittable }?.tap()
+            sleep(1)
+        }
         app.swipeDown(); app.swipeDown(); sleep(1)
         tab(app, "Search").tap()
         let field = app.searchFields.firstMatch
