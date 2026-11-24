@@ -177,7 +177,7 @@ struct FitnessView: View {
     // MARK: Today
 
     /// Android's todayStepTarget: the goal scaled to today's energy (high 115 %, steady 100 %, gentle 80 %, rest 60 %).
-    private var dayTarget: Int { max(1, Int((Double(goal) * Coach.plan(store: store).stepMultiplier).rounded())) }
+    private var dayTarget: Int { max(1, Int((Double(goal) * Coach.plan(store: store).stepMultiplier * max(0.0001, BodyEnergy.todayAdjust.multiplier)).rounded())) }
 
     @ViewBuilder private var today: some View {
         let target = dayTarget

@@ -300,7 +300,8 @@ struct WomensCycleView: View {
 
     // MARK: More
 
-    private var more: some View {
+    @ViewBuilder private var more: some View {
+        BodyEnergyEntryCard().padding(.horizontal, 20).padding(.top, 16)
         GlassCard {
             VStack(alignment: .leading, spacing: 12) {
                 T("🔒 Where your cycle data lives").font(.hs(15, .bold)).foregroundStyle(HS.text)
@@ -493,6 +494,7 @@ struct MensWellnessView: View {
             .background(RoundedRectangle(cornerRadius: 16).fill(color.opacity(0.08)))
             .overlay(RoundedRectangle(cornerRadius: 16).strokeBorder(color.opacity(0.3), lineWidth: 1))
 
+            BodyEnergyEntryCard().padding(.top, 10)
             HStack(spacing: 12) {
                 stat("👟", "Steps", steps.today.formatted(), color)
                 stat("🙏", "Prayer streak", "\(store.prayerStreak)d", color)
