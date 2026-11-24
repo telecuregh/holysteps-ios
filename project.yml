@@ -21,6 +21,7 @@ targets:
       path: Info.plist
       properties:
         UIBackgroundModes: [audio]
+        UIAppFonts: [PlayfairDisplay-Italic.ttf]
     entitlements:
       path: HolySteps.entitlements
       properties:

@@ -20,7 +20,7 @@ struct FaithView: View {
                             GlassCard {
                                 HStack {
                                     VStack(alignment: .leading, spacing: 4) {
-                                        T("PRAYER LIST AND JOURNAL").font(.caption.weight(.semibold)).foregroundStyle(HS.gold)
+                                        T("PRAYER LIST AND JOURNAL").font(.system(size: 11, weight: .semibold)).tracking(1.4).foregroundStyle(HS.peach)
                                         T(store.prayers.isEmpty ? "Write down what you're praying for" : "\(store.prayers.filter { !$0.answered }.count) open · \(store.prayers.filter { $0.answered }.count) answered")
                                             .foregroundStyle(HS.text)
                                     }

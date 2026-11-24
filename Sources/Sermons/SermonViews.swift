@@ -33,7 +33,7 @@ struct SermonCard: View {
         GlassCard {
             VStack(alignment: .leading, spacing: 10) {
                 HStack {
-                    T("THIS WEEK'S SERMON").font(.caption.weight(.semibold)).foregroundStyle(HS.gold)
+                    T("THIS WEEK'S SERMON").font(.system(size: 11, weight: .semibold)).tracking(1.4).foregroundStyle(HS.peach)
                     Spacer()
                     Button { settings = true } label: { Image(systemName: "gearshape").foregroundStyle(HS.textMuted) }
                         .accessibilityLabel(tr("Sermon day"))
@@ -307,16 +307,16 @@ struct SermonTopicsView: View {
                 VStack(alignment: .leading, spacing: 12) {
                     GlassCard {
                         VStack(alignment: .leading, spacing: 6) {
-                            T("SERMONS FOR WHAT YOU'RE FACING").font(.caption.weight(.semibold)).foregroundStyle(HS.gold)
+                            T("SERMONS FOR WHAT YOU'RE FACING").font(.system(size: 11, weight: .semibold)).tracking(1.4).foregroundStyle(HS.peach)
                             T("What are you going through?").font(.system(size: 24, weight: .light)).foregroundStyle(HS.text)
-                            T("you're not the only one").font(.system(size: 18, design: .serif).italic()).foregroundStyle(HS.peach)
+                            ItalicAccent(text: "you're not the only one", size: 18)
                             T("Pick what's on your heart and listen to a sermon about it, with what the Bible says and how real people got through it.")
                                 .font(.footnote).foregroundStyle(HS.textSecondary)
                         }
                     }
                     CrisisCard()
                     ForEach(topicGroups, id: \.self) { g in
-                        T(g.uppercased()).font(.caption.weight(.semibold)).foregroundStyle(HS.gold).padding(.top, 10).padding(.leading, 4)
+                        T(g.uppercased()).font(.system(size: 11, weight: .semibold)).tracking(1.4).foregroundStyle(HS.peach).padding(.top, 10).padding(.leading, 4)
                             .accessibilityAddTraits(.isHeader)
                         ForEach(topics.filter { $0.group == g }) { t in
                             Button { chosen = t } label: { row(t.name, t.feels) }

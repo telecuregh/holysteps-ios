@@ -193,7 +193,7 @@ struct BiblePlanView: View {
                         let doneCount = BiblePlan.chapters.filter { bible.isRead($0.book, $0.ch) }.count
                         GlassCard {
                             VStack(alignment: .leading, spacing: 8) {
-                                T("Day \(day) of \(BiblePlan.days)").font(.caption.weight(.semibold)).foregroundStyle(HS.gold)
+                                T("Day \(day) of \(BiblePlan.days)").font(.system(size: 11, weight: .semibold)).tracking(1.4).foregroundStyle(HS.peach)
                                 ProgressView(value: Double(doneCount), total: Double(BiblePlan.totalChapters)).tint(HS.body)
                                 T("\(doneCount) of \(BiblePlan.totalChapters) chapters read").font(.caption).foregroundStyle(HS.textMuted)
                             }
@@ -246,7 +246,7 @@ struct BibleHomeCard: View {
         GlassCard {
             VStack(alignment: .leading, spacing: 10) {
                 HStack {
-                    T("BIBLE").font(.caption.weight(.semibold)).foregroundStyle(HS.gold)
+                    T("BIBLE").font(.system(size: 11, weight: .semibold)).tracking(1.4).foregroundStyle(HS.peach)
                     Spacer()
                     Text(verbatim: bible.translationId).font(.caption2.weight(.semibold)).foregroundStyle(HS.textMuted)
                 }

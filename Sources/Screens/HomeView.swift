@@ -20,7 +20,7 @@ struct HomeView: View {
                         ScreenTitle(text: greeting)
                         GlassCard {
                             VStack(alignment: .leading, spacing: 10) {
-                                T("VERSE OF THE DAY").font(.caption.weight(.semibold)).foregroundStyle(HS.gold)
+                                T("VERSE OF THE DAY").font(.system(size: 11, weight: .semibold)).tracking(1.4).foregroundStyle(HS.peach)
                                 Text(verbatim: verse.shown)
                                     .font(.system(size: 20, design: .serif).italic())
                                     .foregroundStyle(HS.peach)

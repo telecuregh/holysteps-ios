@@ -23,16 +23,41 @@ enum HS {
     static let text = Color(hex: 0xFAF6F2)
     static let textSecondary = Color(hex: 0xE6DDD5)
     static let textMuted = Color(hex: 0xC4B9B0)
+    static let textSubtle = Color(hex: 0x9F948B)
+    /// Android's HarmonyCardFill (0xA61C1524): frosted plum-charcoal glass.
+    static let cardFill = Color(hex: 0x1C1524, alpha: Double(0xA6) / 255)
+    static let cardSheen = Color(hex: 0xF7E3D4, alpha: Double(0x18) / 255)
+    /// Android's SolidSurface for dialogs and sheets.
+    static let solidSurface = Color(hex: 0x191322)
     static let faith = Color(hex: 0x9D7FEA)
     static let body = Color(hex: 0x56B892)
     static let mind = Color(hex: 0x64A5E8)
     static let cycle = Color(hex: 0xE57A9E)
 }
 
+/// Android's Harmony backdrop (SkyGlass, dark): the plum gradient, a soft glow near the top and a warm peach-rose
+/// haze toward the middle.
 struct HSBackground: View {
     var body: some View {
-        LinearGradient(colors: [HS.bgTop, HS.bgMid, HS.bgBottom], startPoint: .top, endPoint: .bottom)
-            .ignoresSafeArea()
+        GeometryReader { g in
+            ZStack {
+                LinearGradient(colors: [HS.bgTop, HS.bgMid, HS.bgBottom], startPoint: .top, endPoint: .bottom)
+                RadialGradient(colors: [Color(hex: 0x9B7785, alpha: Double(0x2E) / 255), .clear],
+                               center: UnitPoint(x: 0.5, y: 0.16), startRadius: 0, endRadius: g.size.width * 0.85)
+                RadialGradient(colors: [Color(hex: 0x7E5A52, alpha: Double(0x47) / 255), .clear],
+                               center: UnitPoint(x: 0.5, y: 0.44), startRadius: 0, endRadius: g.size.width * 0.95)
+            }
+        }
+        .ignoresSafeArea()
+    }
+}
+
+/// Android's HarmonyItalicAccent: the Playfair Display italic accent line in soft peach.
+struct ItalicAccent: View {
+    let text: String
+    var size: CGFloat = 18
+    var body: some View {
+        Text(verbatim: tr(text)).font(.custom("PlayfairDisplay-Italic", size: size)).foregroundStyle(HS.peach)
     }
 }
 

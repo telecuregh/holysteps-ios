@@ -318,7 +318,7 @@ struct MusicCard: View {
             GlassCard {
                 HStack(spacing: 12) {
                     VStack(alignment: .leading, spacing: 4) {
-                        T("🎶 CHRISTIAN MUSIC").font(.caption.weight(.semibold)).foregroundStyle(HS.gold)
+                        T("🎶 CHRISTIAN MUSIC").font(.system(size: 11, weight: .semibold)).tracking(1.4).foregroundStyle(HS.peach)
                         if let item = p.current {
                             T("Now playing: \(tr(item.title))").foregroundStyle(HS.text).lineLimit(1)
                         } else {

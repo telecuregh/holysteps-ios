@@ -79,7 +79,7 @@ struct DevotionalCard: View {
                 GlassCard {
                     HStack(alignment: .center, spacing: 12) {
                         VStack(alignment: .leading, spacing: 4) {
-                            T("📖 DAILY DEVOTIONAL").font(.caption.weight(.semibold)).foregroundStyle(HS.gold)
+                            T("📖 DAILY DEVOTIONAL").font(.system(size: 11, weight: .semibold)).tracking(1.4).foregroundStyle(HS.peach)
                             T(plan.days[n - 1].title).font(.system(size: 19, weight: .semibold, design: .serif)).foregroundStyle(HS.text)
                                 .multilineTextAlignment(.leading)
                             Text(verbatim: tr(plan.title) + " · " + tr("Day \(n) of \(plan.days.count)"))
@@ -111,9 +111,9 @@ struct DevotionalView: View {
                     VStack(alignment: .leading, spacing: 14) {
                         HStack(alignment: .top) {
                             VStack(alignment: .leading, spacing: 4) {
-                                T("📖 DAILY DEVOTIONAL").font(.caption.weight(.semibold)).foregroundStyle(HS.gold)
+                                T("📖 DAILY DEVOTIONAL").font(.system(size: 11, weight: .semibold)).tracking(1.4).foregroundStyle(HS.peach)
                                 T(plan.title).font(.system(size: 24, weight: .light)).foregroundStyle(HS.text)
-                                T("Day \(n) of \(plan.days.count)").font(.system(size: 17, design: .serif).italic()).foregroundStyle(HS.peach)
+                                ItalicAccent(text: "Day \(n) of \(plan.days.count)", size: 17)
                             }
                             Spacer()
                             Button { choosing = true } label: {
@@ -124,9 +124,9 @@ struct DevotionalView: View {
                         ProgressView(value: Double(n), total: Double(plan.days.count)).tint(HS.goldButton)
                         GlassCard {
                             VStack(alignment: .leading, spacing: 12) {
-                                T(day.title).font(.title3.weight(.semibold)).foregroundStyle(HS.text)
-                                Text(verbatim: "“" + tr(day.scripture) + "”").font(.body.italic()).foregroundStyle(HS.peach)
-                                Text(verbatim: "— " + tr(day.reference)).font(.footnote.weight(.medium)).foregroundStyle(HS.textMuted)
+                                T(day.title).font(.system(size: 20, weight: .semibold)).foregroundStyle(HS.text)
+                                Text(verbatim: "\"" + tr(day.scripture) + "\"").font(.system(size: 16).italic()).lineSpacing(10).foregroundStyle(HS.peach)
+                                Text(verbatim: "— " + tr(day.reference)).font(.system(size: 13, weight: .medium)).foregroundStyle(HS.textMuted)
                                 ShareLink(item: "“\(tr(day.scripture))” — \(tr(day.reference))") {
                                     Label(tr("Share"), systemImage: "square.and.arrow.up").font(.footnote)
                                 }
@@ -134,13 +134,13 @@ struct DevotionalView: View {
                             }
                         }
                         section("📝", "Today's Reflection") {
-                            T(day.body).foregroundStyle(HS.text.opacity(0.9)).lineSpacing(5)
+                            T(day.body).font(.system(size: 15)).foregroundStyle(HS.text.opacity(0.9)).lineSpacing(11)
                         }
                         section("🙏", "Prayer") {
-                            T(day.prayer).italic().foregroundStyle(HS.faith).lineSpacing(4)
+                            T(day.prayer).font(.system(size: 14)).italic().foregroundStyle(HS.faith.opacity(0.9)).lineSpacing(10)
                         }
                         section("⚡", "Today's Challenge") {
-                            T(day.challenge).foregroundStyle(HS.goldButton).lineSpacing(4)
+                            T(day.challenge).font(.system(size: 14)).foregroundStyle(Color(hex: 0xF59E0B)).lineSpacing(10)
                         }
                         Group {
                             if state.readToday {
@@ -198,7 +198,7 @@ struct DevotionalView: View {
             VStack(alignment: .leading, spacing: 10) {
                 HStack(spacing: 8) {
                     Text(verbatim: icon)
-                    T(title).font(.caption.weight(.semibold)).foregroundStyle(HS.textMuted)
+                    T(title).font(.system(size: 12, weight: .semibold)).tracking(0.8).foregroundStyle(HS.textMuted)
                 }
                 content()
             }
