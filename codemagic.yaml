@@ -1,0 +1,65 @@
+# Codemagic: free iPhone builds (500 Mac minutes a month on a personal account), the same steps as
+# .github/workflows/ios.yml. "check" runs on every push to main; "testflight" is started by hand.
+workflows:
+  check:
+    name: Build and test
+    instance_type: mac_mini_m2
+    max_build_duration: 60
+    environment:
+      xcode: latest
+    triggering:
+      events: [push]
+      branch_patterns:
+        - pattern: main
+      cancel_previous_builds: true
+    scripts:
+      - name: Generate the Xcode project
+        script: brew install xcodegen && xcodegen generate
+      - name: Build for the simulator
+        script: |
+          set -o pipefail
+          xcodebuild -project HolySteps.xcodeproj -scheme HolySteps -configuration Debug \
+            -destination 'generic/platform=iOS Simulator' -derivedDataPath build CODE_SIGNING_ALLOWED=NO build \
+            | tee build.log | grep -E "error:|BUILD (SUCCEEDED|FAILED)" || true
+          grep -q "BUILD SUCCEEDED" build.log
+      - name: Run tests and take screenshots
+        script: |
+          set -o pipefail
+          UDID=$(xcrun simctl list devices available -j | python3 -c "import json,sys; d=json.load(sys.stdin)['devices']; print(next(x['udid'] for k in sorted(d, reverse=True) if 'iOS' in k for x in d[k] if x['name'].startswith('iPhone')))")
+          mkdir -p screenshots
+          TEST_RUNNER_SCREENSHOT_DIR="$PWD/screenshots" xcodebuild -project HolySteps.xcodeproj -scheme HolySteps \
+            -destination "id=$UDID" -derivedDataPath build CODE_SIGNING_ALLOWED=NO test \
+            | tee test.log | grep -E "error:|Test Case .*(passed|failed)|XCTAssert|TEST (SUCCEEDED|FAILED)" || true
+          grep -q "TEST SUCCEEDED" test.log
+    artifacts:
+      - build.log
+      - test.log
+      - screenshots/*.png
+
+  testflight:
+    name: Upload to TestFlight
+    instance_type: mac_mini_m2
+    max_build_duration: 60
+    integrations:
+      # Added in Codemagic: Team settings → Integrations → Developer Portal, named exactly this.
+      app_store_connect: HolySteps App Store Connect
+    environment:
+      xcode: latest
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: com.holysteps.app
+    scripts:
+      - name: Generate the Xcode project
+        script: brew install xcodegen && xcodegen generate
+      - name: Use the signing profiles
+        script: xcode-project use-profiles
+      - name: Build the app
+        script: |
+          xcode-project build-ipa --project HolySteps.xcodeproj --scheme HolySteps \
+            --archive-xcargs "CURRENT_PROJECT_VERSION=$PROJECT_BUILD_NUMBER"
+    artifacts:
+      - build/ios/ipa/*.ipa
+    publishing:
+      app_store_connect:
+        auth: integration
+        submit_to_testflight: true
