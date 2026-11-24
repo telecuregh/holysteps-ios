@@ -24,6 +24,8 @@ struct RootTabView: View {
                 ForEach(0..<5, id: \.self) { i in
                     page(i)
                         .opacity(tab == i ? 1 : 0)
+                        // The shown tab sits on top, so its own navigation (pushing a screen) works.
+                        .zIndex(tab == i ? 1 : 0)
                         .allowsHitTesting(tab == i)
                         .accessibilityHidden(tab != i)
                 }
