@@ -67,7 +67,7 @@ struct WomensCycleView: View {
                         }
                     }
                     .frame(width: 150, height: 150)
-                    T("\(phase.emoji) \(phase.label) phase").font(.hs(20, .bold)).foregroundStyle(HS.peach).padding(.top, 10)
+                    T("\(phase.emoji) \(tr(phase.label)) phase").font(.hs(20, .bold)).foregroundStyle(HS.peach).padding(.top, 10)
                     T(pred.daysLate == 1 ? "Period is 1 day late. Log it when it starts"
                       : pred.daysLate > 1 ? "Period is \(pred.daysLate) days late. Log it when it starts" + (pred.daysLate >= 7 ? ", or consider a pregnancy test" : "")
                       : pred.daysUntil == 0 ? "Period expected today" : pred.daysUntil == 1 ? "Period expected tomorrow" : "Next period in \(pred.daysUntil) days")
