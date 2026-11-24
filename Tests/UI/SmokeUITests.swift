@@ -25,10 +25,17 @@ final class SmokeUITests: XCTestCase {
     }
 
     private func button(_ app: XCUIApplication, containing s: String) -> XCUIElement {
-        app.buttons.matching(NSPredicate(format: "label CONTAINS %@", s)).firstMatch
+        let all = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", s))
+        _ = all.firstMatch.waitForExistence(timeout: 5)
+        return all.allElementsBoundByIndex.first { $0.isHittable } ?? all.firstMatch
     }
 
-    private func tab(_ app: XCUIApplication, _ label: String) -> XCUIElement { app.buttons[label].firstMatch }
+    /// The visible button with this label (hidden tabs keep their own buttons with the same names).
+    private func tab(_ app: XCUIApplication, _ label: String) -> XCUIElement {
+        let all = app.buttons.matching(NSPredicate(format: "label == %@", label))
+        _ = all.firstMatch.waitForExistence(timeout: 10)
+        return all.allElementsBoundByIndex.first { $0.isHittable } ?? all.firstMatch
+    }
 
     private func dump(_ app: XCUIApplication, _ ok: Bool) { if !ok { print("UI TREE:\n" + app.debugDescription) } }
 
@@ -157,15 +164,17 @@ final class SmokeUITests: XCTestCase {
         app.swipeUp()
         shot(app, "41-home-middle")
         app.swipeUp()
+        sleep(1)
         shot(app, "42-home-bottom")
         let sleepTile = button(app, containing: "Stories and night prayers")
         XCTAssertTrue(sleepTile.waitForExistence(timeout: 5))
         sleepTile.tap()
         sleep(2)
         shot(app, "43-sleep")
-        app.navigationBars.buttons.firstMatch.tap()
-        app.swipeDown(); app.swipeDown()
-        app.buttons["Search"].firstMatch.tap()
+        let back = app.navigationBars.buttons.allElementsBoundByIndex.first { $0.isHittable }
+        back?.tap()
+        app.swipeDown(); app.swipeDown(); sleep(1)
+        tab(app, "Search").tap()
         sleep(1)
         app.typeText("sleep")
         shot(app, "44-search")
