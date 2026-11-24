@@ -251,16 +251,20 @@ struct BibleReaderView: View {
         let bg: Color = mark?.isHighlighted == true ? Color(hex: mark!.color.hex).opacity(0.22)
             : (selected == n ? Color.white.opacity(0.08) : .clear)
         return VStack(alignment: .leading, spacing: 2) {
-            line
-                .lineSpacing(prefs.lineGap)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.horizontal, 6).padding(.vertical, 3)
-                .background(RoundedRectangle(cornerRadius: 6).fill(bg))
-                .overlay(RoundedRectangle(cornerRadius: 6).stroke(reading ? Color(hex: 0xFCD34D) : .clear, lineWidth: 1.5))
-                .contentShape(Rectangle())
-                .onTapGesture { selected = selected == n ? nil : n }
-                .accessibilityAddTraits(.isButton)
-                .accessibilityHint(tr("Verse options"))
+            Button { selected = selected == n ? nil : n } label: {
+                line
+                    .lineSpacing(prefs.lineGap)
+                    .multilineTextAlignment(.leading)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal, 6).padding(.vertical, 3)
+                    .background(RoundedRectangle(cornerRadius: 6).fill(bg))
+                    .overlay(RoundedRectangle(cornerRadius: 6).stroke(reading ? Color(hex: 0xFCD34D) : .clear, lineWidth: 1.5))
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .accessibilityIdentifier("verse-\(n)")
+            .accessibilityLabel(Text(verbatim: reading ? tr("Being read aloud") + ": \(n). \(v)" : "\(n). \(v)"))
+            .accessibilityHint(tr("Verse options"))
             if let note = mark?.note, !note.isEmpty {
                 Text(verbatim: "📝 \(note)").font(.system(size: size * 0.75)).foregroundStyle(HS.textMuted).lineLimit(3)
                     .padding(.leading, 12).padding(.bottom, 4)

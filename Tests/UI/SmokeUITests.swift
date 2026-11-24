@@ -35,7 +35,7 @@ final class SmokeUITests: XCTestCase {
         app.tabBars.buttons["Faith"].tap()
         shot(app, "02-faith")
         button(app, containing: "Continue reading").tap()
-        let verse = app.staticTexts.matching(NSPredicate(format: "label CONTAINS 'In the beginning was the Word'")).firstMatch
+        let verse = app.buttons["verse-1"]
         let found = verse.waitForExistence(timeout: 90)
         shot(app, "03a-after-open")
         if !found { print("UI TREE:\n" + app.debugDescription) }
@@ -78,7 +78,7 @@ final class SmokeUITests: XCTestCase {
         app.tabBars.buttons["Fe"].tap()
         shot(app, "11-es-faith")
         button(app, containing: "Seguir leyendo").tap()
-        let verse = app.staticTexts.matching(NSPredicate(format: "label CONTAINS 'pastor'")).firstMatch
+        let verse = app.buttons.matching(NSPredicate(format: "label CONTAINS 'pastor'")).firstMatch
         let found = verse.waitForExistence(timeout: 90)
         shot(app, "12a-after-open")
         if !found { print("UI TREE:\n" + app.debugDescription) }
