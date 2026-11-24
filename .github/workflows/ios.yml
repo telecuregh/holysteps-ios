@@ -9,7 +9,7 @@ on:
 jobs:
   build:
     runs-on: macos-latest
-    timeout-minutes: 30
+    timeout-minutes: 50
     steps:
       - uses: actions/checkout@v4
 
@@ -34,6 +34,36 @@ jobs:
             CODE_SIGNING_ALLOWED=NO \
             build | tee build.log | grep -E "error:|warning:|BUILD (SUCCEEDED|FAILED)" || true
           grep -q "BUILD SUCCEEDED" build.log
+
+      - name: Run tests on the simulator
+        run: |
+          set -o pipefail
+          UDID=$(xcrun simctl list devices available -j | python3 -c "import json,sys; d=json.load(sys.stdin)['devices']; print(next(x['udid'] for k in sorted(d, reverse=True) if 'iOS' in k for x in d[k] if x['name'].startswith('iPhone')))")
+          echo "Simulator: $UDID"
+          mkdir -p screenshots
+          TEST_RUNNER_SCREENSHOT_DIR="$PWD/screenshots" xcodebuild \
+            -project HolySteps.xcodeproj \
+            -scheme HolySteps \
+            -destination "id=$UDID" \
+            -derivedDataPath build \
+            -resultBundlePath TestResults.xcresult \
+            CODE_SIGNING_ALLOWED=NO \
+            test | tee test.log | grep -E "error:|Test Case .*(passed|failed)|XCTAssert|TEST (SUCCEEDED|FAILED)|Executed" || true
+          grep -q "TEST SUCCEEDED" test.log
+
+      - name: Upload screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: screenshots
+          path: screenshots
+
+      - name: Upload test log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-log
+          path: test.log
 
       - name: Upload build log
         if: always()

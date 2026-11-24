@@ -41,3 +41,34 @@ targets:
         INFOPLIST_KEY_NSHealthUpdateUsageDescription: HolySteps does not write health data.
         INFOPLIST_KEY_ITSAppUsesNonExemptEncryption: NO
         ENABLE_PREVIEWS: YES
+  HolyStepsTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources: [Tests/Unit]
+    dependencies:
+      - target: HolySteps
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+        PRODUCT_BUNDLE_IDENTIFIER: com.holysteps.app.tests
+  HolyStepsUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources: [Tests/UI]
+    dependencies:
+      - target: HolySteps
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+        PRODUCT_BUNDLE_IDENTIFIER: com.holysteps.app.uitests
+        TEST_TARGET_NAME: HolySteps
+schemes:
+  HolySteps:
+    build:
+      targets:
+        HolySteps: all
+    test:
+      config: Debug
+      targets:
+        - HolyStepsTests
+        - HolyStepsUITests
