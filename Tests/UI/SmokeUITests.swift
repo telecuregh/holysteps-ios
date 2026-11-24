@@ -169,14 +169,18 @@ final class SmokeUITests: XCTestCase {
         let sleepTile = button(app, containing: "Stories and night prayers")
         XCTAssertTrue(sleepTile.waitForExistence(timeout: 5))
         sleepTile.tap()
-        sleep(2)
+        let opened = app.staticTexts["Rest well tonight"].waitForExistence(timeout: 5)
         shot(app, "43-sleep")
+        dump(app, opened)
+        XCTAssertTrue(opened, "Sleep should open from Home")
         let back = app.navigationBars.buttons.allElementsBoundByIndex.first { $0.isHittable }
         back?.tap()
         app.swipeDown(); app.swipeDown(); sleep(1)
         tab(app, "Search").tap()
-        sleep(1)
-        app.typeText("sleep")
+        let field = app.searchFields.firstMatch
+        XCTAssertTrue(field.waitForExistence(timeout: 5))
+        field.tap()
+        field.typeText("sleep")
         shot(app, "44-search")
         let recap = button(app, containing: "Your week")
         if recap.waitForExistence(timeout: 3) { recap.tap(); sleep(2); shot(app, "45-recap") }
