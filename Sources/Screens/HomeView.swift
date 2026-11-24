@@ -81,8 +81,10 @@ struct HomeView: View {
         let chip = light ? Color.white.opacity(0.82) : Color(hex: 0x140C18).opacity(0.55)
         let chipEdge = light ? Color(hex: 0x3A3135).opacity(0.18) : Color.white.opacity(0.35)
         return ZStack(alignment: .bottom) {
-            Image(light ? "home_hero_light" : "home_hero_woman").resizable().scaledToFill()
-                .frame(height: 318 + safeTop, alignment: .top).frame(maxWidth: .infinity).clipped()
+            // The photo fills the width without widening the page (an image's own size never sets the layout).
+            Color.clear.frame(height: 318 + safeTop).frame(maxWidth: .infinity)
+                .overlay(alignment: .top) { Image(light ? "home_hero_light" : "home_hero_woman").resizable().scaledToFill() }
+                .clipped()
                 .mask(LinearGradient(stops: [.init(color: .black, location: 0), .init(color: .black, location: 0.5), .init(color: .clear, location: 1)], startPoint: .top, endPoint: .bottom))
                 .accessibilityHidden(true)
             LinearGradient(stops: [.init(color: light ? Color.white.opacity(0.45) : Color.black.opacity(0.5), location: 0),

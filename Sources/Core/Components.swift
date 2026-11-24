@@ -301,8 +301,9 @@ struct ScreenPhoto: View {
     }
 
     var body: some View {
-        Image(Self.daily(name)).resizable().scaledToFill()
-            .frame(height: height).frame(maxWidth: .infinity).clipped()
+        Color.clear.frame(height: height).frame(maxWidth: .infinity)
+            .overlay { Image(Self.daily(name)).resizable().scaledToFill() }
+            .clipped()
             .mask(LinearGradient(stops: [.init(color: .black, location: 0), .init(color: .black, location: 0.6), .init(color: .clear, location: 1)],
                                  startPoint: .top, endPoint: .bottom))
             .frame(height: height - overlap, alignment: .top)
