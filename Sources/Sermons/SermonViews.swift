@@ -59,9 +59,9 @@ struct SermonCard: View {
                         .font(.caption2).foregroundStyle(HS.textMuted)
                 }
                 HStack(spacing: 8) {
-                    NavigationLink { SermonTopicsView() } label: { pill("💬 " + tr("What you're facing")) }
-                    NavigationLink { BibleSermonsView() } label: { pill("📖 " + tr("Through the Bible")) }
-                    NavigationLink { SermonLibraryView() } label: { pill("🎙 " + tr("All sermons")) }
+                    NavigationLink { SermonTopicsView() } label: { pill("💬", tr("What you're facing")) }
+                    NavigationLink { BibleSermonsView() } label: { pill("📖", tr("Through the Bible")) }
+                    NavigationLink { SermonLibraryView() } label: { pill("🎙", tr("All sermons")) }
                 }
                 if let s = player.sermon, player.active, s != week.current() {
                     Button { open = s } label: {
@@ -87,9 +87,14 @@ struct SermonCard: View {
         }
     }
 
-    private func pill(_ s: String) -> some View {
-        Text(verbatim: s).font(.caption.weight(.semibold)).foregroundStyle(HS.text).lineLimit(1).minimumScaleFactor(0.8)
-            .padding(.horizontal, 10).padding(.vertical, 7).background(Capsule().fill(Color.white.opacity(0.08)))
+    private func pill(_ icon: String, _ s: String) -> some View {
+        VStack(spacing: 3) {
+            Text(verbatim: icon).font(.body)
+            Text(verbatim: s).font(.caption2.weight(.semibold)).foregroundStyle(HS.text).lineLimit(2).multilineTextAlignment(.center)
+        }
+        .frame(maxWidth: .infinity, minHeight: 56)
+        .padding(.horizontal, 4).padding(.vertical, 6)
+        .background(RoundedRectangle(cornerRadius: 12).fill(Color.white.opacity(0.08)))
     }
 }
 

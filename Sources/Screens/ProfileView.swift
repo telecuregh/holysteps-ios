@@ -16,6 +16,13 @@ struct ProfileView: View {
                             VStack(alignment: .leading, spacing: 8) {
                                 T("First name").font(.subheadline).foregroundStyle(HS.textMuted)
                                 TextField(tr("Your first name"), text: $store.name).textFieldStyle(.roundedBorder)
+                                T("I am").font(.subheadline).foregroundStyle(HS.textMuted).padding(.top, 6)
+                                Picker("", selection: $store.gender) {
+                                    T("A woman").tag("female")
+                                    T("A man").tag("male")
+                                    T("Not set").tag("")
+                                }
+                                .pickerStyle(.segmented)
                             }
                         }
                         GlassCard {
@@ -52,6 +59,8 @@ struct ProfileView: View {
                     store.prayers = []; store.journal = []; store.periodStarts = []
                     store.readDays = []; store.name = ""
                     BibleState.shared.eraseAll()
+                    DevotionalState.shared.eraseAll()
+                    SermonWeek.shared.eraseHeard()
                 }
                 Button(tr("Cancel"), role: .cancel) {}
             } message: { T("This removes your prayers, journal, cycle dates, reading streak, Bible highlights and notes from this phone.") }

@@ -35,3 +35,13 @@ final class SermonTests: XCTestCase {
         XCTAssertEqual(SermonWeekLogic.daysUntil(sun, 7), 0)
     }
 }
+
+final class DevotionalTests: XCTestCase {
+    func testPlans() {
+        XCTAssertEqual(DevotionalPlan.all.map(\.id), ["women_strength_30", "men_strength_30", "faith_foundations_21"])
+        XCTAssertEqual(DevotionalPlan.all.map { $0.days.count }, [30, 30, 21])
+        XCTAssertEqual(DevotionalPlan.plans(for: "male").map(\.id), ["men_strength_30", "faith_foundations_21"])
+        XCTAssertEqual(DevotionalPlan.plans(for: "").count, 3)
+        XCTAssertEqual(DevotionalPlan.all[0].days[0].reference, "Psalm 46:10")
+    }
+}

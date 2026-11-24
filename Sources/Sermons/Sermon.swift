@@ -175,4 +175,5 @@ final class SermonWeek: ObservableObject {
     var booksReleased: Int { SermonWeekLogic.booksReleased(SermonWeekLogic.today(), day, max(1, SermonLibrary.books.count)) }
 
     func markHeard(_ id: String) { if !heard.contains(id) { heard.insert(id) } }
+    func eraseHeard() { heard = [] }
 }

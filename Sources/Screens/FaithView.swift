@@ -12,6 +12,7 @@ struct FaithView: View {
                     VStack(alignment: .leading, spacing: 16) {
                         ScreenTitle(text: "Faith")
                         BibleHomeCard()
+                        DevotionalCard()
                         SermonCard()
                         NavigationLink { PrayerJournalView(section: 0) } label: {
                             GlassCard {

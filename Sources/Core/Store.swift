@@ -17,6 +17,8 @@ struct JournalEntry: Codable, Identifiable, Equatable {
 /// Everything is stored on the phone (UserDefaults). Nothing is uploaded.
 final class AppStore: ObservableObject {
     @Published var name: String { didSet { UserDefaults.standard.set(name, forKey: "name") } }
+    /// "female", "male" or "" (not set): picks the devotional plans, and later the health tools.
+    @Published var gender: String { didSet { UserDefaults.standard.set(gender, forKey: "gender") } }
     @Published var prayers: [PrayerItem] { didSet { save(prayers, "prayers") } }
     @Published var journal: [JournalEntry] { didSet { save(journal, "journal") } }
     @Published var periodStarts: [Date] { didSet { save(periodStarts, "periodStarts") } }
@@ -25,6 +27,7 @@ final class AppStore: ObservableObject {
     init() {
         let d = UserDefaults.standard
         name = d.string(forKey: "name") ?? ""
+        gender = d.string(forKey: "gender") ?? ""
         prayers = AppStore.load("prayers") ?? []
         journal = AppStore.load("journal") ?? []
         periodStarts = AppStore.load("periodStarts") ?? []
