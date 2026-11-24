@@ -244,6 +244,8 @@ struct FaithView: View {
         ToolSection(title: "Calm", items: [
             ToolItem(symbol: "heart.text.square", color: HS.mind, title: "Calm check", sub: "Your heart rate and calm in 30 seconds",
                      destination: AnyView(CalmCheckView())),
+            ToolItem(symbol: "wind", color: HS.mind, title: "Breathing pace", sub: "How fast you breathe, in one minute",
+                     destination: AnyView(BreathPaceView())),
         ])
     }
 }
