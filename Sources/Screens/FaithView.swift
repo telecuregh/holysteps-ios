@@ -1,17 +1,50 @@
 import SwiftUI
 
+/// The Faith tab: the Bible, this week's sermon, and the prayer list and journal.
 struct FaithView: View {
     @EnvironmentObject var store: AppStore
-    @State private var section = 0
-    @State private var draft = ""
 
     var body: some View {
         NavigationStack {
             ZStack {
                 HSBackground()
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 16) {
+                        ScreenTitle(text: "Faith")
+                        BibleHomeCard()
+                        SermonCard()
+                        NavigationLink { PrayerJournalView(section: 0) } label: {
+                            GlassCard {
+                                HStack {
+                                    VStack(alignment: .leading, spacing: 4) {
+                                        T("PRAYER LIST AND JOURNAL").font(.caption.weight(.semibold)).foregroundStyle(HS.gold)
+                                        T(store.prayers.isEmpty ? "Write down what you're praying for" : "\(store.prayers.filter { !$0.answered }.count) open · \(store.prayers.filter { $0.answered }.count) answered")
+                                            .foregroundStyle(HS.text)
+                                    }
+                                    Spacer()
+                                    Image(systemName: "chevron.right").foregroundStyle(HS.gold)
+                                }
+                            }
+                        }
+                    }
+                    .padding(20)
+                }
+            }
+            .toolbar(.hidden, for: .navigationBar)
+        }
+    }
+}
+
+/// The prayer list and the journal.
+struct PrayerJournalView: View {
+    @EnvironmentObject var store: AppStore
+    @State var section = 0
+    @State private var draft = ""
+
+    var body: some View {
+            ZStack {
+                HSBackground()
                 VStack(alignment: .leading, spacing: 14) {
-                    ScreenTitle(text: "Faith")
-                    BibleHomeCard()
                     Picker("", selection: $section) {
                         T("Prayer list").tag(0)
                         T("Journal").tag(1)
@@ -53,8 +86,8 @@ struct FaithView: View {
                 }
                 .padding(20)
             }
-            .toolbar(.hidden, for: .navigationBar)
-        }
+            .navigationTitle(tr("Prayer list and journal"))
+            .navigationBarTitleDisplayMode(.inline)
     }
 
     private func add() {

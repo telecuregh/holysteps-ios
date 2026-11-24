@@ -19,7 +19,7 @@ final class SmokeUITests: XCTestCase {
 
     private func launch(_ args: [String]) -> XCUIApplication {
         let app = XCUIApplication()
-        app.launchArguments = args
+        app.launchArguments = args + ["-sermonAskedNotify", "YES"]
         app.launch()
         return app
     }
@@ -69,6 +69,23 @@ final class SmokeUITests: XCTestCase {
         app.buttons["Listen to this chapter"].tap()
         sleep(3)
         shot(app, "09-listening")
+    }
+
+    func testSermon() {
+        let app = launch(["-hs_lang", "en", "-sermonAskedNotify", "YES"])
+        XCTAssertTrue(app.tabBars.buttons["Faith"].waitForExistence(timeout: 20))
+        app.tabBars.buttons["Faith"].tap()
+        shot(app, "20-faith-with-sermon")
+        button(app, containing: "What you're facing").tap()
+        sleep(1)
+        shot(app, "21-sermon-topics")
+        button(app, containing: "Anxiety and worry").tap()
+        XCTAssertTrue(app.alerts.firstMatch.waitForExistence(timeout: 5))
+        shot(app, "22-topic-alert")
+        app.alerts.buttons["Listen now"].tap()
+        sleep(20)   // the preacher's voice pack downloads, then the first paragraphs play
+        shot(app, "23-sermon-player")
+        XCTAssertTrue(app.staticTexts.matching(NSPredicate(format: "label CONTAINS 'Preacher' OR label CONTAINS 'phone'")).firstMatch.exists)
     }
 
     func testSpanishBible() {

@@ -53,7 +53,16 @@ struct ListeningBar: View {
                     }
                 }
                 Spacer()
-                Text(verbatim: tr("Your phone's voice")).font(.caption2).foregroundStyle(HS.textMuted)
+                Menu {
+                    ForEach(VoicePacks.narrators) { v in
+                        Button { l.narrator = v.id } label: { Text(verbatim: (l.narrator == v.id ? "✓ " : "") + v.name + " · " + tr(v.description)) }
+                    }
+                    Button { l.narrator = VoicePacks.deviceVoice } label: {
+                        Text(verbatim: (l.narrator == VoicePacks.deviceVoice ? "✓ " : "") + tr("Your phone's voice"))
+                    }
+                } label: {
+                    Text(verbatim: "🎙 " + (l.reader.isEmpty ? tr("Your phone's voice") : l.reader)).font(.caption2).foregroundStyle(HS.textMuted)
+                }
             }
         }
         .padding(.horizontal, 16).padding(.vertical, 10)

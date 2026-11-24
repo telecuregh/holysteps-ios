@@ -38,6 +38,12 @@ final class BibleListening: NSObject, ObservableObject, AVSpeechSynthesizerDeleg
     @Published private(set) var sleepMinutes = 0
     @Published private(set) var sleepEndsAt: Date?
     @Published private(set) var error: String?
+    /// Who is reading: "Grace", "Michael" or "your phone's voice".
+    @Published private(set) var reader = ""
+    /// The narrator chosen for the recorded chapters: a VoicePacks narrator id, or "device".
+    @Published var narrator: String = UserDefaults.standard.string(forKey: "bibleNarrator") ?? "af_heart" {
+        didSet { UserDefaults.standard.set(narrator, forKey: "bibleNarrator") }
+    }
 
     var title: String { book.isEmpty ? "" : "\(bookTitle.isEmpty ? book : bookTitle) \(ch)" }
 
@@ -49,6 +55,9 @@ final class BibleListening: NSObject, ObservableObject, AVSpeechSynthesizerDeleg
     /// Bumped on every new start so a late delegate callback from an earlier utterance is ignored.
     private var generation = 0
     private var current: AVSpeechUtterance?
+    private let clips = ClipPlayer()
+    private var pack: VoicePacks.Pack?
+    private var clipPlaying = false
 
     override private init() {
         super.init()
@@ -67,6 +76,7 @@ final class BibleListening: NSObject, ObservableObject, AVSpeechSynthesizerDeleg
 
     /// Starts reading `book` `ch` of `translation` from `fromVerse`.
     func play(translation: String, lang: String, book: String, ch: Int, fromVerse: Int = 1) {
+        SermonPlayer.shared.stop()
         generation += 1
         let gen = generation
         synth.stopSpeaking(at: .immediate)
@@ -81,13 +91,26 @@ final class BibleListening: NSObject, ObservableObject, AVSpeechSynthesizerDeleg
                 let t = try await BibleRepository.shared.load(translation)
                 guard gen == generation else { return }
                 text = t
-                startChapter(book: book, ch: ch, from: fromVerse)
+                await beginChapter(book: book, ch: ch, from: fromVerse, gen: gen)
             } catch {
                 guard gen == generation else { return }
                 self.error = error.localizedDescription
                 loading = false
             }
         }
+    }
+
+    /// Loads the narrator's recording when this chapter has one, then starts reading.
+    private func beginChapter(book: String, ch: Int, from: Int, gen: Int) async {
+        pack = nil
+        if narrator != VoicePacks.deviceVoice && VoicePacks.isRecorded(translation: translation, book: book, ch: ch) {
+            loading = true
+            pack = await VoicePacks.shared.ensure(voice: narrator, packId: VoicePacks.biblePackId(book: book, ch: ch))
+        }
+        guard gen == generation else { return }
+        let name = VoicePacks.narrators.first { $0.id == narrator }?.name
+        reader = pack != nil && name != nil ? name! : tr("Your phone's voice")
+        startChapter(book: book, ch: ch, from: from)
     }
 
     private func startChapter(book: String, ch: Int, from: Int) {
@@ -123,6 +146,20 @@ final class BibleListening: NSObject, ObservableObject, AVSpeechSynthesizerDeleg
 
     private func speak(_ v: Int) {
         verse = v
+        if let data = pack?.audio(for: Spoken.verse(verses[v - 1])) {
+            let gen = generation
+            playing = true
+            clipPlaying = true
+            updateNowPlaying()
+            Task {
+                let ok = await clips.play(data, rate: speed)
+                guard gen == generation, active else { return }
+                clipPlaying = false
+                _ = ok
+                advance(after: v)
+            }
+            return
+        }
         let u = AVSpeechUtterance(string: Spoken.verse(verses[v - 1]))
         u.voice = voice()
         u.rate = min(AVSpeechUtteranceMaximumSpeechRate, AVSpeechUtteranceDefaultSpeechRate * speed)
@@ -136,6 +173,7 @@ final class BibleListening: NSObject, ObservableObject, AVSpeechSynthesizerDeleg
     func pause() {
         guard active else { return }
         if synth.isSpeaking { synth.pauseSpeaking(at: .word) }
+        if clipPlaying { clips.pause() }
         playing = false
         updateNowPlaying()
     }
@@ -143,7 +181,8 @@ final class BibleListening: NSObject, ObservableObject, AVSpeechSynthesizerDeleg
     func resume() {
         guard active else { return }
         activateSession()
-        if synth.isPaused { synth.continueSpeaking(); playing = true }
+        if clipPlaying { clips.resume(); playing = true }
+        else if synth.isPaused { synth.continueSpeaking(); playing = true }
         else if verse >= 1 && verse <= verses.count { speak(verse) }
         updateNowPlaying()
     }
@@ -154,6 +193,8 @@ final class BibleListening: NSObject, ObservableObject, AVSpeechSynthesizerDeleg
         guard active else { return }
         generation += 1
         synth.stopSpeaking(at: .immediate)
+        clipPlaying = false
+        clips.stop()
         advance(after: verse)
     }
 
@@ -161,6 +202,8 @@ final class BibleListening: NSObject, ObservableObject, AVSpeechSynthesizerDeleg
         generation += 1
         synth.stopSpeaking(at: .immediate)
         sleepTimer?.invalidate(); sleepTimer = nil
+        clipPlaying = false
+        clips.stop()
         active = false; playing = false; loading = false
         sleepMinutes = 0; sleepEndsAt = nil
         MPNowPlayingInfoCenter.default().nowPlayingInfo = nil
@@ -172,6 +215,8 @@ final class BibleListening: NSObject, ObservableObject, AVSpeechSynthesizerDeleg
         if playing && verse > 0 {      // apply from the current verse
             generation += 1
             synth.stopSpeaking(at: .immediate)
+            clipPlaying = false
+            clips.stop()
             speak(verse)
         }
     }
@@ -198,8 +243,9 @@ final class BibleListening: NSObject, ObservableObject, AVSpeechSynthesizerDeleg
         ChapterHeard.post(book: book, ch: ch)
         if stopAfterChapter { stop(); return }
         guard let t = text, let bi = t.bookIndex(book) else { stop(); return }
-        if ch < t.chapters(book) { startChapter(book: book, ch: ch + 1, from: 1) }
-        else if bi + 1 < t.books.count { startChapter(book: t.books[bi + 1].name, ch: 1, from: 1) }
+        let gen = generation
+        if ch < t.chapters(book) { let b = book, c = ch + 1; Task { await beginChapter(book: b, ch: c, from: 1, gen: gen) } }
+        else if bi + 1 < t.books.count { let b = t.books[bi + 1].name; Task { await beginChapter(book: b, ch: 1, from: 1, gen: gen) } }
         else { stop() }
     }
 
