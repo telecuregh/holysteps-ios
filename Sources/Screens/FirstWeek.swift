@@ -36,7 +36,7 @@ final class FirstWeek: ObservableObject {
     func dismiss() { dismissed = true }
 
     /// Marks every step whose action has been done since the path started.
-    func refresh(store: AppStore, stepsToday: Int) {
+    @MainActor func refresh(store: AppStore, stepsToday: Int) {
         guard !dismissed else { return }
         let log = ActivityLog.shared
         var now = done
