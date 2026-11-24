@@ -79,6 +79,7 @@ enum HS {
 
     /// Android's Color.readable(): on Light, saturated colors are darkened until they reach 5.6:1 against white.
     static func readable(_ hex: UInt32) -> Color { isLight ? lightReadable(hex) : Color(hex: hex) }
+    static func readable(_ light: UInt32, dark: UInt32) -> Color { Color(hex: isLight ? light : dark) }
 
     static func lightReadable(_ hex: UInt32) -> Color {
         let r = Double((hex >> 16) & 0xFF) / 255, g = Double((hex >> 8) & 0xFF) / 255, b = Double(hex & 0xFF) / 255

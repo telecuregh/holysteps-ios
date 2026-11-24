@@ -201,4 +201,41 @@ final class SmokeUITests: XCTestCase {
         let recap = button(app, containing: "Your week")
         if recap.waitForExistence(timeout: 3) { recap.tap(); sleep(2); shot(app, "45-recap") }
     }
+
+    /// Fitness, Cycle and Profile, rebuilt to match Android; and the men's Wellness tab.
+    func testTabs() {
+        let app = launch(["-hs_lang", "en"])
+        XCTAssertTrue(tab(app, "Home").waitForExistence(timeout: 20))
+        tab(app, "Fitness").tap(); sleep(1)
+        shot(app, "50-fitness-today")
+        tab(app, "Train").tap(); sleep(1)
+        shot(app, "51-fitness-train")
+        button(app, containing: "Log a Walk").tap()
+        let log = button(app, containing: "Log walk")
+        XCTAssertTrue(log.waitForExistence(timeout: 5))
+        log.tap(); sleep(1)
+        tab(app, "Progress").tap(); sleep(1)
+        shot(app, "52-fitness-progress")
+        tab(app, "Cycle").tap(); sleep(1)
+        shot(app, "53-cycle-empty")
+        button(app, containing: "Log my last period").tap()
+        let save = button(app, containing: "Log period start")
+        XCTAssertTrue(save.waitForExistence(timeout: 5))
+        save.tap(); sleep(1)
+        shot(app, "54-cycle-today")
+        XCTAssertTrue(app.staticTexts["Day 1"].waitForExistence(timeout: 5))
+        tab(app, "Plan").tap(); sleep(1)
+        shot(app, "55-cycle-plan")
+        tab(app, "Insights").tap(); sleep(1)
+        shot(app, "56-cycle-insights")
+        tab(app, "Profile").tap(); sleep(1)
+        shot(app, "57-profile")
+        app.swipeUp(); sleep(1)
+        shot(app, "58-profile-more")
+        app.terminate()
+        let man = launch(["-hs_lang", "en", "-gender", "male"])
+        XCTAssertTrue(tab(man, "Wellness").waitForExistence(timeout: 20))
+        tab(man, "Wellness").tap(); sleep(1)
+        shot(man, "59-mens-wellness")
+    }
 }

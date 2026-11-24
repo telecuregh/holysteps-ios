@@ -63,8 +63,7 @@ struct Rhythm {
         cycleLength = store.cycleLength
         mens = MensPhase.today(date)
         if let last = store.periodStarts.max() {
-            let days = Calendar.current.dateComponents([.day], from: Calendar.current.startOfDay(for: last), to: Calendar.current.startOfDay(for: date)).day ?? 0
-            let d = (max(0, days) % max(1, cycleLength)) + 1
+            let d = CycleLogic.cycleDay(lastStart: last, length: cycleLength, today: date)
             cycleDay = d
             phase = CyclePhase.forDay(d, periodLength: store.periodLength, cycleLength: cycleLength)
         } else { cycleDay = nil; phase = nil }

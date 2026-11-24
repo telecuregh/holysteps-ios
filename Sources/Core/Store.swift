@@ -99,6 +99,21 @@ final class AppStore: ObservableObject {
         return count
     }
 
+    /// Android's logPeriodStart: keep the last 24 starts and learn the cycle length from them.
+    func logPeriodStart(_ date: Date) {
+        let day = Calendar.current.startOfDay(for: date)
+        var starts = periodStarts.map { Calendar.current.startOfDay(for: $0) }
+        if !starts.contains(day) { starts.append(day) }
+        starts = Array(Set(starts)).sorted().suffix(24)
+        periodStarts = starts
+        cycleLength = CycleLogic.predictedLength(starts, fallback: cycleLength)
+        ActivityLog.shared.add(.tracker)
+    }
+
+    func removePeriodStart(_ date: Date) {
+        periodStarts.removeAll { Calendar.current.isDate($0, inSameDayAs: date) }
+    }
+
     // MARK: Cycle estimate (average of logged starts; a rough estimate only)
     var averageCycleLength: Int? {
         let s = periodStarts.sorted()

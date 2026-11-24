@@ -1,0 +1,222 @@
+{
+ "menstrual": {
+  "whyFeelPool": [
+   "Estrogen and progesterone are both at their lowest — it's normal to feel low-energy, introspective, or a little tender these first few days.",
+   "Your body is doing real work right now. Many women feel more tired on period days, especially with cramps or heavy bleeding, so it's fine to go easier.",
+   "If you feel like slowing down, this is a good time to. If you feel fine, normal training is safe during your period."
+  ],
+  "move": "Gentle movement only — this is a recovery phase, not a push phase.",
+  "moveIdeasPool": [
+   "15–20 min easy walk, ideally outdoors",
+   "Restorative or yin yoga — hips and lower back",
+   "Gentle stretching before bed to ease cramps",
+   "A warm bath or heating pad instead of a workout, if today calls for it",
+   "Slow, mindful walk with no pace or distance goal",
+   "Light foam rolling for lower back and hip tension",
+   "A few minutes of deep breathing or seated stretches if even walking feels like too much"
+  ],
+  "nourish": "Iron-rich foods (lentils, spinach, red meat), warm soups, ginger tea for cramps.",
+  "eatMorePool": [
+   "Iron-rich foods — lentils, spinach, red meat",
+   "Warm, cooked meals over raw or cold foods",
+   "Ginger or chamomile tea for cramping",
+   "A little dark chocolate if you're craving it, ideally with some nuts",
+   "Bone broth or soup for easy-to-digest warmth",
+   "Water with lemon — hydration helps with bloating too"
+  ],
+  "limitPool": [
+   "Excess caffeine — it can tighten cramping",
+   "Very salty foods — can worsen bloating",
+   "Alcohol — it can intensify cramping and disrupt sleep this week",
+   "Skipping meals — low blood sugar makes cramps and fatigue feel worse"
+  ],
+  "mealIdeaPool": [
+   "Lentil soup with spinach and a squeeze of lemon — iron plus vitamin C to help absorb it.",
+   "Warm oatmeal with banana and a spoon of almond butter.",
+   "Ginger tea and a square of dark chocolate for an easy afternoon reset.",
+   "Beef and vegetable stew — iron-rich and gentle on the stomach."
+  ],
+  "mind": "Rest is productive. Lower your to-do list, sleep early, and say no without guilt.",
+  "journalPool": [
+   "What can I take off my plate this week without guilt?",
+   "Where do I need to ask for help instead of pushing through?",
+   "What's one thing from this past cycle I'm proud of?",
+   "What would \"enough\" look like today, not \"more\"?",
+   "What does my body actually need from me right now?",
+   "What's one thing I can let go of until next week?",
+   "Who could I lean on a little more this week?"
+  ],
+  "mindsetTipPool": [
+   "Lower the bar on purpose this week — showing up gently still counts.",
+   "Rest isn't falling behind — it's part of the same cycle that gives you your strongest week later.",
+   "You don't owe anyone your usual pace today.",
+   "Small and slow still counts as moving forward."
+  ],
+  "stepTarget": 0.7
+ },
+ "follicular": {
+  "whyFeelPool": [
+   "Estrogen is climbing, bringing rising energy, sharper focus, and more motivation day by day.",
+   "Your body is rebuilding energy reserves right now — this is often the clearest-headed stretch of your whole cycle.",
+   "As estrogen rises, many women feel more up for new, harder or more social things. Notice whether that's true for you."
+  ],
+  "move": "Energy is rising — try a brisk walk, cardio, or something new.",
+  "moveIdeasPool": [
+   "Brisk walk or light jog, building pace through the week",
+   "Try a new class or activity you've been curious about",
+   "Strength training — a good window to progress your weights",
+   "A longer walk outdoors to match your rising energy",
+   "Add a second, shorter walk later in the day if energy allows",
+   "Dance, cycling, or anything playful that doesn't feel like \"exercise\"",
+   "Set a small personal challenge for this week while motivation is rising"
+  ],
+  "nourish": "Fresh, light foods: leafy greens, citrus, fermented foods, lean protein.",
+  "eatMorePool": [
+   "Leafy greens and fresh vegetables",
+   "Citrus and other vitamin-C-rich fruit",
+   "Fermented foods — yogurt, kimchi, sauerkraut",
+   "Lean protein to support your activity",
+   "Fresh herbs and lighter dressings over heavy sauces",
+   "Nuts and seeds for steady energy between meals"
+  ],
+  "limitPool": [
+   "Heavy, greasy meals that weigh you down",
+   "Relying on caffeine instead of food for energy",
+   "Skipping breakfast — your appetite is usually more reliable this week, use it",
+   "Overloading on sugar just because energy feels high"
+  ],
+  "mealIdeaPool": [
+   "A big veggie-forward salad with grilled chicken or chickpeas and a citrus dressing.",
+   "Greek yogurt with berries, seeds, and a drizzle of honey.",
+   "Stir-fried vegetables with tofu or shrimp and a light soy-ginger sauce.",
+   "A fresh herb and citrus grain salad — quinoa, parsley, orange segments."
+  ],
+  "mind": "Great time to plan, learn something new, and start projects.",
+  "journalPool": [
+   "What's one goal I want to make real progress on this week?",
+   "What new thing do I want to try before this window passes?",
+   "Where am I feeling the most momentum right now?",
+   "What habit do I want to lock in while motivation is high?",
+   "What's one idea I've been sitting on that I could finally start?",
+   "Who do I want to reach out to while my energy is up?",
+   "What would I do this week if I weren't afraid of starting badly?"
+  ],
+  "mindsetTipPool": [
+   "Use this rising energy to start — the follicular phase rewards new beginnings.",
+   "Momentum is easiest to build right now — stack one small win on another.",
+   "This is a good week to say yes to something you'd normally hesitate on.",
+   "Plant the seeds now; your ovulation-week energy will carry them further."
+  ],
+  "stepTarget": 1.1
+ },
+ "ovulation": {
+  "whyFeelPool": [
+   "Estrogen peaks and a short LH surge triggers ovulation — energy, confidence, and sociability often peak right alongside it.",
+   "For many women this is one of the best-feeling weeks of the cycle, though it varies from person to person.",
+   "Testosterone also ticks up briefly around ovulation, which is part of why drive and confidence often feel sharper right now."
+  ],
+  "move": "Peak power — your strongest workouts and longest walks.",
+  "moveIdeasPool": [
+   "Your hardest workout of the week — intervals, heavy lifting, a long run",
+   "A longer or faster walk than usual",
+   "Group or partnered activity — energy and confidence are high",
+   "Go for a personal best if you've been building toward one",
+   "Try the workout you've been putting off because it felt too hard",
+   "A competitive activity — a class, a sport, a challenge with a friend",
+   "Push your longest walk of the month today if your schedule allows"
+  ],
+  "nourish": "Fiber and antioxidants: berries, vegetables, whole grains, plenty of water.",
+  "eatMorePool": [
+   "Berries and other antioxidant-rich fruit",
+   "Plenty of water — hydration needs rise with intensity",
+   "Whole grains for sustained energy",
+   "Healthy fats — avocado, nuts, olive oil",
+   "A protein-rich breakfast to match your activity level",
+   "Electrolytes if you're training harder than usual today"
+  ],
+  "limitPool": [
+   "Skipping meals before a hard workout — this isn't the phase to under-fuel",
+   "Under-hydrating on a high-intensity day",
+   "Overcommitting your whole week on this one high-energy day",
+   "Ignoring real fatigue signals just because you \"should\" feel great"
+  ],
+  "mealIdeaPool": [
+   "A hearty grain bowl — quinoa, roasted vegetables, avocado, and a protein of your choice.",
+   "Salmon with sweet potato and steamed greens — protein and antioxidants together.",
+   "A berry-and-spinach smoothie with protein powder before a hard session.",
+   "A big mixed-bean chili — fiber, protein, and plenty of color."
+  ],
+  "mind": "Confidence and communication peak — schedule big conversations and social plans now.",
+  "journalPool": [
+   "What conversation have I been putting off that I could have today?",
+   "Where do I feel most confident right now, and why?",
+   "What social connection do I want to invest in this week?",
+   "What's one bold ask I could make while I'm feeling this strong?",
+   "What would I attempt if I were certain I'd succeed?",
+   "Who in my life would benefit from hearing from me today?",
+   "What's one thing I've been afraid to say out loud?"
+  ],
+  "mindsetTipPool": [
+   "Schedule the hard conversation or the big ask now — your confidence is working with you this week.",
+   "This is your highest-leverage week — spend it on what matters most.",
+   "Say the bold thing today; you're less likely to talk yourself out of it than usual.",
+   "Peak energy is a resource — spend it deliberately, not just busily."
+  ],
+  "stepTarget": 1.25
+ },
+ "luteal": {
+  "whyFeelPool": [
+   "Progesterone rises then falls — it's common to feel more inward, hungrier, or more sensitive to stress as the phase goes on.",
+   "Your body temperature and resting heart rate rise a little this week, and many women feel more tired. A dip in energy is common and not a failure of willpower.",
+   "As progesterone falls late in this phase, mood and patience can dip — that's physiology, not a character flaw."
+  ],
+  "move": "Steady, moderate movement. Walks and strength over intensity.",
+  "moveIdeasPool": [
+   "Walks and steady-state cardio over high-intensity intervals",
+   "Strength training at a moderate, sustainable effort",
+   "Pilates or yoga to support mood and lower-back comfort",
+   "Build in an extra rest day if you're feeling drained",
+   "Shorter, more frequent walks instead of one long session",
+   "Swimming or cycling if impact feels like too much today",
+   "A slow, unhurried walk outside to help with mood, even on a low day"
+  ],
+  "nourish": "Complex carbs, magnesium (dark chocolate, nuts), reduce caffeine & salt.",
+  "eatMorePool": [
+   "Complex carbs — oats, sweet potato, brown rice",
+   "Magnesium-rich foods — dark chocolate, nuts, pumpkin seeds",
+   "Protein with every meal to help blunt cravings",
+   "Fiber-rich foods to help with bloating",
+   "Warm, comforting meals that still have real nutrients in them",
+   "Herbal tea instead of a second coffee in the afternoon"
+  ],
+  "limitPool": [
+   "Excess caffeine and salt — both can worsen bloating and irritability late in this phase",
+   "Restricting food to fight cravings — eating enough actually reduces them",
+   "Alcohol — it tends to hit harder and disrupt sleep more this week",
+   "Packing your calendar as tightly as during your highest-energy week"
+  ],
+  "mealIdeaPool": [
+   "Baked sweet potato with a pumpkin-seed topping and a side of Greek yogurt.",
+   "Oatmeal with dark chocolate chips and a spoon of almond butter.",
+   "A warm grain bowl — brown rice, roasted vegetables, and a soft-boiled egg.",
+   "Dark chocolate and a handful of walnuts if a craving hits mid-afternoon."
+  ],
+  "mind": "Turn inward. Finish tasks, journal, and give yourself extra margin for mood changes.",
+  "journalPool": [
+   "What's weighing on me that I haven't said out loud?",
+   "What unfinished task would feel good to close out before my next period?",
+   "Where do I need extra margin or patience with myself this week?",
+   "What boundary do I need to protect right now?",
+   "What's one thing I can simplify instead of pushing through?",
+   "Where have I been harder on myself than I'd be on a friend?",
+   "What does rest look like for me this week, specifically?"
+  ],
+  "mindsetTipPool": [
+   "Expect lower patience this week — build in margin instead of fighting it.",
+   "Cravings and lower mood here are physiology, not a lack of discipline.",
+   "Protect one evening this week with nothing on the calendar.",
+   "Finishing small things now will feel better than starting big things."
+  ],
+  "stepTarget": 0.9
+ }
+}
