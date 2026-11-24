@@ -35,6 +35,19 @@ jobs:
             build | tee build.log | grep -E "error:|warning:|BUILD (SUCCEEDED|FAILED)" || true
           grep -q "BUILD SUCCEEDED" build.log
 
+      - name: Build Release for iPhone (unsigned, catches release-only errors)
+        run: |
+          set -o pipefail
+          xcodebuild \
+            -project HolySteps.xcodeproj \
+            -scheme HolySteps \
+            -configuration Release \
+            -destination 'generic/platform=iOS' \
+            -derivedDataPath build-release \
+            CODE_SIGNING_ALLOWED=NO \
+            build | tee release.log | grep -E "error:|BUILD (SUCCEEDED|FAILED)" || true
+          grep -q "BUILD SUCCEEDED" release.log
+
       - name: Run tests on the simulator
         run: |
           set -o pipefail
