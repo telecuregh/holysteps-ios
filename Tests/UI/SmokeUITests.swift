@@ -122,4 +122,27 @@ final class SmokeUITests: XCTestCase {
         dump(app, found)
         XCTAssertTrue(found, "RVES should download and open Salmos 23")
     }
+
+    /// Light and Pearl (Profile › Appearance), with a switch back to Dark from the toggle.
+    func testThemes() {
+        for mode in ["light", "pearl"] {
+            let app = launch(["-hs_lang", "en", "-themeMode", mode])
+            XCTAssertTrue(tab(app, "Home").waitForExistence(timeout: 20))
+            shot(app, "30-\(mode)-home")
+            tab(app, "Faith").tap()
+            shot(app, "31-\(mode)-faith")
+            tab(app, "Profile").tap()
+            shot(app, "32-\(mode)-profile")
+            app.terminate()
+        }
+        let app = launch(["-hs_lang", "en", "-themeMode", "pearl"])
+        tab(app, "Profile").tap()
+        let dark = app.buttons["theme-dark"]
+        if !dark.isHittable { app.swipeUp() }
+        XCTAssertTrue(dark.waitForExistence(timeout: 5))
+        dark.tap()
+        XCTAssertTrue(app.buttons["theme-dark"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.buttons["theme-dark"].isSelected)
+        shot(app, "33-back-to-dark")
+    }
 }

@@ -6,6 +6,7 @@ import SwiftUI
 struct RootTabView: View {
     @EnvironmentObject var i18n: I18n
     @EnvironmentObject var store: AppStore
+    @EnvironmentObject var appearance: Appearance
     @State private var tab = 0
 
     private var tabs: [(label: String, symbol: String)] {
@@ -25,6 +26,8 @@ struct RootTabView: View {
                         .allowsHitTesting(tab == i)
                         .accessibilityHidden(tab != i)
                 }
+                // Pearl mutes the page's colors (Android draws its content through a 0.6 saturation filter).
+                .saturation(HS.isPearl ? 0.6 : 1)
             }
             .frame(maxHeight: .infinity)
             NowPlayingBar()
@@ -33,7 +36,7 @@ struct RootTabView: View {
         .background(HS.bgBottom.ignoresSafeArea())
         .environment(\.locale, i18n.locale)
         .environment(\.font, .hs(16))
-        .id(i18n.language)   // redraw every screen in the new language
+        .id("\(i18n.language)-\(appearance.mode.rawValue)")   // redraw every screen in the new language or look
     }
 
     @ViewBuilder
@@ -48,23 +51,35 @@ struct RootTabView: View {
     }
 
     private var bar: some View {
-        HStack(spacing: 0) {
+        let light = HS.isLight
+        let labelled = HS.isPearl   // Pearl keeps its labelled bar; Dark and Light are icons only.
+        return HStack(spacing: 0) {
             ForEach(Array(tabs.enumerated()), id: \.offset) { i, t in
                 let on = tab == i
                 Button { tab = i } label: {
-                    ZStack {
-                        if on {
-                            Circle().fill(RadialGradient(colors: [HS.faith.opacity(0.45), .clear], center: .center, startRadius: 0, endRadius: 28))
-                                .frame(width: 56, height: 56)
-                            Rectangle().fill(HS.goldButton.opacity(0.8)).frame(width: 56 * 0.7, height: 1.5).offset(y: -28 - 12 + 0.75)
+                    Group {
+                        if labelled {
+                            VStack(spacing: 4) {
+                                icon(t.symbol, size: 22)
+                                    .frame(width: 64, height: 32)
+                                    .background(Capsule().fill(on ? Color(hex: 0xEAE3D8) : .clear))
+                                T(t.label).font(.hs(11, on ? .semibold : .medium)).lineLimit(1)
+                            }
+                            .foregroundStyle(on ? Color(hex: 0x1F1B16) : HS.textMuted)
+                            .frame(height: 56)
+                        } else {
+                            ZStack {
+                                if on {
+                                    Circle().fill(RadialGradient(colors: [Color(hex: 0x9D7FEA).opacity(0.45), .clear], center: .center, startRadius: 0, endRadius: 28))
+                                        .frame(width: 56, height: 56)
+                                    Rectangle().fill(HS.goldButton.opacity(0.8)).frame(width: 56 * 0.7, height: 1.5).offset(y: -28 - 12 + 0.75)
+                                }
+                                icon(t.symbol, size: 24)
+                                    .foregroundStyle(on ? (light ? Color(hex: 0xC79A5E) : HS.peach) : HS.textMuted)
+                            }
+                            .frame(width: 56, height: 56)
                         }
-                        Group {
-                            if t.symbol == "cross" { CrossShape().stroke(style: StrokeStyle(lineWidth: 1.9, lineCap: .round)).frame(width: 26, height: 26) }
-                            else { Image(systemName: t.symbol).font(.system(size: 24, weight: .regular)) }
-                        }
-                        .foregroundStyle(on ? HS.peach : HS.textMuted)
                     }
-                    .frame(width: 56, height: 56)
                     .frame(maxWidth: .infinity)
                     .contentShape(Rectangle())
                 }
@@ -74,11 +89,24 @@ struct RootTabView: View {
             }
         }
         .padding(.top, 12).padding(.bottom, 4)
-        .background(
-            LinearGradient(colors: [HS.bgMid.opacity(0.88), HS.bgBottom.opacity(0.96)], startPoint: .top, endPoint: .bottom)
-                .ignoresSafeArea(edges: .bottom)
-        )
-        .overlay(alignment: .top) { Rectangle().fill(HS.gold.opacity(0.24)).frame(height: 1) }
+        .background(barFill.ignoresSafeArea(edges: .bottom))
+        .overlay(alignment: .top) {
+            Rectangle().fill(labelled ? Color(hex: 0xE4DCCF) : (light ? Color.white.opacity(0.9) : HS.gold.opacity(0.24))).frame(height: 1)
+        }
+    }
+
+    private var barFill: LinearGradient {
+        switch appearance.mode {
+        case .dark: LinearGradient(colors: [HS.bgMid.opacity(0.88), HS.bgBottom.opacity(0.96)], startPoint: .top, endPoint: .bottom)
+        case .light: LinearGradient(colors: [Color(hex: 0xFBF6F4, alpha: Double(0xE6) / 255), Color(hex: 0xF3EAE8, alpha: Double(0xF2) / 255)], startPoint: .top, endPoint: .bottom)
+        case .pearl: LinearGradient(colors: [Color(hex: 0xFBF8F3)], startPoint: .top, endPoint: .bottom)
+        }
+    }
+
+    @ViewBuilder
+    private func icon(_ symbol: String, size: CGFloat) -> some View {
+        if symbol == "cross" { CrossShape().stroke(style: StrokeStyle(lineWidth: 1.9, lineCap: .round)).frame(width: size + 2, height: size + 2) }
+        else { Image(systemName: symbol).font(.system(size: size, weight: .regular)) }
     }
 }
 

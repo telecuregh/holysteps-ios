@@ -227,7 +227,7 @@ struct MusicView: View {
         Button(action: action) {
             D(s).font(.hs(12, .semibold)).foregroundStyle(on ? HS.onGold : HS.text)
                 .padding(.horizontal, 12).padding(.vertical, 7)
-                .background(Capsule().fill(on ? HS.goldButton : Color.white.opacity(0.07)))
+                .background(Capsule().fill(on ? HS.goldButton : HS.overlay(0.07)))
         }
         .buttonStyle(.plain)
         .accessibilityAddTraits(on ? .isSelected : [])

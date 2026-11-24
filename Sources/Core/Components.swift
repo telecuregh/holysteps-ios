@@ -16,31 +16,55 @@ struct GlassCard<Content: View>: View {
     }
 
     var body: some View {
-        let shape = RoundedRectangle(cornerRadius: 20, style: .continuous)
+        let shape = RoundedRectangle(cornerRadius: HS.isPearl ? 22 : 20, style: .continuous)
         content
             .padding(padding)
             .frame(maxWidth: .infinity, alignment: .leading)
             .background {
                 GeometryReader { g in
-                    let w = g.size.width, h = g.size.height
-                    ZStack {
-                        Color.white.opacity(warm ? 0.08 : 0.065)
-                        if warm {
-                            RadialGradient(colors: [Color(hex: 0xC89A6E).opacity(0.30), .clear], center: UnitPoint(x: 0.5, y: 0), startRadius: 0, endRadius: w * 0.75)
-                            RadialGradient(colors: [Color(hex: 0xB98A7A).opacity(0.22), .clear], center: UnitPoint(x: 0.18, y: 0.75), startRadius: 0, endRadius: w * 0.45)
+                    let w = g.size.width
+                    switch HS.mode {
+                    case .pearl:
+                        // Pearl: plain frosted white (bgSurface C2FFFFFF) with a bright white edge.
+                        HS.cardFill
+                    case .light:
+                        // Harmony Light: white frosted glass over the blush page, with a vivid colored corner glow.
+                        ZStack {
+                            Color.white.opacity(warm ? 0.34 : 0.40)
+                            if warm {
+                                RadialGradient(colors: [Color(hex: 0xE2B48A).opacity(0.55), .clear], center: UnitPoint(x: 0.75, y: 0.95), startRadius: 0, endRadius: w * 0.6)
+                                RadialGradient(colors: [Color(hex: 0xCDAFD2).opacity(0.50), .clear], center: UnitPoint(x: 0.15, y: 0.3), startRadius: 0, endRadius: w * 0.5)
+                            }
+                            if let glow {
+                                RadialGradient(colors: [glow.opacity(0.80), .clear], center: UnitPoint(x: 0.12, y: 0.10), startRadius: 0, endRadius: w * 0.85)
+                            }
+                            LinearGradient(colors: [Color.white.opacity(0.30), .clear], startPoint: .topLeading, endPoint: UnitPoint(x: 0.5, y: 0.7))
                         }
-                        if let glow {
-                            RadialGradient(colors: [glow.opacity(0.45), .clear], center: UnitPoint(x: 0.12, y: 0.08), startRadius: 0, endRadius: w * 0.85)
+                    case .dark:
+                        ZStack {
+                            Color.white.opacity(warm ? 0.08 : 0.065)
+                            if warm {
+                                RadialGradient(colors: [Color(hex: 0xC89A6E).opacity(0.30), .clear], center: UnitPoint(x: 0.5, y: 0), startRadius: 0, endRadius: w * 0.75)
+                                RadialGradient(colors: [Color(hex: 0xB98A7A).opacity(0.22), .clear], center: UnitPoint(x: 0.18, y: 0.75), startRadius: 0, endRadius: w * 0.45)
+                            }
+                            if let glow {
+                                RadialGradient(colors: [glow.opacity(0.45), .clear], center: UnitPoint(x: 0.12, y: 0.08), startRadius: 0, endRadius: w * 0.85)
+                            }
+                            LinearGradient(colors: [Color.white.opacity(0.07), .clear], startPoint: .topLeading, endPoint: UnitPoint(x: 0.6, y: 0.8))
                         }
-                        LinearGradient(colors: [Color.white.opacity(0.07), .clear], startPoint: .topLeading,
-                                       endPoint: UnitPoint(x: 0.6, y: h > 0 ? 0.8 : 0.8))
                     }
                 }
             }
             .clipShape(shape)
-            .overlay(shape.strokeBorder(LinearGradient(
-                colors: warm ? [HS.gold.opacity(0.55), HS.gold.opacity(0.22)] : [Color.white.opacity(0.22), Color.white.opacity(0.07)],
-                startPoint: .top, endPoint: .bottom), lineWidth: 1))
+            .overlay(shape.strokeBorder(LinearGradient(colors: edge, startPoint: .top, endPoint: .bottom), lineWidth: 1))
+    }
+
+    private var edge: [Color] {
+        switch HS.mode {
+        case .pearl: [Color.white.opacity(0.95)]
+        case .light: warm ? [Color(hex: 0xE8CFC4), Color(hex: 0xD9B49F).opacity(0.7)] : [Color.white.opacity(0.95), Color(hex: 0xE6D6D6)]
+        case .dark: warm ? [Color(hex: 0xD9B49F).opacity(0.55), Color(hex: 0xD9B49F).opacity(0.22)] : [Color.white.opacity(0.22), Color.white.opacity(0.07)]
+        }
     }
 }
 
@@ -48,11 +72,27 @@ struct GlassCard<Content: View>: View {
 struct IconBadge: View {
     let symbol: String
     var size: CGFloat = 36
+    /// The color the badge stands for. Harmony Dark draws every badge in gold and leaves the color to the card's glow;
+    /// Light fills a deep circle of it with a white icon; Pearl tints it softly.
+    var tint: UInt32 = 0xD8B27A
     var body: some View {
         ZStack {
-            Circle().fill(RadialGradient(colors: [Color.white.opacity(0.10), Color.black.opacity(0.30)], center: .center, startRadius: 0, endRadius: size / 2))
-            Circle().strokeBorder(Color.white.opacity(0.14), lineWidth: 1)
-            Image(systemName: symbol).font(.system(size: size * 0.42, weight: .regular)).foregroundStyle(Color(hex: 0xE8C79E))
+            switch HS.mode {
+            case .dark:
+                Circle().fill(RadialGradient(colors: [Color.white.opacity(0.10), Color.black.opacity(0.30)], center: .center, startRadius: 0, endRadius: size / 2))
+                Circle().strokeBorder(Color.white.opacity(0.14), lineWidth: 1)
+                Image(systemName: symbol).font(.system(size: size * 0.42, weight: .regular)).foregroundStyle(Color(hex: 0xE8C79E))
+            case .light:
+                let deep = HS.lightReadable(tint)
+                Circle().fill(RadialGradient(colors: [deep.opacity(0.85), deep], center: .center, startRadius: 0, endRadius: size / 2))
+                Circle().strokeBorder(Color.white.opacity(0.8), lineWidth: 1)
+                Image(systemName: symbol).font(.system(size: size * 0.42, weight: .regular)).foregroundStyle(.white)
+            case .pearl:
+                let c = Color(hex: tint)
+                Circle().fill(RadialGradient(colors: [c.opacity(0.28), c.opacity(0.08)], center: .center, startRadius: 0, endRadius: size / 2))
+                Circle().strokeBorder(c.opacity(0.35), lineWidth: 1)
+                Image(systemName: symbol).font(.system(size: size * 0.42, weight: .regular)).foregroundStyle(HS.readable(tint))
+            }
         }
         .frame(width: size, height: size)
         .accessibilityHidden(true)
@@ -94,7 +134,7 @@ struct HSProgressBar: View {
     var body: some View {
         GeometryReader { g in
             ZStack(alignment: .leading) {
-                RoundedRectangle(cornerRadius: 4).fill(Color.white.opacity(0.10))
+                RoundedRectangle(cornerRadius: 4).fill(HS.overlay(0.10))
                 RoundedRectangle(cornerRadius: 4)
                     .fill(LinearGradient(colors: [HS.faith, HS.peach, HS.body], startPoint: .leading, endPoint: .trailing))
                     .frame(width: g.size.width * min(1, max(0, progress)))
@@ -133,8 +173,8 @@ struct SubTabs: View {
             }
         }
         .padding(4)
-        .background(RoundedRectangle(cornerRadius: 16).fill(HS.cardFill))
-        .overlay(RoundedRectangle(cornerRadius: 16).strokeBorder(HS.gold.opacity(0.24), lineWidth: 1))
+        .background(RoundedRectangle(cornerRadius: 16).fill(HS.isLight ? Color(hex: 0xEAE3D8) : HS.cardFill))
+        .overlay(RoundedRectangle(cornerRadius: 16).strokeBorder(HS.isLight ? .clear : HS.gold.opacity(0.24), lineWidth: 1))
         .clipShape(RoundedRectangle(cornerRadius: 16))
         .padding(.horizontal, 20)
     }
@@ -145,12 +185,12 @@ struct SubTabs: View {
                 let on = i == selected
                 Button { selected = i } label: {
                     T(label).font(.hs(13, on ? .semibold : .medium)).lineLimit(1)
-                        .foregroundStyle(on ? HS.peach : HS.textMuted)
+                        .foregroundStyle(on ? (HS.isLight ? HS.text : HS.peach) : HS.textMuted)
                         .padding(.horizontal, scrolls ? 12 : 4).padding(.vertical, 10)
                         .frame(minHeight: 40)
                         .frame(maxWidth: scrolls ? nil : .infinity)
-                        .background(RoundedRectangle(cornerRadius: 12).fill(on ? HS.goldButton.opacity(0.22) : .clear))
-                        .overlay(RoundedRectangle(cornerRadius: 12).strokeBorder(on ? HS.gold.opacity(0.35) : .clear, lineWidth: 1))
+                        .background(RoundedRectangle(cornerRadius: 12).fill(on ? (HS.isLight ? Color(hex: 0xFBF8F3) : HS.goldButton.opacity(0.22)) : .clear))
+                        .overlay(RoundedRectangle(cornerRadius: 12).strokeBorder(on && !HS.isLight ? HS.gold.opacity(0.35) : .clear, lineWidth: 1))
                 }
                 .buttonStyle(.plain)
                 .accessibilityAddTraits(on ? [.isSelected, .isButton] : .isButton)
@@ -233,7 +273,7 @@ struct ToolTile: View {
         .padding(14)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .background(RoundedRectangle(cornerRadius: 16).fill(HS.cardFill))
-        .overlay(RoundedRectangle(cornerRadius: 16).strokeBorder(Color.white.opacity(0.07), lineWidth: 1))
+        .overlay(RoundedRectangle(cornerRadius: 16).strokeBorder(HS.overlay(0.07), lineWidth: 1))
         .contentShape(RoundedRectangle(cornerRadius: 16))
     }
 

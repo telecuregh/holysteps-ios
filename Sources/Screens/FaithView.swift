@@ -44,7 +44,7 @@ struct FaithView: View {
     private var header: some View {
         VStack(alignment: .leading, spacing: 0) {
             HStack(spacing: 8) {
-                IconBadge(symbol: "hands.sparkles", size: 30)
+                IconBadge(symbol: "hands.sparkles", size: 30, tint: 0x9D7FEA)
                 T("Faith").font(.hs(13, .semibold)).tracking(0.6).foregroundStyle(HS.peach)
             }
             Spacer().frame(height: 10)
@@ -105,7 +105,7 @@ struct FaithView: View {
                             GlassCard {
                                 VStack(alignment: .leading, spacing: 0) {
                                     HStack {
-                                        IconBadge(symbol: done[i] ? "checkmark.circle" : "hands.sparkles", size: 32)
+                                        IconBadge(symbol: done[i] ? "checkmark.circle" : "hands.sparkles", size: 32, tint: 0x9D7FEA)
                                         Spacer()
                                         if done[i] { T("Done").font(.hs(11, .semibold)).foregroundStyle(HS.body) }
                                     }
@@ -174,8 +174,8 @@ struct FaithView: View {
                     let filled = days.contains(AppStore.dayKey(date))
                     VStack(spacing: 4) {
                         ZStack {
-                            RoundedRectangle(cornerRadius: 10).fill(filled ? HS.goldButton.opacity(0.25) : Color.white.opacity(0.05))
-                            RoundedRectangle(cornerRadius: 10).strokeBorder(ago == 0 ? HS.peach : (filled ? HS.gold.opacity(0.45) : Color.white.opacity(0.10)), lineWidth: 1)
+                            RoundedRectangle(cornerRadius: 10).fill(filled ? HS.goldButton.opacity(0.25) : HS.overlay(0.05))
+                            RoundedRectangle(cornerRadius: 10).strokeBorder(ago == 0 ? HS.peach : (filled ? HS.gold.opacity(0.45) : HS.overlay(0.10)), lineWidth: 1)
                             if filled { Image(systemName: "flame").font(.system(size: 14)).foregroundStyle(HS.peach) }
                             else { D("○").font(.hs(14)).foregroundStyle(HS.textMuted) }
                         }
@@ -269,7 +269,7 @@ struct FaithStatsPill: View {
             }
         }
         .frame(height: 32)
-        .background(Capsule().fill(Color.white.opacity(0.06)))
+        .background(Capsule().fill(HS.overlay(0.06)))
         .overlay(Capsule().strokeBorder(HS.gold.opacity(0.45), lineWidth: 1))
     }
 }
@@ -290,7 +290,7 @@ struct PrayerJournalView: View {
                         .font(.hs(15))
                         .padding(12)
                         .background(RoundedRectangle(cornerRadius: 12).fill(HS.cardFill))
-                        .overlay(RoundedRectangle(cornerRadius: 12).strokeBorder(Color.white.opacity(0.10), lineWidth: 1))
+                        .overlay(RoundedRectangle(cornerRadius: 12).strokeBorder(HS.overlay(0.10), lineWidth: 1))
                     Button { add() } label: {
                         T("Add").font(.hs(14, .semibold)).foregroundStyle(HS.onGold).padding(.horizontal, 16).padding(.vertical, 12)
                             .background(Capsule().fill(HS.goldButton))

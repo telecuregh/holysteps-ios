@@ -16,7 +16,7 @@ extension Sermon {
         case "FOREST": return [Color(hex: 0x0E1A14), Color(hex: 0x1F3A2A), Color(hex: 0x3F6B4C)]
         case "MEADOW": return [Color(hex: 0x1F2E1E), Color(hex: 0x4E6B3A), Color(hex: 0xB7A55E)]
         case "MOUNTAIN": return [Color(hex: 0x141824), Color(hex: 0x35405A), Color(hex: 0x7C8AA8)]
-        default: return [HS.bgTop, HS.bgMid, HS.bgBottom]
+        default: return [Color(hex: 0x1A1226), Color(hex: 0x120D1A), Color(hex: 0x0B0810)]
         }
     }
 }
@@ -94,7 +94,7 @@ struct SermonCard: View {
         }
         .frame(maxWidth: .infinity, minHeight: 56)
         .padding(.horizontal, 4).padding(.vertical, 6)
-        .background(RoundedRectangle(cornerRadius: 12).fill(Color.white.opacity(0.08)))
+        .background(RoundedRectangle(cornerRadius: 12).fill(HS.overlay(0.08)))
     }
 }
 
@@ -527,7 +527,7 @@ struct WeeklySermonCard: View {
                                 Button { week.day = d } label: {
                                     D(short[d - 1]).font(.hs(12, on ? .bold : .regular)).foregroundStyle(on ? HS.onGold : HS.text)
                                         .frame(maxWidth: .infinity, minHeight: 44)
-                                        .background(RoundedRectangle(cornerRadius: 12).fill(on ? HS.goldButton : Color.white.opacity(0.08)))
+                                        .background(RoundedRectangle(cornerRadius: 12).fill(on ? HS.goldButton : HS.overlay(0.08)))
                                 }
                                 .buttonStyle(.plain)
                                 .accessibilityLabel(tr(SermonWeekLogic.dayName(d)))

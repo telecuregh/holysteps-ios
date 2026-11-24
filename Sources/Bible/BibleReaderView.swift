@@ -154,7 +154,7 @@ struct BibleReaderView: View {
                 HStack(spacing: 6) {
                     Button { sheet = .language } label: {
                         D("🌐 \(current?.language ?? "English") ▾").font(.hs(12, .semibold)).foregroundStyle(HS.text)
-                            .padding(.horizontal, 12).padding(.vertical, 6).background(Capsule().fill(Color.white.opacity(0.10)))
+                            .padding(.horizontal, 12).padding(.vertical, 6).background(Capsule().fill(HS.overlay(0.10)))
                     }
                     .accessibilityLabel(tr("Change Bible language"))
                     ForEach(translations.filter { $0.lang == lang }) { t in
@@ -163,7 +163,7 @@ struct BibleReaderView: View {
                             D(t.id + (downloaded.contains(t.id) || on ? "" : " ↓")).font(.hs(12, .semibold))
                                 .foregroundStyle(on ? HS.onGold : HS.text)
                                 .padding(.horizontal, 12).padding(.vertical, 6)
-                                .background(Capsule().fill(on ? HS.goldButton : Color.white.opacity(0.06)))
+                                .background(Capsule().fill(on ? HS.goldButton : HS.overlay(0.06)))
                                 .overlay(Capsule().stroke(HS.gold.opacity(on ? 0.8 : 0.2), lineWidth: 1))
                         }
                         .accessibilityAddTraits(on ? .isSelected : [])
@@ -249,7 +249,7 @@ struct BibleReaderView: View {
         }
         line = line + D(v).font(.system(size: size, design: design)).foregroundColor(prefs.highContrast ? .white : HS.text)
         let bg: Color = mark?.isHighlighted == true ? Color(hex: mark!.color.hex).opacity(0.22)
-            : (selected == n ? Color.white.opacity(0.08) : .clear)
+            : (selected == n ? HS.overlay(0.08) : .clear)
         return VStack(alignment: .leading, spacing: 2) {
             Button { selected = selected == n ? nil : n } label: {
                 line
@@ -336,7 +336,7 @@ struct BibleReaderView: View {
     private func chipLabel(_ s: String) -> some View {
         T(s).font(.hs(12, .semibold)).foregroundStyle(HS.text)
             .padding(.horizontal, 12).padding(.vertical, 8)
-            .background(Capsule().fill(Color.white.opacity(0.08)))
+            .background(Capsule().fill(HS.overlay(0.08)))
     }
 
     private func actionChip(_ s: String, _ action: @escaping () -> Void) -> some View {

@@ -11,15 +11,15 @@ struct HSSheet<Content: View>: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                HS.bgMid.ignoresSafeArea()
+                HS.solidSurface.ignoresSafeArea()
                 content()
             }
             .navigationTitle(D(title))
             .navigationBarTitleDisplayMode(.inline)
-            .toolbarBackground(HS.bgMid, for: .navigationBar)
+            .toolbarBackground(HS.solidSurface, for: .navigationBar)
             .toolbar { ToolbarItem(placement: .confirmationAction) { Button(tr(doneLabel)) { dismiss() }.tint(HS.goldButton) } }
         }
-        .presentationBackground(HS.bgMid)
+        .presentationBackground(HS.solidSurface)
     }
 }
 
@@ -40,7 +40,7 @@ struct BookPicker: View {
                             Button { onPick(b, c) } label: {
                                 D("\(c)").font(.hs(16)).foregroundStyle(HS.text)
                                     .frame(maxWidth: .infinity, minHeight: 46)
-                                    .background(RoundedRectangle(cornerRadius: 10).fill(Color.white.opacity(0.06)))
+                                    .background(RoundedRectangle(cornerRadius: 10).fill(HS.overlay(0.06)))
                             }
                             .accessibilityLabel(tr("Chapter \(c)"))
                         }
@@ -115,7 +115,7 @@ struct ReaderSettingsView: View {
                         .foregroundStyle(p.highContrast ? .white : HS.text)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(12)
-                        .background(RoundedRectangle(cornerRadius: 10).fill(p.highContrast ? Color(hex: 0x050507) : Color.white.opacity(0.05)))
+                        .background(RoundedRectangle(cornerRadius: 10).fill(p.highContrast ? Color(hex: 0x050507) : HS.overlay(0.05)))
                     T("Size  \(p.textSize)").font(.hs(14)).foregroundStyle(HS.textSecondary)
                     Slider(value: Binding(get: { Double(bible.prefs.textSize) }, set: { bible.prefs.textSize = Int($0.rounded()) }),
                            in: Double(ReaderPrefs.sizes.lowerBound)...Double(ReaderPrefs.sizes.upperBound), step: 1)
@@ -155,7 +155,7 @@ struct ReaderSettingsView: View {
         Button(action: action) {
             D(label).font(.hs(13)).foregroundStyle(on ? HS.onGold : HS.text)
                 .padding(.horizontal, 12).padding(.vertical, 7)
-                .background(RoundedRectangle(cornerRadius: 10).fill(on ? HS.goldButton : Color.white.opacity(0.06)))
+                .background(RoundedRectangle(cornerRadius: 10).fill(on ? HS.goldButton : HS.overlay(0.06)))
         }
         .accessibilityAddTraits(on ? .isSelected : [])
     }
@@ -245,7 +245,7 @@ struct NoteEditor: View {
                 Spacer()
             }
             .padding(16)
-            .background(HS.bgMid.ignoresSafeArea())
+            .background(HS.solidSurface.ignoresSafeArea())
             .navigationTitle(D(ref)).navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) { Button(tr("Cancel")) { dismiss() } }
@@ -255,7 +255,7 @@ struct NoteEditor: View {
             }
             .tint(HS.goldButton)
         }
-        .presentationBackground(HS.bgMid)
+        .presentationBackground(HS.solidSurface)
         .onAppear { note = initial }
     }
 }
@@ -440,7 +440,7 @@ struct BibleMapView: View {
                         HStack(spacing: 6) {
                             ForEach(places) { p in
                                 D(p.name).font(.hs(12)).foregroundStyle(HS.text)
-                                    .padding(.horizontal, 10).padding(.vertical, 6).background(Capsule().fill(Color.white.opacity(0.08)))
+                                    .padding(.horizontal, 10).padding(.vertical, 6).background(Capsule().fill(HS.overlay(0.08)))
                             }
                         }
                         .padding(.horizontal, 12).padding(.vertical, 8)
@@ -478,7 +478,7 @@ struct VerseImageView: View {
         }
         .padding(48)
         .frame(width: 1080 / 2, height: 1350 / 2)
-        .background(LinearGradient(colors: [HS.bgTop, HS.bgMid, HS.bgBottom], startPoint: .top, endPoint: .bottom))
+        .background(LinearGradient(colors: [HS.bgTop, HS.solidSurface, HS.bgBottom], startPoint: .top, endPoint: .bottom))
     }
 
     var body: some View {

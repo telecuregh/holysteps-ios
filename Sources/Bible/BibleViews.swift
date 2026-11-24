@@ -71,7 +71,7 @@ struct ListeningBar: View {
 
     private func pill(_ s: String) -> some View {
         D(s).font(.hs(12, .semibold)).foregroundStyle(HS.text)
-            .padding(.horizontal, 10).padding(.vertical, 5).background(Capsule().fill(Color.white.opacity(0.08)))
+            .padding(.horizontal, 10).padding(.vertical, 5).background(Capsule().fill(HS.overlay(0.08)))
     }
 }
 
@@ -170,7 +170,7 @@ struct HighlightsView: View {
         Button(action: action) {
             T(label).font(.hs(12)).foregroundStyle(on ? HS.onGold : HS.text)
                 .padding(.horizontal, 12).padding(.vertical, 6)
-                .background(Capsule().fill(on ? HS.goldButton : Color.white.opacity(0.06)))
+                .background(Capsule().fill(on ? HS.goldButton : HS.overlay(0.06)))
         }
         .buttonStyle(.plain)
         .accessibilityAddTraits(on ? .isSelected : [])
@@ -272,6 +272,6 @@ struct BibleHomeCard: View {
 
     private func smallLink(_ s: String) -> some View {
         D(s.hasPrefix("🖍") ? "🖍 " + tr("Highlights") : s).font(.hs(12, .semibold)).foregroundStyle(HS.text).lineLimit(1)
-            .padding(.horizontal, 10).padding(.vertical, 7).background(Capsule().fill(Color.white.opacity(0.08)))
+            .padding(.horizontal, 10).padding(.vertical, 7).background(Capsule().fill(HS.overlay(0.08)))
     }
 }

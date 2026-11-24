@@ -285,7 +285,7 @@ enum Emoji {
         case "🌙", "😴", "🌗": return "moon"
         case "🎯": return "scope"
         case "💪", "🏋", "🤸": return "dumbbell"
-        case "💛", "❤", "💗", "💞", "💚", "💓", "💔": return "heart"
+        case "💛", "❤", "💗", "💞", "💚", "💓", "💔", "🤍": return "heart"
         case "📈", "📊": return "chart.line.uptrend.xyaxis"
         case "🤝": return "hands.clap"
         case "🎧", "🎙", "🎶", "🎵": return "headphones"

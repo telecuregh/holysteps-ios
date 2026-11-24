@@ -37,6 +37,8 @@ struct ProfileView: View {
                                 T("Automatic follows your iPhone's language.").font(.hs(12)).foregroundStyle(HS.textMuted)
                             }
                         }
+                        SectionHeader(title: "Appearance").padding(.horizontal, -20).padding(.bottom, -8)
+                        ThemeModeToggle()
                         GlassCard {
                             VStack(alignment: .leading, spacing: 8) {
                                 T("Privacy").font(.hs(14)).foregroundStyle(HS.textMuted)
@@ -66,5 +68,34 @@ struct ProfileView: View {
                 Button(tr("Cancel"), role: .cancel) {}
             } message: { T("This removes your prayers, journal, cycle dates, reading streak, Bible highlights and notes from this phone.") }
         }
+    }
+}
+
+/// Profile › Appearance (Android ProfileScreen ThemeModeToggle): Dark, Light and Pearl in one rounded row; the chosen
+/// one is filled gold.
+struct ThemeModeToggle: View {
+    @EnvironmentObject var appearance: Appearance
+    var body: some View {
+        HStack(spacing: 4) {
+            ForEach(ThemeMode.allCases) { m in
+                let on = appearance.mode == m
+                Button { appearance.mode = m } label: {
+                    HStack(spacing: 4) {
+                        T(m.emoji).font(.system(size: 13))
+                        T(m.label).font(.hs(13, on ? .bold : .regular))
+                    }
+                    .foregroundStyle(on ? HS.onGold : HS.textMuted)
+                    .frame(maxWidth: .infinity).padding(.vertical, 10)
+                    .background(RoundedRectangle(cornerRadius: 12).fill(on ? HS.goldButton : .clear))
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .accessibilityAddTraits(on ? [.isSelected, .isButton] : .isButton)
+                .accessibilityIdentifier("theme-\(m.rawValue)")
+            }
+        }
+        .padding(4)
+        .background(RoundedRectangle(cornerRadius: 16).fill(HS.cardFill))
+        .overlay(RoundedRectangle(cornerRadius: 16).strokeBorder(Color(hex: 0xD9B49F).opacity(0.24), lineWidth: 1))
     }
 }
