@@ -104,7 +104,8 @@ struct BreathPaceView: View {
     @State private var elapsed = 0.0
     @State private var result = 0.0
     @State private var reason = ""
-    private let motion = CMMotionManager()
+    private static let motionManager = CMMotionManager()
+    private var motion: CMMotionManager { Self.motionManager }
 
     var body: some View {
         ZStack {
