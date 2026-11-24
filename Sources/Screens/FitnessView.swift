@@ -16,8 +16,9 @@ final class StepsModel: ObservableObject {
         manual[k, default: 0] += min(120, max(0, minutes)) * 100
         UserDefaults.standard.set(manual, forKey: "manualSteps")
         ActivityLog.shared.add(.walk)
-        today = (stepsByDay[k] ?? 0) + manual[k, default: 0]
+        today += min(120, max(0, minutes)) * 100
         stepsByDay[k] = today
+        if !week.isEmpty { week[week.count - 1].steps = today }
     }
     private let health = HKHealthStore()
     private let stepType = HKQuantityType(.stepCount)
