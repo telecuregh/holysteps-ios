@@ -58,8 +58,8 @@ final class SmokeUITests: XCTestCase {
         app.buttons["Search the Bible"].tap()
         let field = app.textFields.firstMatch
         XCTAssertTrue(field.waitForExistence(timeout: 5))
-        field.tap()
-        field.typeText("love one another")
+        sleep(1)   // the field is focused when the search opens
+        app.typeText("love one another")
         sleep(3)
         shot(app, "06-search")
         app.navigationBars.buttons["Close"].tap()
