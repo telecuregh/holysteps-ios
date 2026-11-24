@@ -1,7 +1,6 @@
 import SwiftUI
 
-/// Android's ProfileScreen: the meadow header card, then settings in labeled sections. Plans, account, backup,
-/// devices and people-and-safety come with the account and community phases, so they're left out until then.
+/// Android's ProfileScreen: the meadow header card, then settings in labeled sections, starting with the plan and account.
 struct ProfileView: View {
     @EnvironmentObject var store: AppStore
     @EnvironmentObject var i18n: I18n
@@ -24,6 +23,9 @@ struct ProfileView: View {
                             .accessibilityHint(tr("Change your name"))
                             .padding(.top, 48).padding(.horizontal, 20).padding(.bottom, 12)
 
+                        group("Plan and account") {
+                            link("crown", "Your plan", tr(AccountStore.shared.planName), 0xD9B49F) { AccountView() }
+                        }
                         group("Language") {
                             item("globe", "Language", i18n.choice == .system ? tr(i18n.choice.label) : i18n.choice.label, 0x8B5CF6) { sheet = .language }
                         }

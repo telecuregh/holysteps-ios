@@ -58,6 +58,8 @@ struct WalkPlan: Identifiable {
     private static func main(_ s: Int, _ b: PaceBand) -> WalkPhase { WalkPhase(kind: .main, seconds: s, target: b, cue: cue(b)) }
     private static func recover(_ s: Int, _ b: PaceBand = .easy) -> WalkPhase { WalkPhase(kind: .recover, seconds: s, target: b, cue: recoverCue) }
 
+    /// Guided plans past Easy 20 come with the Fitness plan (Feature.WALK_PLUS).
+    var plus: Bool { id != "free" && id != "easy_20" }
     static let free = WalkPlan(id: "free", title: "Free walk", emoji: "🧭", about: "No plan, no targets. Just walk at your own pace.", phases: [])
     static let all: [WalkPlan] = [
         free,
@@ -332,6 +334,8 @@ struct WalkSetupView: View {
     @State private var outdoor = true
     @State private var planId = "free"
     @State private var warmCool = true
+    @State private var paywall = false
+    @ObservedObject private var account = AccountStore.shared
 
     var body: some View {
         ZStack {
@@ -355,7 +359,8 @@ struct WalkSetupView: View {
                 SectionHeader(title: "Plan").padding(.horizontal, -20)
                 ForEach(WalkPlan.all) { p in
                     let on = planId == p.id
-                    Button { planId = p.id } label: {
+                    let locked = p.plus && !account.canUse(.walkPlus)
+                    Button { if locked { paywall = true } else { planId = p.id } } label: {
                         HStack(spacing: 12) {
                             T(p.emoji).font(.system(size: 18)).frame(width: 36, height: 36).background(Circle().fill(HS.overlay(0.06)))
                             VStack(alignment: .leading, spacing: 2) {
@@ -363,6 +368,7 @@ struct WalkSetupView: View {
                                 T(p.about).font(.hs(12)).foregroundStyle(HS.textMuted)
                             }
                             Spacer()
+                            if locked { T("👑 Fitness plan").font(.hs(10, .semibold)).foregroundStyle(HS.gold) }
                             if on { Image(systemName: "checkmark.circle.fill").foregroundStyle(HS.goldButton) }
                         }
                         .padding(12)
@@ -382,6 +388,7 @@ struct WalkSetupView: View {
             }
             .padding(20)
         }
+        .sheet(isPresented: $paywall) { PlansView(feature: .walkPlus) }
     }
 }
 

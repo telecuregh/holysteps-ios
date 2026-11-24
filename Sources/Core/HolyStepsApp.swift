@@ -15,6 +15,7 @@ struct HolyStepsApp: App {
                 .environmentObject(i18n)
                 .environmentObject(appearance)
                 .preferredColorScheme(appearance.mode.isLight ? .light : .dark)
+                .task { await AccountStore.shared.start() }
         }
     }
 }

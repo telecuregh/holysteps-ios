@@ -7,14 +7,21 @@ import UserNotifications
 enum SleepLibrary {
     private struct Item: Decodable { let id, kind, title, subtitle, script: String; let free: Bool }
 
+    private static let items: [Item] = {
+        guard let data = Bundle.main.resourceData("sleep.json.gz") else { return [] }
+        return (try? JSONDecoder().decode([Item].self, from: data)) ?? []
+    }()
+    static let freeIds: Set<String> = Set(items.filter(\.free).map(\.id))
+
     static let all: [Sermon] = {
-        guard let data = Bundle.main.resourceData("sleep.json.gz"),
-              let items = try? JSONDecoder().decode([Item].self, from: data) else { return [] }
-        return items.map {
+        items.map {
             Sermon(id: $0.id, group: .sleep, title: $0.title, subtitle: $0.subtitle, scene: "NIGHT", recorded: [], script: $0.script,
                    voice: "af_heart", kind: $0.kind)
         }
     }()
+
+    /// Free for everyone; the rest of the library comes with the Faith plan (Feature.SANCTUARY_FULL).
+    @MainActor static func locked(_ s: Sermon) -> Bool { !freeIds.contains(s.id) && !AccountStore.shared.canUse(.sanctuaryFull) }
 
     static func list(_ kind: String) -> [Sermon] { all.filter { $0.kind == kind } }
     static func byId(_ id: String) -> Sermon? { all.first { $0.id == id } }
@@ -125,6 +132,8 @@ private struct SleepSection: View {
     let items: [Sermon]
     let onPlay: (Sermon) -> Void
     @State private var all = false
+    @State private var paywall = false
+    @ObservedObject private var account = AccountStore.shared
 
     var body: some View {
         let shown = all ? items : Array(items.prefix(4))
@@ -133,7 +142,8 @@ private struct SleepSection: View {
                 .padding(.top, 8)
             VStack(spacing: 10) {
                 ForEach(shown) { s in
-                    Button { onPlay(s) } label: {
+                    let locked = SleepLibrary.locked(s)
+                    Button { if locked { paywall = true } else { onPlay(s) } } label: {
                         GlassCard(padding: 14) {
                             HStack(spacing: 12) {
                                 VStack(alignment: .leading, spacing: 2) {
@@ -142,7 +152,7 @@ private struct SleepSection: View {
                                     D(tr(s.minutesLabel)).font(.hs(11)).foregroundStyle(HS.textSubtle)
                                 }
                                 Spacer(minLength: 6)
-                                GoldPlayBadge(size: 32)
+                                if locked { D("👑").font(.system(size: 18)).accessibilityLabel(tr("Part of the Faith plan")) } else { GoldPlayBadge(size: 32) }
                             }
                         }
                     }
@@ -151,5 +161,6 @@ private struct SleepSection: View {
             }
             .padding(.horizontal, 20)
         }
+        .sheet(isPresented: $paywall) { PlansView(feature: .sanctuaryFull) }
     }
 }
