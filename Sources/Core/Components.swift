@@ -285,3 +285,27 @@ struct ToolTile: View {
         }
     }
 }
+
+/// Android's ScreenPhoto: a photo across the top of a screen that fades into the page. It takes up 84 points less than
+/// its height, so the title below sits in its faded bottom. A screen with several photos shows a different one each
+/// day (dailyScreenPhoto: name, name_2, name_3 …).
+struct ScreenPhoto: View {
+    let name: String
+    var height: CGFloat = 210
+    var overlap: CGFloat = 84
+
+    static func daily(_ name: String, epochDay: Int = Int(Date().timeIntervalSince1970 / 86_400)) -> String {
+        var all = [name]
+        for i in 2...9 { if UIImage(named: "\(name)_\(i)") != nil { all.append("\(name)_\(i)") } else { break } }
+        return all[epochDay % all.count]
+    }
+
+    var body: some View {
+        Image(Self.daily(name)).resizable().scaledToFill()
+            .frame(height: height).frame(maxWidth: .infinity).clipped()
+            .mask(LinearGradient(stops: [.init(color: .black, location: 0), .init(color: .black, location: 0.6), .init(color: .clear, location: 1)],
+                                 startPoint: .top, endPoint: .bottom))
+            .frame(height: height - overlap, alignment: .top)
+            .accessibilityHidden(true)
+    }
+}

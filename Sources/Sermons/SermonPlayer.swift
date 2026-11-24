@@ -52,6 +52,8 @@ final class SermonPlayer: NSObject, ObservableObject, AVSpeechSynthesizerDelegat
         BibleListening.shared.stop()
         stopPlayback()
         sermon = s
+        // Listening counts the moment it starts (a sleep story is meant to be fallen asleep to).
+        ActivityLog.shared.add(s.group == .sleep ? (s.kind == "night" ? .prayerAudio : .sleepStory) : .sermon)
         segments = s.segments
         captions = segments.map { if case .speech(let t) = $0 { return tr(t) } else { return "" } }
         index = max(0, min(start, max(0, segments.count - 1)))
@@ -126,7 +128,7 @@ final class SermonPlayer: NSObject, ObservableObject, AVSpeechSynthesizerDelegat
     private func run(_ s: Sermon, keepPack: Bool = false) async {
         if !(keepPack && pack != nil) && !I18n.shared.spanish {
             // The preacher's recordings are in English; in Spanish the phone reads the translated words.
-            pack = await VoicePacks.shared.ensure(voice: VoicePacks.preacher, packId: s.packId)
+            pack = await VoicePacks.shared.ensure(voice: s.voice ?? VoicePacks.preacher, packId: s.packId)
         }
         if Task.isCancelled { return }
         loading = false
@@ -138,7 +140,7 @@ final class SermonPlayer: NSObject, ObservableObject, AVSpeechSynthesizerDelegat
             switch segments[index] {
             case .speech(let text):
                 if !I18n.shared.spanish, let data = pack?.audio(for: text) {
-                    reader = tr("Preacher")
+                    reader = s.voice == nil ? tr("Preacher") : "Grace"
                     _ = await clip.play(data)
                 } else {
                     reader = tr("Your phone's voice")
@@ -160,7 +162,7 @@ final class SermonPlayer: NSObject, ObservableObject, AVSpeechSynthesizerDelegat
         }
         finished = true
         playing = false
-        SermonWeek.shared.markHeard(s.id)
+        if s.group != .sleep { SermonWeek.shared.markHeard(s.id) }
         updateNowPlaying()
     }
 

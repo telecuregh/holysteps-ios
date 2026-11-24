@@ -46,7 +46,7 @@ enum HS {
     static var bgTop: Color { isPearl ? Color(hex: 0xF3F1EC) : pick(0x1A1226, 0xF6EDE6) }
     static var bgMid: Color { isPearl ? Color(hex: 0xEEEAE2) : pick(0x120D1A, 0xEFE3E0) }
     static var bgBottom: Color { isPearl ? Color(hex: 0xE9E5DC) : pick(0x0B0810, 0xDFCCD5) }
-    static var card: Color { isLight ? HS.overlay(0.88) : Color(hex: 0x1C1524) }
+    static var card: Color { isLight ? Color.white.opacity(0.88) : Color(hex: 0x1C1524) }
     /// Edge and gold text: HarmonyGoldEdge on Dark, goldText on Light.
     static var gold: Color { pick(0xD9B49F, 0x85633A) }
     static let goldButton = Color(hex: 0xD8B27A)
@@ -63,8 +63,8 @@ enum HS {
     static var cardFill: Color {
         switch mode {
         case .dark: Color(hex: 0x1C1524, alpha: Double(0xA6) / 255)
-        case .light: HS.overlay(Double(0xE0) / 255)
-        case .pearl: HS.overlay(Double(0xC2) / 255)
+        case .light: Color.white.opacity(Double(0xE0) / 255)
+        case .pearl: Color.white.opacity(Double(0xC2) / 255)
         }
     }
     static let cardSheen = Color(hex: 0xF7E3D4, alpha: Double(0x18) / 255)
@@ -75,7 +75,7 @@ enum HS {
     static var mind: Color { readable(0x64A5E8) }
     static var cycle: Color { readable(0xE57A9E) }
     /// NeutralOverlay: white on Dark; deep ink (alpha × 1.3) on Light.
-    static func overlay(_ a: Double) -> Color { isLight ? Color(hex: 0x1F1B16, alpha: min(1, a * 1.3)) : HS.overlay(a) }
+    static func overlay(_ a: Double) -> Color { isLight ? Color(hex: 0x1F1B16, alpha: min(1, a * 1.3)) : Color.white.opacity(a) }
 
     /// Android's Color.readable(): on Light, saturated colors are darkened until they reach 5.6:1 against white.
     static func readable(_ hex: UInt32) -> Color { isLight ? lightReadable(hex) : Color(hex: hex) }
@@ -120,7 +120,7 @@ struct HSBackground: View {
                 ZStack {
                     LinearGradient(colors: HS.isLight ? [Color(hex: 0xF6EDE6), Color(hex: 0xEFE3E0), Color(hex: 0xE8DADC), Color(hex: 0xDFCCD5)]
                                    : [HS.bgTop, HS.bgMid, HS.bgBottom], startPoint: .top, endPoint: .bottom)
-                    RadialGradient(colors: [HS.isLight ? HS.overlay(Double(0x40) / 255) : Color(hex: 0x9B7785, alpha: Double(0x2E) / 255), .clear],
+                    RadialGradient(colors: [HS.isLight ? Color.white.opacity(Double(0x40) / 255) : Color(hex: 0x9B7785, alpha: Double(0x2E) / 255), .clear],
                                    center: UnitPoint(x: 0.5, y: 0.16), startRadius: 0, endRadius: g.size.width * 0.85)
                     RadialGradient(colors: [HS.isLight ? Color(hex: 0xD9A6B6, alpha: Double(0x40) / 255) : Color(hex: 0x7E5A52, alpha: Double(0x47) / 255), .clear],
                                    center: UnitPoint(x: 0.5, y: 0.44), startRadius: 0, endRadius: g.size.width * 0.95)
@@ -163,7 +163,7 @@ struct PearlBackdrop: View {
                 for q in pts.dropFirst() { p.addLine(to: CGPoint(x: x(q.x), y: y(q.y))) }
                 p.closeSubpath()
                 let top = y(pts.map(\.y).min()!), bottom = y(pts.map(\.y).max()!)
-                ctx.fill(p, with: .linearGradient(Gradient(colors: [HS.overlay(Double(0xD9) / 255), HS.overlay(Double(0x40) / 255)]),
+                ctx.fill(p, with: .linearGradient(Gradient(colors: [Color.white.opacity(Double(0xD9) / 255), Color.white.opacity(Double(0x40) / 255)]),
                                                   startPoint: CGPoint(x: 0, y: top), endPoint: CGPoint(x: 0, y: bottom)))
                 ctx.stroke(p, with: .color(.white), lineWidth: 1)
             }

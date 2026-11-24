@@ -38,7 +38,7 @@ targets:
         INFOPLIST_KEY_UILaunchScreen_Generation: YES
         INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES
         INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone: UIInterfaceOrientationPortrait
-        INFOPLIST_KEY_NSHealthShareUsageDescription: HolySteps reads your step count to show your daily walking progress. It stays on your phone.
+        INFOPLIST_KEY_NSHealthShareUsageDescription: HolySteps reads your steps and sleep to show your daily progress and your weekly recap. It stays on your phone.
         INFOPLIST_KEY_NSHealthUpdateUsageDescription: HolySteps does not write health data.
         INFOPLIST_KEY_ITSAppUsesNonExemptEncryption: NO
         ENABLE_PREVIEWS: YES

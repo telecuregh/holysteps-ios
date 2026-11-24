@@ -5,7 +5,7 @@ import SwiftUI
 struct FaithView: View {
     @EnvironmentObject var store: AppStore
     @ObservedObject private var bible = BibleState.shared
-    @State private var tab = 0
+    @ObservedObject private var router = TabRouter.shared
     @State private var image: VerseCard?
 
     var body: some View {
@@ -15,21 +15,26 @@ struct FaithView: View {
                 ScrollViewReader { proxy in
                     ScrollView {
                         VStack(alignment: .leading, spacing: 0) {
-                            header.id("top")
+                            ScreenPhoto(name: "screen_faith").id("top")
+                            header
                             Spacer().frame(height: 4)
-                            SubTabs(tabs: ["Today", "Pray", "Bible", "Listen", "Mind"], selected: $tab)
+                            // At most four sections: praying lives in Today.
+                            SubTabs(tabs: ["Today", "Bible", "Listen", "Mind"], selected: $router.faithTab)
                             Spacer().frame(height: 16)
-                            switch tab {
-                            case 0: today
-                            case 1: pray
-                            case 2: bibleTab
-                            case 3: listen
+                            switch router.faithTab {
+                            case 0:
+                                today
+                                Spacer().frame(height: 16)
+                                pray
+                            case 1: bibleTab
+                            case 2: listen
                             default: mind
                             }
                             Spacer().frame(height: 100)
                         }
                     }
-                    .onChange(of: tab) { _, _ in proxy.scrollTo("top", anchor: .top) }
+                    .ignoresSafeArea(edges: .top)
+                    .onChange(of: router.faithTab) { _, _ in proxy.scrollTo("top", anchor: .top) }
                 }
             }
             .toolbar(.hidden, for: .navigationBar)

@@ -12,6 +12,7 @@ struct CycleView: View {
                 HSBackground()
                 ScrollView {
                     VStack(alignment: .leading, spacing: 16) {
+                        ScreenPhoto(name: store.gender == "male" ? "screen_wellness_men" : "screen_cycle").padding(.horizontal, -20).padding(.top, -20)
                         ScreenTitle(text: "Cycle")
                         GlassCard {
                             VStack(alignment: .leading, spacing: 8) {
@@ -58,6 +59,7 @@ struct CycleView: View {
                     }
                     .padding(20)
                 }
+                .ignoresSafeArea(edges: .top)
             }
             .toolbar(.hidden, for: .navigationBar)
         }

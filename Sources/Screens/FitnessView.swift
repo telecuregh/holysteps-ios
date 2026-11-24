@@ -10,11 +10,16 @@ final class StepsModel: ObservableObject {
     @Published var asked = false
     private let health = HKHealthStore()
     private let stepType = HKQuantityType(.stepCount)
+    private let sleepType = HKCategoryType(.sleepAnalysis)
+    /// Steps per day and minutes asleep per night (keyed by the morning you woke), for the last 7 days.
+    @Published var stepsByDay: [String: Int] = [:]
+    @Published var sleepByDay: [String: Int] = [:]
+    var sleepLastNight: Int? { sleepByDay[AppStore.dayKey()].flatMap { $0 >= 60 ? $0 : nil } }
 
     func request() async {
         guard available else { return }
         do {
-            try await health.requestAuthorization(toShare: [], read: [stepType])
+            try await health.requestAuthorization(toShare: [], read: [stepType, sleepType])
             asked = true
             await refresh()
         } catch { asked = true }
@@ -33,6 +38,42 @@ final class StepsModel: ObservableObject {
         }
         week = rows.map { (day: $0.0, steps: $0.1) }
         today = rows.last?.1 ?? 0
+        var byDay: [String: Int] = [:], sleep: [String: Int] = [:]
+        for offset in 0...6 {
+            guard let d = cal.date(byAdding: .day, value: -offset, to: Date()) else { continue }
+            let key = AppStore.dayKey(d)
+            byDay[key] = rows.count > 6 - offset ? rows[6 - offset].1 : 0
+            // The night before that morning: 6 PM to noon.
+            let morning = cal.startOfDay(for: d)
+            let from = morning.addingTimeInterval(-6 * 3600), to = morning.addingTimeInterval(12 * 3600)
+            let m = await asleepMinutes(from: from, to: min(to, Date()))
+            if m > 0 { sleep[key] = m }
+        }
+        stepsByDay = byDay
+        sleepByDay = sleep
+    }
+
+    private func asleepMinutes(from: Date, to: Date) async -> Int {
+        guard to > from else { return 0 }
+        return await withCheckedContinuation { cont in
+            let p = HKQuery.predicateForSamples(withStart: from, end: to)
+            let q = HKSampleQuery(sampleType: sleepType, predicate: p, limit: HKObjectQueryNoLimit, sortDescriptors: nil) { _, samples, _ in
+                let asleep: Set<Int> = [HKCategoryValueSleepAnalysis.asleepUnspecified.rawValue, HKCategoryValueSleepAnalysis.asleepCore.rawValue,
+                                        HKCategoryValueSleepAnalysis.asleepDeep.rawValue, HKCategoryValueSleepAnalysis.asleepREM.rawValue]
+                // Merge overlapping samples (a watch and the phone can both record the same night).
+                let spans = (samples as? [HKCategorySample] ?? []).filter { asleep.contains($0.value) }
+                    .map { (max($0.startDate, from), min($0.endDate, to)) }.sorted { $0.0 < $1.0 }
+                var total: TimeInterval = 0
+                var cur: (Date, Date)?
+                for s in spans {
+                    if let c = cur, s.0 <= c.1 { cur = (c.0, max(c.1, s.1)) }
+                    else { if let c = cur { total += c.1.timeIntervalSince(c.0) }; cur = s }
+                }
+                if let c = cur { total += c.1.timeIntervalSince(c.0) }
+                cont.resume(returning: Int(total / 60))
+            }
+            health.execute(q)
+        }
     }
 
     private func steps(from: Date, to: Date) async -> Int {
@@ -56,6 +97,7 @@ struct FitnessView: View {
                 HSBackground()
                 ScrollView {
                     VStack(alignment: .leading, spacing: 16) {
+                        ScreenPhoto(name: "screen_fitness").padding(.horizontal, -20).padding(.top, -20)
                         ScreenTitle(text: "Fitness")
                         GlassCard {
                             VStack(spacing: 12) {
@@ -72,6 +114,7 @@ struct FitnessView: View {
                                 .frame(width: 170, height: 170)
                                 .frame(maxWidth: .infinity)
                                 Stepper(tr("Daily goal: \(goal)"), value: $goal, in: 2000...30000, step: 500)
+                                    .onChange(of: goal) { ActivityLog.shared.add(.tracker) }
                                     .foregroundStyle(HS.textSecondary)
                             }
                         }
@@ -101,6 +144,7 @@ struct FitnessView: View {
                     }
                     .padding(20)
                 }
+                .ignoresSafeArea(edges: .top)
             }
             .toolbar(.hidden, for: .navigationBar)
             .task { if model.available { await model.refresh() } }

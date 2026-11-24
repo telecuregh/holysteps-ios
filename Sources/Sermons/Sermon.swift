@@ -6,7 +6,7 @@ import SwiftUI
 /// by tools/sermons2json.py). Scripts use the same light markup as Android's Audio Sanctuary: blank-line separated
 /// paragraphs, "[PAUSE 6 SECONDS]" for silence, any other bracketed line is a stage direction and is skipped.
 struct Sermon: Identifiable, Decodable, Hashable {
-    enum Group: String, Decodable { case weekly, facing, books, seasons }
+    enum Group: String, Decodable { case weekly, facing, books, seasons, sleep }
 
     let id: String
     let group: Group
@@ -17,6 +17,10 @@ struct Sermon: Identifiable, Decodable, Hashable {
     /// read from its script.
     let recorded: [String]
     let script: String
+    /// The narrator's voice pack (sleep audio is read by Grace, af_heart); nil means the preacher.
+    var voice: String? = nil
+    /// Sleep library only: "story", "kids" or "night".
+    var kind: String? = nil
 
     static func == (a: Sermon, b: Sermon) -> Bool { a.id == b.id }
     func hash(into h: inout Hasher) { h.combine(id) }
@@ -42,6 +46,9 @@ struct Sermon: Identifiable, Decodable, Hashable {
         case pause(Int)
     }
 
+    private static let breatheRe = try! NSRegularExpression(pattern: #"^\[\s*BREATHE\s+([A-Z_]+)\s+(\d+)\s*]$"#, options: .caseInsensitive)
+    /// Android's BreathPattern cycle lengths (Box 16, Calm 10, 4-7-8 19, Paced 10 seconds).
+    private static let breathSeconds = ["BOX": 16, "CALM": 10, "SLEEP": 19, "PACED": 10]
     private static let pauseRe = try! NSRegularExpression(pattern: #"^\[\s*PAUSE\s+(\d+)\s*(SECONDS?|SEC|S)?\s*]$"#, options: .caseInsensitive)
 
     static func parse(_ script: String) -> [Segment] {
@@ -61,6 +68,11 @@ struct Sermon: Identifiable, Decodable, Hashable {
                 if let m = pauseRe.firstMatch(in: line, range: NSRange(location: 0, length: ns.length)),
                    let n = Int(ns.substring(with: m.range(at: 1))) {
                     out.append(.pause(min(120, max(1, n))))
+                } else if let m = breatheRe.firstMatch(in: line, range: NSRange(location: 0, length: ns.length)),
+                          let cycles = Int(ns.substring(with: m.range(at: 2))),
+                          let each = breathSeconds[ns.substring(with: m.range(at: 1)).uppercased()] {
+                    // A guided breath: quiet time to breathe along (the spoken lines around it give the count).
+                    out.append(.pause(min(120, each * max(1, min(20, cycles)))))
                 }
             } else { paragraph.append(line) }
         }

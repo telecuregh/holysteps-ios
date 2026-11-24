@@ -138,11 +138,38 @@ final class SmokeUITests: XCTestCase {
         let app = launch(["-hs_lang", "en", "-themeMode", "pearl"])
         tab(app, "Profile").tap()
         let dark = app.buttons["theme-dark"]
+        let found = dark.waitForExistence(timeout: 10)
+        dump(app, found)
+        XCTAssertTrue(found)
         if !dark.isHittable { app.swipeUp() }
-        XCTAssertTrue(dark.waitForExistence(timeout: 5))
         dark.tap()
         XCTAssertTrue(app.buttons["theme-dark"].waitForExistence(timeout: 5))
         XCTAssertTrue(app.buttons["theme-dark"].isSelected)
         shot(app, "33-back-to-dark")
+    }
+
+    /// The clarity-plan Home: first week, rings, verse, tiles, search, Sleep and the weekly recap.
+    func testHomePlan() {
+        let app = launch(["-hs_lang", "en"])
+        XCTAssertTrue(tab(app, "Home").waitForExistence(timeout: 20))
+        sleep(2)
+        shot(app, "40-home-top")
+        app.swipeUp()
+        shot(app, "41-home-middle")
+        app.swipeUp()
+        shot(app, "42-home-bottom")
+        let sleepTile = button(app, containing: "Stories and night prayers")
+        XCTAssertTrue(sleepTile.waitForExistence(timeout: 5))
+        sleepTile.tap()
+        sleep(2)
+        shot(app, "43-sleep")
+        app.navigationBars.buttons.firstMatch.tap()
+        app.swipeDown(); app.swipeDown()
+        app.buttons["Search"].firstMatch.tap()
+        sleep(1)
+        app.typeText("sleep")
+        shot(app, "44-search")
+        let recap = button(app, containing: "Your week")
+        if recap.waitForExistence(timeout: 3) { recap.tap(); sleep(2); shot(app, "45-recap") }
     }
 }

@@ -79,6 +79,14 @@ final class AppStore: ObservableObject {
         return f.string(from: date)
     }
 
+    /// The start of the day a dayKey names, in the phone's time zone.
+    static func date(fromKey key: String) -> Date? {
+        let f = DateFormatter()
+        f.dateFormat = "yyyy-MM-dd"
+        f.locale = Locale(identifier: "en_US_POSIX")
+        return f.date(from: key).map { Calendar.current.startOfDay(for: $0) }
+    }
+
     var readStreak: Int {
         var count = 0
         var day = Date()

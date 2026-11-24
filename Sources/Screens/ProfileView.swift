@@ -11,7 +11,7 @@ struct ProfileView: View {
                 HSBackground()
                 ScrollView {
                     VStack(alignment: .leading, spacing: 16) {
-                        ScreenTitle(text: "Profile")
+                        ProfileHeaderCard(name: store.name).padding(.top, 28)
                         GlassCard {
                             VStack(alignment: .leading, spacing: 8) {
                                 T("First name").font(.hs(14)).foregroundStyle(HS.textMuted)
@@ -64,6 +64,7 @@ struct ProfileView: View {
                     DevotionalState.shared.eraseAll()
                     SermonWeek.shared.eraseHeard()
                     QuizLog.shared.erase()
+                    ActivityLog.shared.erase(); FirstWeek.shared.eraseAll()
                 }
                 Button(tr("Cancel"), role: .cancel) {}
             } message: { T("This removes your prayers, journal, cycle dates, reading streak, Bible highlights and notes from this phone.") }
@@ -97,5 +98,34 @@ struct ThemeModeToggle: View {
         .padding(4)
         .background(RoundedRectangle(cornerRadius: 16).fill(HS.cardFill))
         .overlay(RoundedRectangle(cornerRadius: 16).strokeBorder(Color(hex: 0xD9B49F).opacity(0.24), lineWidth: 1))
+    }
+}
+
+/// Android's Profile header: the meadow photo is the card, under a soft shade that deepens toward the bottom, with a
+/// violet-gold edge, the gold avatar with initials, and the name.
+struct ProfileHeaderCard: View {
+    let name: String
+    var body: some View {
+        let shape = RoundedRectangle(cornerRadius: 24, style: .continuous)
+        let initials = name.split(separator: " ").prefix(2).compactMap(\.first).map(String.init).joined().uppercased()
+        VStack(spacing: 12) {
+            ZStack {
+                Circle().fill(LinearGradient(colors: [Color(hex: 0xF1D7A8), HS.goldButton, Color(hex: 0xB98C52)], startPoint: .topLeading, endPoint: .bottomTrailing))
+                Circle().strokeBorder(Color(hex: 0xD9B49F), lineWidth: 1.5)
+                if initials.isEmpty { Image(systemName: "person.fill").font(.system(size: 30)).foregroundStyle(HS.onGold) }
+                else { D(initials).font(.hs(28, .bold)).foregroundStyle(HS.onGold) }
+            }
+            .frame(width: 80, height: 80)
+            D(name.isEmpty ? tr("Welcome") : name).font(.hs(22, .semibold)).foregroundStyle(.white)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.horizontal, 16).padding(.vertical, 22)
+        .background {
+            Image("profile_bg_meadow").resizable().scaledToFill().accessibilityHidden(true)
+                .overlay(LinearGradient(colors: [Color(hex: 0x140C18, alpha: Double(0x38) / 255), Color(hex: 0x140C18, alpha: Double(0x66) / 255),
+                                                 Color(hex: 0x140C18, alpha: Double(0xB3) / 255)], startPoint: .top, endPoint: .bottom))
+        }
+        .clipShape(shape)
+        .overlay(shape.strokeBorder(LinearGradient(colors: [Color(hex: 0x9D7FEA), Color(hex: 0xD9B49F), Color(hex: 0x9D7FEA)], startPoint: .topLeading, endPoint: .bottomTrailing), lineWidth: 1.5))
     }
 }

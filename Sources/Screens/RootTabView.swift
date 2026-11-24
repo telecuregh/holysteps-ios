@@ -115,6 +115,10 @@ struct RootTabView: View {
 final class TabRouter: ObservableObject {
     static let shared = TabRouter()
     @Published var tab = 0
+    /// Faith's section: 0 Today, 1 Bible, 2 Listen, 3 Mind.
+    @Published var faithTab = 0
+
+    func open(tab: Int, faith: Int? = nil) { if let faith { faithTab = faith }; self.tab = tab }
 }
 
 /// The thin outline cross Android draws for the Faith tab ("M12,3 L12,21 M6.5,8.5 L17.5,8.5" on a 24 grid).

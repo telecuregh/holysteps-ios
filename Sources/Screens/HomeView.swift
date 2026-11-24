@@ -1,71 +1,79 @@
 import SwiftUI
 import UIKit
+import AVFoundation
 
-/// Android's HomeScreen (ui/screens/HomeScreen.kt), daytime layout: the hero with the logo and three glass chips, the
-/// greeting and "working together as one", Today's Harmony with the four rings, the 2 × 2 pillar grid, the streak card,
-/// and the Today / You / Explore sections.
+/// Home, as one scroll (the clarity plan): the greeting with the avatar, search and theme switch; "Next up", the one
+/// most useful thing to do now; today's rings; today's verse; four big tiles (Faith, Fitness, Wellness or Cycle,
+/// Sleep); "This week" from day 7; and 988 and safety help at the bottom. Everything longer lives on the tabs.
 struct HomeView: View {
     @EnvironmentObject var store: AppStore
     @EnvironmentObject var appearance: Appearance
     @ObservedObject private var steps = StepsModel.shared
-    @ObservedObject private var devotional = DevotionalState.shared
+    @ObservedObject private var week = FirstWeek.shared
+    @ObservedObject private var sermons = SermonWeek.shared
+    @ObservedObject private var log = ActivityLog.shared
     @ObservedObject private var router = TabRouter.shared
-    @State private var homeTab = 0
-    @State private var showWaiting = false
-    @State private var openPrayer = false
+    @State private var showSearch = false
+    @State private var showVerseImage = false
+    @State private var path: [HomeRoute] = []
+    @State private var playing: Sermon?
+    @State private var showGoal = false
+    @Environment(\.openURL) private var openURL
+
+    enum HomeRoute: Hashable { case sleep, recap, prayer, journal, quiz, bible(String?, Int?, Int?) }
 
     private var male: Bool { store.gender == "male" }
     private var name: String { store.name.isEmpty ? (male ? "Brother" : "Sister") : store.name }
-
     private var greeting: String {
         let h = Calendar.current.component(.hour, from: Date())
         let part = h < 12 ? "Good morning, {0}" : (h < 17 ? "Good afternoon, {0}" : "Good evening, {0}")
         return tr(part).replacingOccurrences(of: "{0}", with: name)
     }
+    private var evening: Bool { let h = Calendar.current.component(.hour, from: Date()); return h >= 19 || h < 4 }
 
     var body: some View {
-        let rhythm = Rhythm(store: store)
-        let zone = rhythm.zone
-        let goal = max(1, Int((Double(store.stepGoal) * zone.zone.stepMultiplier).rounded()))
-        let stepProgress = min(1, Double(steps.today) / Double(goal))
-        let prayers = store.prayerDoneToday
-        let faithProgress = Double(prayers.filter { $0 }.count) / 4
-        let checkedIn = male ? false : store.journaledToday
-        let mindProgress = (checkedIn ? 0.5 : 0) + (store.journaledToday ? 0.5 : 0)
-        let cycleProgress: Double = male ? 0 : (rhythm.cycleDay.map { min(1, Double($0) / Double(max(1, store.cycleLength))) } ?? 0)
-        let score = Rhythm.dailyScore(prayers: prayers, devotional: devotional.readToday, journaled: store.journaledToday,
-                                      steps: steps.today, stepGoal: store.stepGoal, zone: zone.zone, checkedIn: checkedIn)
-        NavigationStack {
+        NavigationStack(path: $path) {
             ScrollView {
-                VStack(spacing: 0) {
+                VStack(alignment: .leading, spacing: 16) {
                     hero
-                    harmonyCard(score: score, faith: faithProgress, body: stepProgress, mind: mindProgress, cycle: cycleProgress,
-                                goal: goal, rhythm: rhythm, zone: zone.zone)
-                        .padding(.horizontal, 16).padding(.top, 6)
-                    pillars(rhythm: rhythm, zone: zone.zone).padding(.horizontal, 16).padding(.top, 14)
-                    if store.prayerStreak == 0 || !prayers.contains(true) { streakCard.padding(.horizontal, 20).padding(.top, 16) }
-                    SubTabs(tabs: ["Today", "You", "Explore"], selected: $homeTab).padding(.top, 14)
-                    Group {
-                        switch homeTab {
-                        case 0: todaySection(goal: goal, zone: zone)
-                        case 1: youSection(rhythm: rhythm, zone: zone)
-                        default: exploreSection
-                        }
-                    }
-                    .padding(.top, 14)
-                    Spacer(minLength: 24)
+                    nextUp.padding(.horizontal, 16)
+                    rings.padding(.horizontal, 16)
+                    verseCard.padding(.horizontal, 16)
+                    tiles.padding(.horizontal, 16)
+                    if week.dayNumber >= 7 || week.done.contains(7) { weekStrip.padding(.horizontal, 16) }
+                    footer.padding(.horizontal, 16).padding(.bottom, 24)
                 }
             }
             .scrollIndicators(.hidden)
             .ignoresSafeArea(edges: .top)
+            .background(HSBackground())
             .toolbar(.hidden, for: .navigationBar)
-            .navigationDestination(isPresented: $openPrayer) { PrayerJournalView(section: 0) }
-            .sheet(isPresented: $showWaiting) { waitingSheet }
-            .task { await steps.refresh() }
+            .navigationDestination(for: HomeRoute.self) { r in
+                switch r {
+                case .sleep: SleepView()
+                case .recap: WeeklyRecapView()
+                case .prayer: PrayerJournalView(section: 0)
+                case .journal: PrayerJournalView(section: 1)
+                case .quiz: BibleQuizView()
+                case .bible(let b, let c, let v): BibleReaderView(startBook: b, startCh: c, startVerse: v)
+                }
+            }
+            .sheet(isPresented: $showSearch) { AppSearchView() }
+            .sheet(isPresented: $showVerseImage) { VerseImageView(card: verseCardData) }
+            .sheet(isPresented: $showGoal) { StepGoalSheet() }
+            .fullScreenCover(item: $playing) { s in SermonPlayerView(sermon: s) }
+            .task {
+                await steps.refresh()
+                week.refresh(store: store, stepsToday: steps.today)
+            }
+            .onChange(of: log.days) { week.refresh(store: store, stepsToday: steps.today) }
+            .onChange(of: steps.today) { week.refresh(store: store, stepsToday: steps.today) }
+            .onChange(of: store.journal.count) { week.refresh(store: store, stepsToday: steps.today) }
+            .onChange(of: store.periodStarts.count) { week.refresh(store: store, stepsToday: steps.today) }
         }
     }
 
-    // MARK: Hero
+    // MARK: Greeting
 
     private var hero: some View {
         let light = HS.isLight
@@ -73,35 +81,37 @@ struct HomeView: View {
         let chip = light ? Color.white.opacity(0.82) : Color(hex: 0x140C18).opacity(0.55)
         let chipEdge = light ? Color(hex: 0x3A3135).opacity(0.18) : Color.white.opacity(0.35)
         return ZStack(alignment: .bottom) {
-            // The photo (home_hero_woman / home_hero_light) fades into the page; it goes here once the art is added.
-            if let photo = UIImage(named: light ? "home_hero_light" : "home_hero_woman") {
-                Image(uiImage: photo).resizable().scaledToFill()
-                    .frame(height: 318, alignment: .top).clipped()
-                    .mask(LinearGradient(stops: [.init(color: .black, location: 0), .init(color: .black, location: 0.5), .init(color: .clear, location: 1)], startPoint: .top, endPoint: .bottom))
-            }
+            Image(light ? "home_hero_light" : "home_hero_woman").resizable().scaledToFill()
+                .frame(height: 318 + safeTop, alignment: .top).frame(maxWidth: .infinity).clipped()
+                .mask(LinearGradient(stops: [.init(color: .black, location: 0), .init(color: .black, location: 0.5), .init(color: .clear, location: 1)], startPoint: .top, endPoint: .bottom))
+                .accessibilityHidden(true)
             LinearGradient(stops: [.init(color: light ? Color.white.opacity(0.45) : Color.black.opacity(0.5), location: 0),
                                    .init(color: .clear, location: light ? 0.25 : 0.28)], startPoint: .top, endPoint: .bottom)
+                .accessibilityHidden(true)
             VStack(spacing: 0) {
-                HStack {
+                HStack(spacing: 8) {
                     HolyStepsMark().frame(width: 26, height: 26)
-                    D("HolySteps").font(.hs(19, .regular)).foregroundStyle(light ? Color(hex: 0x3A3135) : Color.white.opacity(0.88))
+                    D("HolySteps").font(.hs(19)).foregroundStyle(light ? Color(hex: 0x3A3135) : Color.white.opacity(0.88))
                     Spacer()
-                    HStack(spacing: 8) {
-                        chipButton(ink: ink, fill: chip, edge: chipEdge, label: "Search") { router.tab = 1 } content: {
-                            Image(systemName: "magnifyingglass").font(.system(size: 17))
-                        }
-                        let all = ThemeMode.allCases
-                        let next = all[(all.firstIndex(of: appearance.mode)! + 1) % all.count]
-                        chipButton(ink: ink, fill: chip, edge: chipEdge, label: "Switch theme") { appearance.mode = next } content: {
-                            T(next.emoji).font(.system(size: 16))
-                        }
-                        chipButton(ink: ink, fill: chip, edge: chipEdge, label: "Waiting for you today") { showWaiting = true } content: {
-                            Image(systemName: "bell").font(.system(size: 18))
-                                .overlay(alignment: .topTrailing) {
-                                    if !waiting.isEmpty { Circle().fill(HS.goldButton).frame(width: 8, height: 8).offset(x: 3, y: -2) }
-                                }
-                        }
+                    chipButton(ink: ink, fill: chip, edge: chipEdge, label: "Search") { showSearch = true } content: {
+                        Image(systemName: "magnifyingglass").font(.system(size: 17))
                     }
+                    let all = ThemeMode.allCases
+                    let next = all[((all.firstIndex(of: appearance.mode) ?? 0) + 1) % all.count]
+                    chipButton(ink: ink, fill: chip, edge: chipEdge, label: "Switch theme") { appearance.mode = next } content: {
+                        T(next.emoji).font(.system(size: 16))
+                    }
+                    Button { router.open(tab: 4) } label: {
+                        ZStack {
+                            Circle().fill(LinearGradient(colors: [Color(hex: 0xF1D7A8), HS.goldButton, Color(hex: 0xB98C52)], startPoint: .topLeading, endPoint: .bottomTrailing))
+                            if let c = store.name.first { D(String(c).uppercased()).font(.hs(16, .bold)).foregroundStyle(HS.onGold) }
+                            else { Image(systemName: "person.fill").font(.system(size: 16)).foregroundStyle(HS.onGold) }
+                        }
+                        .frame(width: 38, height: 38)
+                        .overlay(Circle().strokeBorder(chipEdge, lineWidth: 1))
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel(tr("Profile"))
                 }
                 .padding(.top, 44 + safeTop).padding(.leading, 20).padding(.trailing, 16)
                 Spacer()
@@ -137,285 +147,243 @@ struct HomeView: View {
         .accessibilityLabel(tr(label))
     }
 
-    // MARK: Today's Harmony
+    // MARK: Next up
 
-    private func harmonyCard(score: Int, faith: Double, body: Double, mind: Double, cycle: Double, goal: Int, rhythm: Rhythm, zone: EnergyZone) -> some View {
-        Button { homeTab = 1 } label: {
-            GlassCard(warm: true) {
-                VStack(spacing: 14) {
-                    T("TODAY'S HARMONY").font(.hs(11, .semibold)).tracking(1.4).foregroundStyle(HS.peach).frame(maxWidth: .infinity)
-                    HStack(spacing: 18) {
-                        HarmonyRings(score: score, faith: faith, steps: body, mind: mind, cycle: cycle).frame(width: 124, height: 124)
-                        VStack(alignment: .leading, spacing: 0) {
-                            T("Step Progress").font(.hs(14)).foregroundStyle(HS.textSecondary)
-                            HStack(alignment: .lastTextBaseline, spacing: 0) {
-                                D(steps.today.formatted()).font(.hs(18, .semibold)).foregroundStyle(HS.text)
-                                D(" " + tr("/ {0} steps").replacingOccurrences(of: "{0}", with: goal.formatted())).font(.hs(12)).foregroundStyle(HS.textMuted)
-                            }
-                            .padding(.top, 2)
-                            HSProgressBar(progress: body).padding(.top, 8)
-                            T("Current Season").font(.hs(14)).foregroundStyle(HS.textSecondary).padding(.top, 14)
-                            season(rhythm: rhythm, zone: zone).padding(.top, 2)
+    @ViewBuilder private var nextUp: some View {
+        if let day = week.step {
+            VStack(spacing: 12) {
+                FirstWeekCard(day: day) { go(firstWeek: $0) }
+                if day == 7 { FreeWeekPanel() }
+            }
+        } else {
+            let item = nextItem
+            Button(action: item.action) {
+                GlassCard(warm: true) {
+                    HStack(spacing: 14) {
+                        IconBadge(symbol: item.symbol, size: 40, tint: item.tint)
+                        VStack(alignment: .leading, spacing: 3) {
+                            T("NEXT UP").font(.hs(11, .semibold)).tracking(1.4).foregroundStyle(HS.peach)
+                            T(item.title).font(.hs(16, .semibold)).foregroundStyle(HS.text)
+                            T(item.sub).font(.hs(12)).foregroundStyle(HS.textMuted).lineLimit(2)
                         }
+                        Spacer(minLength: 4)
+                        GoldPlayBadge(symbol: "chevron.right", size: 32)
                     }
                 }
             }
+            .buttonStyle(.plain)
+        }
+    }
+
+    private struct RingItem: Identifiable { let label: String; let value: String; let hex: UInt32; let progress: Double; var id: String { label } }
+
+    private struct NextItem { let symbol: String; let tint: UInt32; let title: String; let sub: String; let action: () -> Void }
+
+    private var nextItem: NextItem {
+        if evening, let story = SleepLibrary.byId(SleepLibrary.firstStory) {
+            return NextItem(symbol: "moon.stars", tint: 0x64A5E8, title: "A bedtime story", sub: "\(tr(story.title)) · \(tr(story.minutesLabel))") { path.append(.sleep) }
+        }
+        let verse = AppContent.verseOfTheDay()
+        return NextItem(symbol: "book", tint: 0x9D7FEA, title: "Today's verse", sub: verse.ref) { listenToVerse() }
+    }
+
+    private func go(firstWeek day: Int) {
+        switch day {
+        case 1:
+            if !log.did(.verse, on: AppStore.dayKey()) { listenToVerse() }
+            else { router.open(tab: 2) }
+        case 2: playing = SleepLibrary.byId(SleepLibrary.shortPrayer)
+        case 3: path.append(.sleep)
+        case 4: if store.gender == "female" { router.open(tab: 3) } else { showGoal = true }
+        case 5: playing = sermons.current()
+        case 6: path.append(QuizLog.shared.log[AppStore.dayKey()] == nil ? .quiz : .journal)
+        default: path.append(.recap)
+        }
+    }
+
+    // MARK: Rings
+
+    private var rings: some View {
+        let goal = max(1, store.stepGoal)
+        let prayers = store.prayerDoneToday.filter { $0 }.count
+        let rhythm = Rhythm(store: store)
+        var items: [RingItem] = [
+            RingItem(label: "Steps", value: steps.today.formatted(), hex: 0x56B892, progress: min(1, Double(steps.today) / Double(goal))),
+            RingItem(label: "Prayer", value: "\(prayers)/4", hex: 0x9D7FEA, progress: Double(prayers) / 4),
+        ]
+        if !male, let day = rhythm.cycleDay, let phase = rhythm.phase {
+            items.append(RingItem(label: phase.label, value: tr("Day {0}").replacingOccurrences(of: "{0}", with: "\(day)"), hex: 0xE57A9E,
+                                  progress: min(1, Double(day) / Double(max(1, store.cycleLength)))))
+        } else if let m = steps.sleepLastNight {
+            items.append(RingItem(label: "Sleep", value: "\(m / 60)h \(String(format: "%02d", m % 60))m", hex: 0x64A5E8, progress: min(1, Double(m) / 480)))
+        }
+        return GlassCard(warm: true) {
+            VStack(spacing: 14) {
+                T("TODAY'S HARMONY").font(.hs(11, .semibold)).tracking(1.4).foregroundStyle(HS.peach).frame(maxWidth: .infinity)
+                HStack(alignment: .top, spacing: 0) {
+                    ForEach(items) { it in
+                        VStack(spacing: 8) {
+                            ZStack {
+                                Circle().stroke(Color(hex: it.hex).opacity(0.18), lineWidth: 12)
+                                Circle().stroke(HS.overlay(0.08), lineWidth: 5)
+                                Circle().trim(from: 0, to: max(0.001, it.progress)).stroke(Color(hex: it.hex).opacity(0.7 + 0.3 * it.progress), style: StrokeStyle(lineWidth: 5, lineCap: .round))
+                                    .rotationEffect(.degrees(-90))
+                                D(it.value).font(.hs(14, .semibold)).foregroundStyle(HS.text).lineLimit(1).minimumScaleFactor(0.6).padding(.horizontal, 10)
+                            }
+                            .frame(width: 84, height: 84)
+                            T(it.label).font(.hs(12)).foregroundStyle(HS.textSecondary)
+                        }
+                        .frame(maxWidth: .infinity)
+                        .accessibilityElement(children: .combine)
+                    }
+                }
+            }
+        }
+    }
+
+    // MARK: Verse
+
+    private var verseCardData: VerseCard {
+        let v = AppContent.verseOfTheDay()
+        return VerseCard(text: v.shown, ref: tr(v.ref), translation: I18n.shared.spanish ? "RVES" : "KJV", attribution: "")
+    }
+
+    private var verseCard: some View {
+        let v = AppContent.verseOfTheDay()
+        return GlassCard {
+            VStack(alignment: .leading, spacing: 10) {
+                T("TODAY'S VERSE").font(.hs(11, .semibold)).tracking(1.4).foregroundStyle(HS.peach)
+                D("“\(v.shown)”").font(.accent(19)).foregroundStyle(HS.text).lineSpacing(5)
+                D("— \(tr(v.ref))").font(.hs(13, .semibold)).foregroundStyle(HS.gold)
+                HStack(spacing: 10) {
+                    verseButton("Open", "book") { ActivityLog.shared.add(.verse); openVerse(v.ref) }
+                    verseButton("Listen", "speaker.wave.2") { listenToVerse() }
+                    verseButton("Share", "square.and.arrow.up") { ActivityLog.shared.add(.verse); showVerseImage = true }
+                }
+            }
+        }
+    }
+
+    private func verseButton(_ title: String, _ symbol: String, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Label { T(title) } icon: { Image(systemName: symbol) }
+                .font(.hs(13, .semibold)).foregroundStyle(HS.text)
+                .frame(maxWidth: .infinity).padding(.vertical, 9)
+                .background(Capsule().fill(HS.overlay(0.07)))
+                .overlay(Capsule().strokeBorder(HS.gold.opacity(0.3), lineWidth: 1))
         }
         .buttonStyle(.plain)
     }
 
-    @ViewBuilder
-    private func season(rhythm: Rhythm, zone: EnergyZone) -> some View {
-        if male {
-            D("\(tr(rhythm.mens.label)) · \(tr(zone.label))").font(.hs(15, .semibold)).foregroundStyle(HS.peach).lineLimit(2)
-        } else if let day = rhythm.cycleDay, let phase = rhythm.phase {
-            // "Day 14" stands out; the phase and energy follow in regular weight.
-            VStack(alignment: .leading, spacing: 0) {
-                D(tr("Day {0}").replacingOccurrences(of: "{0}", with: "\(day)")).font(.hs(15, .semibold))
-                D("(\(tr(phase.label + " Phase"))) - \(tr(zone.label))").font(.hs(13)).lineLimit(1).truncationMode(.tail)
+    private func openVerse(_ ref: String) {
+        // "Psalm 121:1-2" → Psalms, 121, 1
+        let parts = ref.split(separator: " ")
+        guard let last = parts.last else { return }
+        var book = parts.dropLast().joined(separator: " ")
+        if book == "Psalm" { book = "Psalms" }
+        let cv = last.split(separator: ":")
+        let ch = Int(cv.first ?? "")
+        let verse = cv.count > 1 ? Int(cv[1].split(separator: "-").first ?? "") : nil
+        path.append(.bible(Bible.canonNames.contains(book) ? book : nil, ch, verse))
+    }
+
+    private func listenToVerse() {
+        ActivityLog.shared.add(.verse)
+        let v = AppContent.verseOfTheDay()
+        VerseSpeaker.shared.speak("\(v.shown) \(tr(v.ref))")
+    }
+
+    // MARK: Tiles
+
+    private var tiles: some View {
+        let cycleTitle = male ? "Wellness" : "Cycle"
+        return VStack(spacing: 14) {
+            HStack(spacing: 14) {
+                tile("Faith", "Pray, read and listen", "hands.sparkles.fill", 0xF3D5C0, 0xC77D92) { router.open(tab: 1, faith: 0) }
+                tile("Fitness", "Steps and walks", "figure.walk", 0x56B892, 0x7FA86A) { router.open(tab: 2) }
             }
-            .foregroundStyle(HS.peach)
-        } else {
-            Button { router.tab = 3 } label: { T("Set up your cycle ›").font(.hs(15, .semibold)).foregroundStyle(HS.peach) }.buttonStyle(.plain)
+            HStack(spacing: 14) {
+                tile(cycleTitle, male ? "Strength and energy" : "Your rhythm, day by day", male ? "dumbbell" : "camera.macro", 0xE57A9E, 0xD27C86) { router.open(tab: 3) }
+                tile("Sleep", "Stories and night prayers", "moon.stars", 0x64A5E8, 0x5FA3A8) { path.append(.sleep) }
+            }
         }
     }
 
-    // MARK: Pillars
-
-    private func pillars(rhythm: Rhythm, zone: EnergyZone) -> some View {
-        VStack(spacing: 14) {
-            HStack(alignment: .top, spacing: 14) {
-                pillar(symbol: "hands.sparkles.fill", tint: 0xF3D5C0, glow: 0xC77D92, title: "Grow in the Word", action: { router.tab = 1 }) {
-                    HStack(alignment: .bottom, spacing: 8) {
-                        T("Prayer walk: The Road to Emmaus").font(.hs(13)).foregroundStyle(HS.textMuted).lineLimit(2).frame(maxWidth: .infinity, alignment: .leading)
-                        GoldPlayBadge(size: 30)
-                    }
-                }
-                pillar(symbol: "figure.run", tint: 0x56B892, glow: 0x7FA86A, title: "Move with Purpose", action: { router.tab = 2 }) {
-                    HStack(alignment: .bottom, spacing: 6) {
-                        T(zone.label).font(.hs(13)).foregroundStyle(HS.textMuted).lineLimit(2).frame(maxWidth: .infinity, alignment: .leading)
-                        D(milesText(steps.today)).font(.hs(12, .medium)).foregroundStyle(HS.peach).lineLimit(1)
-                    }
-                }
-            }
-            .fixedSize(horizontal: false, vertical: true)
-            HStack(alignment: .top, spacing: 14) {
-                pillar(symbol: "figure.mind.and.body", tint: 0x64A5E8, glow: 0x5FA3A8, title: "Find Your Calm", action: { router.tab = 1 }) {
-                    HStack(alignment: .bottom, spacing: 6) {
-                        VStack(alignment: .leading, spacing: 0) {
-                            T("Camera calm check").font(.hs(13)).foregroundStyle(HS.textMuted).lineLimit(1)
-                            T("Tap to check pulse").font(.hs(12)).foregroundStyle(HS.textSecondary).lineLimit(1)
-                        }
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        PulseWaveSpark().frame(width: 34, height: 20)
-                    }
-                }
-                pillar(symbol: "camera.macro", tint: 0xE57A9E, glow: 0xD27C86, title: "Know Your Season", action: { router.tab = 3 }) {
-                    VStack(alignment: .leading, spacing: 0) {
-                        T("Energy: \(tr(zone.label))").font(.hs(13)).foregroundStyle(HS.textMuted).lineLimit(1)
-                        T("Focus: \(tr(male ? rhythm.mens.label : (rhythm.phase.map { $0.label + " Phase" } ?? "Steady day")))")
-                            .font(.hs(13)).foregroundStyle(HS.textSecondary).lineLimit(1)
-                    }
-                }
-            }
-            .fixedSize(horizontal: false, vertical: true)
-        }
-    }
-
-    private func pillar<C: View>(symbol: String, tint: UInt32, glow: UInt32, title: String, action: @escaping () -> Void, @ViewBuilder detail: () -> C) -> some View {
+    private func tile(_ title: String, _ sub: String, _ symbol: String, _ tint: UInt32, _ glow: UInt32, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             GlassCard(glow: Color(hex: glow)) {
                 VStack(alignment: .leading, spacing: 0) {
-                    IconBadge(symbol: symbol, size: 36, tint: tint)
-                    T(title).font(.hs(15, .medium)).tracking(-0.1).foregroundStyle(HS.text).lineLimit(1).padding(.top, 12)
-                    detail().padding(.top, 4)
-                    Spacer(minLength: 0)
+                    IconBadge(symbol: symbol, size: 40, tint: tint)
+                    T(title).font(.hs(17, .semibold)).foregroundStyle(HS.text).padding(.top, 14)
+                    T(sub).font(.hs(12)).foregroundStyle(HS.textMuted).lineLimit(2).padding(.top, 2)
                 }
+                .frame(maxWidth: .infinity, minHeight: 110, alignment: .topLeading)
             }
-            .frame(maxHeight: .infinity)
         }
         .buttonStyle(.plain)
-        .frame(maxWidth: .infinity)
     }
 
-    /// US settings: distance in miles (Android's compactText with a 0.762 m step, STEP_LENGTH_KM).
-    private func milesText(_ steps: Int) -> String {
-        let mi = Double(steps) * 0.000762 / 1.609344
-        return String(format: "%.1f mi", mi)
-    }
+    // MARK: This week and help
 
-    // MARK: Streak
-
-    private var streakCard: some View {
-        Button { openPrayer = true } label: {
-            GlassCard {
+    private var weekStrip: some View {
+        Button { path.append(.recap) } label: {
+            GlassCard(padding: 14) {
                 HStack(spacing: 12) {
-                    IconBadge(symbol: store.prayerStreak > 0 ? "flame" : "sun.max", size: 38, tint: 0xF3D5C0)
+                    Image(systemName: "calendar.badge.clock").font(.system(size: 20)).foregroundStyle(HS.gold)
                     VStack(alignment: .leading, spacing: 2) {
-                        T(store.prayerStreak > 0 ? "Keep your \(store.prayerStreak)-day streak alive" : "Start a prayer streak today")
-                            .font(.hs(14, .semibold)).foregroundStyle(HS.text)
-                        T(store.prayerStreak > 0 ? "One prayer today keeps it going" : "Hit 3 days for a +15 bonus, 7 days for +50")
-                            .font(.hs(12)).foregroundStyle(HS.textMuted)
+                        T("This week").font(.hs(15, .semibold)).foregroundStyle(HS.text)
+                        T("Your week with God and your body").font(.hs(12)).foregroundStyle(HS.textMuted)
                     }
-                    Spacer(minLength: 4)
-                    T("Pray →").font(.hs(13, .semibold)).foregroundStyle(HS.gold)
+                    Spacer()
+                    D("›").font(.hs(22)).foregroundStyle(HS.gold)
                 }
             }
         }
         .buttonStyle(.plain)
     }
 
-    // MARK: Today
-
-    private struct PlanItem: Identifiable {
-        let emoji: String, title: String, sub: String, done: Bool, tab: Int
-        var id: String { title }
-    }
-
-    private func planItems(goal: Int) -> [PlanItem] {
-        let prayed = store.prayerDoneToday.contains(true)
-        let dayShown = devotional.readToday ? max(1, devotional.day - 1) : devotional.day
-        return [
-            PlanItem(emoji: "🙏", title: "Pray", sub: prayed ? "Prayer logged" : "Start with a short prayer", done: prayed, tab: 1),
-            PlanItem(emoji: "📖", title: "Devotional", sub: devotional.readToday ? "Read today" : "Day \(dayShown) of your plan", done: devotional.readToday, tab: 1),
-            PlanItem(emoji: "👣", title: "Walk", sub: "\(steps.today.formatted()) / \(goal.formatted()) steps", done: steps.today >= goal, tab: 2),
-            PlanItem(emoji: male ? "⚡" : "🌸", title: "Check in", sub: store.journaledToday ? "Logged — see your trends" : "10 seconds: mood, energy, peace",
-                     done: store.journaledToday, tab: 3),
-        ]
-    }
-
-    private var waiting: [PlanItem] { planItems(goal: store.stepGoal).filter { !$0.done } }
-
-    private func todaySection(goal: Int, zone: (zone: EnergyZone, reason: String)) -> some View {
-        let items = planItems(goal: goal)
-        let done = items.filter(\.done).count
-        let verse = AppContent.verseOfTheDay()
-        let hour = Calendar.current.component(.hour, from: Date())
-        return VStack(alignment: .leading, spacing: 0) {
-            Button { homeTab = 1 } label: {
-                GlassCard {
-                    HStack {
-                        VStack(alignment: .leading, spacing: 2) {
-                            T("About you").font(.hs(16, .semibold)).foregroundStyle(HS.text)
-                            T("How you are today, what you're going through, and what we've noticed").font(.hs(12)).foregroundStyle(HS.textMuted)
-                        }
-                        Spacer()
-                        D("›").font(.hs(22)).foregroundStyle(HS.gold)
-                    }
-                }
+    private var footer: some View {
+        HStack(spacing: 8) {
+            Image(systemName: "phone").font(.system(size: 13)).foregroundStyle(HS.textMuted)
+            if CrisisLine.has988 {
+                Button { openURL(URL(string: "tel:988")!) } label: { T("Call or text 988").font(.hs(13, .semibold)).foregroundStyle(HS.gold) }
             }
-            .buttonStyle(.plain).padding(.horizontal, 20)
-            SectionHeader(title: "Today's Walk with God").padding(.top, 4)
-            GlassCard {
-                VStack(alignment: .leading, spacing: 0) {
-                    HStack {
-                        VStack(alignment: .leading, spacing: 2) {
-                            T(done == 4 ? "Perfect Day complete!" : "\(done) of 4 complete").font(.hs(15, .semibold)).foregroundStyle(done == 4 ? HS.gold : HS.text)
-                            T("Finish all 4 for a Perfect Day · +50 pts").font(.hs(12)).foregroundStyle(HS.textMuted)
-                        }
-                        Spacer()
-                        StatRing(progress: Double(done) / 4, value: "\(done)/4").frame(width: 48, height: 48)
-                    }
-                    T(zone.zone.label).font(.hs(13, .semibold)).foregroundStyle(HS.text).padding(.top, 10)
-                    T(zone.reason).font(.hs(12)).foregroundStyle(HS.textMuted)
-                    VStack(spacing: 8) {
-                        ForEach(items) { item in
-                            Button { router.tab = item.tab } label: { planRow(item.emoji, item.title, item.sub, done: item.done) }.buttonStyle(.plain)
-                        }
-                        if hour >= 19 || hour < 4 {
-                            Button { router.tab = 1 } label: { planRow("😴", "Bedtime", "Bible sleep stories, night prayers and kids' stories", done: false) }.buttonStyle(.plain)
-                        }
-                    }
-                    .padding(.top, 12)
-                }
-            }
-            .padding(.horizontal, 20)
-            SectionHeader(title: "Today's Verse").padding(.top, 8)
-            GlassCard {
-                VStack(alignment: .leading, spacing: 8) {
-                    D("“\(verse.shown)”").font(.accent(15)).foregroundStyle(HS.text).lineSpacing(6)
-                    HStack {
-                        D("— \(tr(verse.ref))").font(.hs(13, .semibold)).foregroundStyle(HS.gold)
-                        Spacer()
-                        ShareLink(item: "\"\(verse.shown)\" — \(tr(verse.ref))") { T("Share →").font(.hs(12)).foregroundStyle(HS.gold) }
-                    }
-                }
-            }
-            .padding(.horizontal, 20)
-        }
-    }
-
-    private func planRow(_ emoji: String, _ title: String, _ sub: String, done: Bool) -> some View {
-        HStack(spacing: 12) {
-            ZStack {
-                Circle().fill(done ? HS.body : HS.overlay(0.06))
-                Circle().strokeBorder(done ? HS.body : HS.overlay(0.15), lineWidth: 1)
-                if done { Image(systemName: "checkmark").font(.system(size: 12, weight: .bold)).foregroundStyle(HS.onGold) }
-                else { T(emoji).font(.system(size: 12)).foregroundStyle(HS.text) }
-            }
-            .frame(width: 26, height: 26)
-            VStack(alignment: .leading, spacing: 1) {
-                T(title).font(.hs(14, .semibold)).foregroundStyle(HS.text)
-                T(sub).font(.hs(11)).foregroundStyle(HS.textMuted)
-            }
+            Button { router.open(tab: 1, faith: 3) } label: { T("Safety help").font(.hs(13)).foregroundStyle(HS.textMuted) }
             Spacer()
-            if !done { D("›").font(.hs(20)).foregroundStyle(HS.textMuted) }
         }
-        .padding(.horizontal, 12).padding(.vertical, 10)
-        .background(RoundedRectangle(cornerRadius: 14).fill(done ? HS.body.opacity(0.14) : HS.overlay(0.04)))
-        .contentShape(Rectangle())
+        .padding(.horizontal, 6)
     }
+}
 
-    // MARK: You
+/// Reads a verse aloud in the app's language.
+@MainActor
+final class VerseSpeaker {
+    static let shared = VerseSpeaker()
+    private let synth = AVSpeechSynthesizer()
+    func speak(_ text: String) {
+        SermonPlayer.shared.stop(); MusicPlayer.shared.stop(); BibleListening.shared.stop()
+        synth.stopSpeaking(at: .immediate)
+        try? AVAudioSession.sharedInstance().setCategory(.playback, mode: .spokenAudio)
+        let u = AVSpeechUtterance(string: Narration.spoken(text))
+        u.voice = AVSpeechSynthesisVoice(language: I18n.shared.speechLanguage)
+        u.rate = AVSpeechUtteranceDefaultSpeechRate * 0.92
+        synth.speak(u)
+    }
+}
 
-    private func youSection(rhythm: Rhythm, zone: (zone: EnergyZone, reason: String)) -> some View {
-        VStack(alignment: .leading, spacing: 0) {
-            SectionHeader(title: "Your insights")
-            GlassCard {
-                VStack(alignment: .leading, spacing: 10) {
-                    T(zone.zone.label).font(.hs(15, .semibold)).foregroundStyle(HS.text)
-                    T(zone.reason).font(.hs(13)).foregroundStyle(HS.textMuted)
-                    InsightBubble(text: store.prayerStreak > 0 ? "You've prayed \(store.prayerStreak) days in a row." : "Start with a short prayer — it lifts everything else today.")
-                }
+/// Day 4 of the first week for men (and anyone who hasn't set a gender): a daily step goal.
+struct StepGoalSheet: View {
+    @AppStorage("stepGoal") private var goal = 8000
+    @Environment(\.dismiss) private var dismiss
+    var body: some View {
+        HSSheet(title: "Your step goal") {
+            VStack(spacing: 18) {
+                D(goal.formatted()).font(.hs(40, .semibold)).foregroundStyle(HS.text)
+                T("steps a day").font(.hs(14)).foregroundStyle(HS.textMuted)
+                Stepper(tr("Daily goal"), value: $goal, in: 2000...30000, step: 500).foregroundStyle(HS.text)
+                GoldButton(title: "Save") { ActivityLog.shared.add(.tracker); dismiss() }
             }
-            .padding(.horizontal, 20)
-        }
-    }
-
-    // MARK: Explore
-
-    private var exploreSection: some View {
-        ToolSection(title: "Shortcuts", items: [
-            ToolItem(symbol: "headphones", color: HS.mind, title: "Sanctuary", sub: "Guided sessions", action: { router.tab = 1 }),
-            ToolItem(symbol: "figure.walk", color: HS.body, title: "Prayer Walk", sub: "Walk with purpose", action: { router.tab = 2 }),
-            ToolItem(symbol: "checklist", color: HS.peach, title: "Prayer List", sub: "What you're holding", destination: AnyView(PrayerJournalView(section: 0))),
-            ToolItem(symbol: "book", color: HS.body, title: "Journal", sub: "Write it down", destination: AnyView(PrayerJournalView(section: 1))),
-        ])
-    }
-
-    // MARK: Waiting
-
-    private var waitingSheet: some View {
-        HSSheet(title: waiting.isEmpty ? "All caught up" : "Waiting for you today") {
-            VStack(alignment: .leading, spacing: 4) {
-                if waiting.isEmpty { T("Everything on today's plan is done. Well done.").font(.hs(14)).foregroundStyle(HS.textMuted) }
-                ForEach(waiting) { w in
-                    Button { showWaiting = false; router.tab = w.tab } label: {
-                        HStack {
-                            VStack(alignment: .leading, spacing: 1) {
-                                T("\(w.emoji) \(w.title)").font(.hs(15, .semibold)).foregroundStyle(HS.text)
-                                T(w.sub).font(.hs(12)).foregroundStyle(HS.textMuted)
-                            }
-                            Spacer()
-                            D("›").font(.hs(20)).foregroundStyle(HS.textMuted)
-                        }
-                        .padding(.vertical, 10).padding(.horizontal, 4).contentShape(Rectangle())
-                    }
-                    .buttonStyle(.plain)
-                }
-                Spacer()
-            }
-            .padding(20)
+            .padding(24)
         }
         .presentationDetents([.medium])
     }
