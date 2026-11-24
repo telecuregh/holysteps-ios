@@ -20,7 +20,10 @@ struct HomeView: View {
     @State private var showGoal = false
     @Environment(\.openURL) private var openURL
 
-    enum HomeRoute: Hashable { case sleep, recap, prayer, journal, quiz, bible(String?, Int?, Int?) }
+    enum HomeRoute: Hashable, Identifiable {
+        case sleep, recap, prayer, journal, quiz, bible(String?, Int?, Int?)
+        var id: String { "\(self)" }
+    }
 
     private var male: Bool { store.gender == "male" }
     private var name: String { store.name.isEmpty ? (male ? "Brother" : "Sister") : store.name }
@@ -48,15 +51,29 @@ struct HomeView: View {
             .ignoresSafeArea(edges: .top)
             .background(HSBackground())
             .toolbar(.hidden, for: .navigationBar)
-            .navigationDestination(item: $route) { r in
-                switch r {
-                case .sleep: SleepView()
-                case .recap: WeeklyRecapView()
-                case .prayer: PrayerJournalView(section: 0)
-                case .journal: PrayerJournalView(section: 1)
-                case .quiz: BibleQuizView()
-                case .bible(let b, let c, let v): BibleReaderView(startBook: b, startCh: c, startVerse: v)
+            // Home's screens open full screen with their own navigation and a back button.
+            .fullScreenCover(item: $route) { r in
+                NavigationStack {
+                    Group {
+                        switch r {
+                        case .sleep: SleepView()
+                        case .recap: WeeklyRecapView()
+                        case .prayer: PrayerJournalView(section: 0)
+                        case .journal: PrayerJournalView(section: 1)
+                        case .quiz: BibleQuizView()
+                        case .bible(let b, let c, let v): BibleReaderView(startBook: b, startCh: c, startVerse: v)
+                        }
+                    }
+                    .toolbar {
+                        ToolbarItem(placement: .topBarLeading) {
+                            Button { route = nil } label: { Image(systemName: "chevron.left").font(.system(size: 17, weight: .semibold)) }
+                                .accessibilityLabel(tr("Back"))
+                        }
+                    }
                 }
+                .environmentObject(store)
+                .environmentObject(appearance)
+                .environmentObject(I18n.shared)
             }
             .sheet(isPresented: $showSearch) { AppSearchView() }
             .sheet(isPresented: $showVerseImage) { VerseImageView(card: verseCardData) }
@@ -306,7 +323,7 @@ struct HomeView: View {
             }
             HStack(spacing: 14) {
                 tile(cycleTitle, male ? "Strength and energy" : "Your rhythm, day by day", male ? "dumbbell" : "camera.macro", 0xE57A9E, 0xD27C86) { router.open(tab: 3) }
-                tile("Sleep", "Stories and night prayers", "moon.stars", 0x64A5E8, 0x5FA3A8, sleepLink: true)
+                tile("Sleep", "Stories and night prayers", "moon.stars", 0x64A5E8, 0x5FA3A8) { route = .sleep }
             }
         }
     }

@@ -175,11 +175,9 @@ final class SmokeUITests: XCTestCase {
         sleep(1)
         let open = tab(app, "Open")
         open.tap()
-        sleep(2)
-        print("AFTER OPEN:\n" + app.debugDescription)
         let reader = app.buttons["verse-1"].waitForExistence(timeout: 60)
         shot(app, "42c-verse-open")
-        app.navigationBars.buttons.allElementsBoundByIndex.first { $0.isHittable }?.tap()
+        tab(app, "Back").tap()
         sleep(1)
         XCTAssertTrue(faithShown, "The Faith tile should open Faith")
         XCTAssertTrue(reader, "Open should show the verse in the Bible")
@@ -190,8 +188,7 @@ final class SmokeUITests: XCTestCase {
         shot(app, "43-sleep")
         dump(app, opened)
         XCTAssertTrue(opened, "Sleep should open from Home")
-        let back = app.navigationBars.buttons.allElementsBoundByIndex.first { $0.isHittable }
-        back?.tap()
+        tab(app, "Back").tap()
         sleep(1)
 
         app.swipeDown(); app.swipeDown(); sleep(1)
