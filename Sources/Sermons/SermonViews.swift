@@ -486,7 +486,7 @@ struct WeeklySermonCard: View {
     var body: some View {
         let today = SermonWeekLogic.today()
         let isDay = SermonWeekLogic.isSermonDay(today, week.day)
-        let dayName = tr(SermonWeekLogic.dayName(week.day))
+        let dayName = I18n.shared.spanish ? tr(SermonWeekLogic.dayName(week.day)).lowercased() : SermonWeekLogic.dayName(week.day)
         let next = SermonWeekLogic.daysUntil(today, week.day)
         VStack(alignment: .leading, spacing: 0) {
             SectionHeader(title: isDay ? "New sermon today" : "This week's sermon")
