@@ -235,6 +235,21 @@ struct FitnessView: View {
             }
             .buttonStyle(.plain).padding(.horizontal, 20).padding(.top, 12)
         }
+        NavigationLink { WalkSetupView() } label: {
+            GlassCard {
+                HStack(spacing: 12) {
+                    IconBadge(symbol: "figure.walk", size: 40, tint: 0x56B892)
+                    VStack(alignment: .leading, spacing: 3) {
+                        T("Start a Walk").font(.hs(17, .semibold)).foregroundStyle(HS.text)
+                        T("Live map, pace coaching, warm-up and cool-down. Outdoor or indoor. Earn up to +40 pts.")
+                            .font(.hs(12)).foregroundStyle(HS.textMuted)
+                    }
+                    Spacer(minLength: 10)
+                    GoldPlayBadge(size: 38)
+                }
+            }
+        }
+        .buttonStyle(.plain).padding(.horizontal, 20).padding(.top, 14)
         DailyCoachCard().padding(.horizontal, 20).padding(.top, 14)
         SectionHeader(title: "For the walk").padding(.top, 10)
         Button { music = true } label: {
@@ -287,7 +302,12 @@ struct FitnessView: View {
         let week = model.week
         let total = week.map(\.steps).reduce(0, +)
         let goalDays = week.filter { $0.steps >= goal }.count
-        SectionHeader(title: "This Week")
+        ToolSection(title: "Your data", items: [
+            ToolItem(symbol: "list.bullet", color: HS.body, title: "Your walks", sub: "\(WalkStore.shared.walks.count) saved",
+                     destination: AnyView(WalkHistoryView())),
+            ToolItem(symbol: "chart.bar", color: HS.peach, title: "Active minutes", sub: "\(WalkStore.shared.weekActiveMinutes) of 150 this week"),
+        ])
+        SectionHeader(title: "This Week").padding(.top, 10)
         HStack(spacing: 12) {
             statCard("shoeprints.fill", total.formatted(), "steps", 0x56B892)
             statCard("target", "\(goalDays)/7", "goal days", 0x9D7FEA)
