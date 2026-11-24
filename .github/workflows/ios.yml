@@ -55,7 +55,7 @@ jobs:
         if: failure()
         run: |
           mkdir -p crashes
-          find ~/Library/Logs/DiagnosticReports -iname "*HolySteps*" -mmin -60 -exec cp {} crashes/ ; 2>/dev/null || true
+          find ~/Library/Logs/DiagnosticReports -iname "*HolySteps*" -mmin -60 -exec cp {} crashes/ \; 2>/dev/null || true
           xcrun xcresulttool get test-results tests --path TestResults.xcresult > crashes/tests.json 2>/dev/null || true
           ls crashes
 
