@@ -68,9 +68,12 @@ final class WalkSession: NSObject, ObservableObject, HKWorkoutSessionDelegate, H
     private let health = HKHealthStore()
     private var session: HKWorkoutSession?
     private var builder: HKLiveWorkoutBuilder?
-    @Published var running = false, paused = false, saved = false
+    @Published var running = false
+    @Published var paused = false
+    @Published var saved = false
     @Published var start: Date?
-    @Published var steps = 0, heart = 0
+    @Published var steps = 0
+    @Published var heart = 0
     @Published var meters = 0.0
 
     func begin() {

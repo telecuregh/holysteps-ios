@@ -6,17 +6,6 @@ import SwiftUI
 /// feature is unlocked locally (see Account.swift no-plist rule), but all data is
 /// placeholder; real data loads once Firebase is connected.
 
-// MARK: - Prayer Wall (local + Firebase)
-
-private struct WallPost: Identifiable {
-    let id: String
-    let initials: String
-    let age: String    // "2h", "1d", "3d"
-    let request: String
-    var prayedCount: Int
-    var iPrayed: Bool
-}
-
 // MARK: - Community View
 
 struct CommunityView: View {
@@ -61,95 +50,7 @@ struct CommunityView: View {
         .padding(.top, 60).padding(.horizontal, 20).padding(.bottom, 14)
     }
 
-    // MARK: Prayer Wall
-
-    private let wallPosts: [WallPost] = [
-        WallPost(id: "1", initials: "A", age: "2h", request: "Please pray for my job interview tomorrow.", prayedCount: 14, iPrayed: false),
-        WallPost(id: "2", initials: "M", age: "5h", request: "My father is in the hospital. Believing God for healing.", prayedCount: 31, iPrayed: false),
-        WallPost(id: "3", initials: "S", age: "1d", request: "Pray for my marriage. We're going through a rough season.", prayedCount: 8, iPrayed: true),
-        WallPost(id: "4", initials: "J", age: "2d", request: "Starting a new business next week. Praying for God's guidance.", prayedCount: 22, iPrayed: false),
-        WallPost(id: "5", initials: "R", age: "3d", request: "Struggling with anxiety. Need peace that passes understanding.", prayedCount: 47, iPrayed: true),
-    ]
-    @State private var prayedIds: Set<String> = []
-    @State private var showPostPrayer = false
-    @State private var prayerDraft = ""
-
-    private var prayerWall: some View {
-        VStack(spacing: 0) {
-            Button { showPostPrayer = true } label: {
-                GlassCard {
-                    HStack(spacing: 10) {
-                        Circle().fill(HS.goldButton.opacity(0.3)).frame(width: 36, height: 36)
-                            .overlay(Image(systemName: "hands.sparkles").font(.system(size: 14)).foregroundStyle(HS.peach))
-                        T("Share a prayer request with the community...")
-                            .font(.hs(14)).foregroundStyle(HS.textMuted)
-                        Spacer()
-                    }
-                }
-            }
-            .buttonStyle(.plain)
-            .padding(.horizontal, 20)
-            .sheet(isPresented: $showPostPrayer) {
-                HSSheet(title: "Prayer request") {
-                    VStack(spacing: 16) {
-                        TextEditor(text: $prayerDraft)
-                            .font(.hs(14))
-                            .frame(minHeight: 100, maxHeight: 180)
-                            .padding(10)
-                            .background(RoundedRectangle(cornerRadius: 12).fill(HS.cardFill))
-                        T("Posted anonymously with just your initials.")
-                            .font(.hs(12)).foregroundStyle(HS.textMuted)
-                        GoldButton(title: "Post request") { showPostPrayer = false; prayerDraft = "" }
-                    }
-                    .padding(24)
-                }
-                .presentationDetents([.medium])
-            }
-
-            Spacer().frame(height: 14)
-            ForEach(wallPosts) { post in
-                wallCard(post)
-            }
-        }
-    }
-
-    private func wallCard(_ post: WallPost) -> some View {
-        let prayed = prayedIds.contains(post.id) || post.iPrayed
-        return GlassCard {
-            VStack(alignment: .leading, spacing: 10) {
-                HStack(spacing: 8) {
-                    Circle().fill(LinearGradient(colors: [HS.peach.opacity(0.6), HS.faith.opacity(0.6)], startPoint: .topLeading, endPoint: .bottomTrailing))
-                        .frame(width: 32, height: 32)
-                        .overlay(T(post.initials).font(.hs(13, .semibold)).foregroundStyle(.white))
-                    T("Anonymous").font(.hs(13, .semibold)).foregroundStyle(HS.text)
-                    Spacer()
-                    T(post.age).font(.hs(11)).foregroundStyle(HS.textMuted)
-                }
-                T(post.request).font(.hs(14)).foregroundStyle(HS.text).lineSpacing(4)
-                HStack(spacing: 6) {
-                    Button {
-                        if !prayed { prayedIds.insert(post.id) }
-                    } label: {
-                        HStack(spacing: 6) {
-                            Image(systemName: prayed ? "hands.sparkles.fill" : "hands.sparkles")
-                                .font(.system(size: 13))
-                                .foregroundStyle(prayed ? HS.peach : HS.textMuted)
-                            T(prayed ? "Prayed" : "Pray")
-                                .font(.hs(13, .semibold))
-                                .foregroundStyle(prayed ? HS.peach : HS.textMuted)
-                        }
-                        .padding(.horizontal, 12).padding(.vertical, 7)
-                        .background(Capsule().fill(prayed ? HS.peach.opacity(0.12) : HS.overlay(0.06)))
-                    }
-                    .buttonStyle(.plain)
-                    T("\(post.prayedCount + (prayedIds.contains(post.id) ? 1 : 0)) praying")
-                        .font(.hs(12)).foregroundStyle(HS.textMuted)
-                    Spacer()
-                }
-            }
-        }
-        .padding(.horizontal, 20).padding(.top, 10)
-    }
+    private var prayerWall: some View { PrayerWallView() }
 
     // MARK: Circles
 
