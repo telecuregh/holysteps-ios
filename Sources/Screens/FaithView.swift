@@ -232,6 +232,10 @@ struct FaithView: View {
     @ViewBuilder private var listen: some View {
         WeeklySermonCard(more: true)
         Spacer().frame(height: 16)
+        ToolSection(title: "Sleep", items: [
+            ToolItem(symbol: "moon.stars", color: Color(hex: 0x8B5CF6), title: "Sleep stories", sub: "Long Bible stories to fall asleep to",
+                     destination: AnyView(SleepView())),
+        ])
         ToolSection(title: "Audio", items: [
             ToolItem(symbol: "music.note", color: HS.peach, title: "Hymns", sub: "Sung hymns and country gospel", destination: AnyView(MusicView(tab: 1))),
             ToolItem(symbol: "music.note", color: HS.peach, title: "Gospel songs", sub: "Songs on Bible passages, and your own music", destination: AnyView(MusicView(tab: 0))),
