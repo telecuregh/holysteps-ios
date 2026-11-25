@@ -301,7 +301,8 @@ struct WomensCycleView: View {
     // MARK: More
 
     @ViewBuilder private var more: some View {
-        BodyEnergyEntryCard().padding(.horizontal, 20).padding(.top, 16)
+        ShareWithHusbandCard().padding(.horizontal, 20).padding(.top, 16)
+        BodyEnergyEntryCard().padding(.horizontal, 20).padding(.top, 12)
         NewParentsEntryCard().padding(.horizontal, 20).padding(.top, 12)
         CoverCard(emoji: "🤕", title: "Headache diary", subtitle: "Log headaches and see what goes with yours") { HeadacheView() }
             .padding(.horizontal, 20).padding(.top, 12)
@@ -501,6 +502,7 @@ struct MensWellnessView: View {
             .overlay(RoundedRectangle(cornerRadius: 16).strokeBorder(color.opacity(0.3), lineWidth: 1))
 
             BodyEnergyEntryCard().padding(.top, 10)
+            CoverCard(emoji: "💞", title: "Support her cycle", subtitle: "Your wife's phase and how to love her well this week", tint: 0xF472B6) { SupportHerCycleView() }
             CoverCard(emoji: "🤕", title: "Headache diary", subtitle: "Log headaches and see what goes with yours") { HeadacheView() }
             NewParentsEntryCard(title: "New dad, or a baby on the way?", subtitle: "Postpartum depression in moms and dads, how to care for her, and for yourself")
             HStack(spacing: 12) {

@@ -52,6 +52,8 @@ struct ListeningBar: View {
                         pill("🌙 " + (l.sleepMinutes == -1 ? BibleListening.sleepLabel(-1) : tr("Sleep timer")))
                     }
                 }
+                Button { l.cycleRepeat() } label: { pill("🔁 " + tr(l.repeatMode.label)) }
+                    .accessibilityHint(tr("Changes between off, verse and chapter"))
                 Spacer()
                 Menu {
                     ForEach(VoicePacks.narrators) { v in

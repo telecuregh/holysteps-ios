@@ -296,7 +296,7 @@ struct BibleReaderView: View {
     private func verseActions(sel: Int, t: Bible.Text, marks: [Int: Highlight]) -> some View {
         let ref = "\(t.display(book)) \(ch):\(sel)"
         let verse = verses[sel - 1]
-        let shareText = tr("\"\(verse)\" — \(ref) (\(tid))") + "\n\n" + tr("Shared from HolySteps. Get the app:") + " " + AppLinks.site
+        let shareText = VerseShare.text(verse, "\(ref) (\(tid))")
         return VStack(alignment: .leading, spacing: 8) {
             HStack {
                 D("\(ref) · \(tid)").font(.hs(14, .semibold)).foregroundStyle(HS.text)
@@ -390,4 +390,13 @@ struct BibleReaderView: View {
 
 enum AppLinks {
     static let site = "https://holysteps.org"
+    /// Where "Get the app" points. holysteps.org until the App Store listing exists.
+    static let store = "https://holysteps.org"
+}
+
+/// Android's one share helper for verses: "<verse>" — <reference>, a blank line, then where to get the app.
+enum VerseShare {
+    static func text(_ verse: String, _ ref: String) -> String {
+        "\"\(verse)\" — \(ref)\n\n" + tr("Shared from HolySteps. Get the app:") + " " + AppLinks.store
+    }
 }

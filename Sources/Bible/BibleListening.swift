@@ -36,6 +36,15 @@ final class BibleListening: NSObject, ObservableObject, AVSpeechSynthesizerDeleg
     @Published private(set) var verseCount = 0
     @Published var speed: Float = 1.0 { didSet { UserDefaults.standard.set(speed, forKey: "bibleListenSpeed") } }
     @Published private(set) var sleepMinutes = 0
+    /// Android's Repeat: off, the same verse again, or the chapter again from verse 1. Kept across stop and start.
+    enum RepeatMode: String { case off, verse, chapter
+        var label: String { ["off": "Repeat: off", "verse": "Repeat: verse", "chapter": "Repeat: chapter"][rawValue]! }
+        var next: RepeatMode { self == .off ? .verse : self == .verse ? .chapter : .off }
+    }
+    @Published var repeatMode: RepeatMode = RepeatMode(rawValue: UserDefaults.standard.string(forKey: "bibleRepeat") ?? "") ?? .off {
+        didSet { UserDefaults.standard.set(repeatMode.rawValue, forKey: "bibleRepeat") }
+    }
+    func cycleRepeat() { repeatMode = repeatMode.next }
     @Published private(set) var sleepEndsAt: Date?
     @Published private(set) var error: String?
     /// Who is reading: "Grace", "Michael" or "your phone's voice".
@@ -157,7 +166,7 @@ final class BibleListening: NSObject, ObservableObject, AVSpeechSynthesizerDeleg
                 guard gen == generation, active else { return }
                 clipPlaying = false
                 _ = ok
-                advance(after: v)
+                finished(v)
             }
             return
         }
@@ -238,6 +247,17 @@ final class BibleListening: NSObject, ObservableObject, AVSpeechSynthesizerDeleg
 
     // MARK: Moving on
 
+    /// A verse finished on its own: Repeat decides what comes next (the sleep timer still stops everything).
+    private func finished(_ v: Int) {
+        if repeatMode == .verse { speak(v); return }
+        if repeatMode == .chapter && v >= verses.count {
+            ChapterHeard.post(book: book, ch: ch)
+            if stopAfterChapter { stop(); return }
+            speak(1); return
+        }
+        advance(after: v)
+    }
+
     private func advance(after v: Int) {
         if v < verses.count { speak(v + 1); return }
         // End of the chapter.
@@ -253,7 +273,7 @@ final class BibleListening: NSObject, ObservableObject, AVSpeechSynthesizerDeleg
     nonisolated func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didFinish utterance: AVSpeechUtterance) {
         Task { @MainActor in
             guard self.active, utterance === self.current else { return }
-            self.advance(after: self.verse)
+            self.finished(self.verse)
         }
     }
 

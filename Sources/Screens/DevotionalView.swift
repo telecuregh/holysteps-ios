@@ -127,8 +127,8 @@ struct DevotionalView: View {
                                 T(day.title).font(.hs(20, .semibold)).foregroundStyle(HS.text)
                                 D("\"" + tr(day.scripture) + "\"").font(.accent(16)).lineSpacing(10).foregroundStyle(HS.peach)
                                 D("— " + tr(day.reference)).font(.hs(13, .medium)).foregroundStyle(HS.textMuted)
-                                ShareLink(item: "“\(tr(day.scripture))” — \(tr(day.reference))") {
-                                    Label(tr("Share"), systemImage: "square.and.arrow.up").font(.hs(13))
+                                ShareLink(item: VerseShare.text(tr(day.scripture), tr(day.reference))) {
+                                    T("Share ↗").font(.hs(13))
                                 }
                                 .tint(HS.goldButton)
                             }

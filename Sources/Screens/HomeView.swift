@@ -21,7 +21,7 @@ struct HomeView: View {
     @Environment(\.openURL) private var openURL
 
     enum HomeRoute: Hashable, Identifiable {
-        case sleep, recap, prayer, journal, quiz, calmCheck, walk, bible(String?, Int?, Int?)
+        case sleep, recap, prayer, journal, quiz, calmCheck, walk, memory, bible(String?, Int?, Int?)
         var id: String { "\(self)" }
     }
 
@@ -63,6 +63,7 @@ struct HomeView: View {
                         case .quiz: BibleQuizView()
                         case .calmCheck: CalmCheckView()
                         case .walk: WalkSetupView()
+                        case .memory: VerseMemoryView()
                         case .bible(let b, let c, let v): BibleReaderView(startBook: b, startCh: c, startVerse: v)
                         }
                     }
@@ -289,11 +290,18 @@ struct HomeView: View {
             VStack(alignment: .leading, spacing: 10) {
                 T("TODAY'S VERSE").font(.hs(11, .semibold)).tracking(1.4).foregroundStyle(HS.peach)
                 D("“\(v.shown)”").font(.accent(19)).foregroundStyle(HS.text).lineSpacing(5)
-                D("— \(tr(v.ref))").font(.hs(13, .semibold)).foregroundStyle(HS.gold)
+                HStack(spacing: 14) {
+                    D("— \(tr(v.ref))").font(.hs(13, .semibold)).foregroundStyle(HS.gold)
+                    Spacer(minLength: 4)
+                    ShareLink(item: VerseShare.text(v.shown, tr(v.ref))) { T("Share ↗").font(.hs(13, .semibold)).foregroundStyle(HS.gold) }
+                        .simultaneousGesture(TapGesture().onEnded { ActivityLog.shared.add(.verse) })
+                    Button { route = .memory } label: { T("Memorize →").font(.hs(13, .semibold)).foregroundStyle(HS.gold) }
+                        .buttonStyle(.plain)
+                }
                 HStack(spacing: 10) {
                     verseButton("Open", "book") { ActivityLog.shared.add(.verse); openVerse(v.ref) }
                     verseButton("Listen", "speaker.wave.2") { listenToVerse() }
-                    verseButton("Share", "square.and.arrow.up") { ActivityLog.shared.add(.verse); showVerseImage = true }
+                    verseButton("Image", "photo") { ActivityLog.shared.add(.verse); showVerseImage = true }
                 }
             }
         }

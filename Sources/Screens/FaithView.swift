@@ -75,8 +75,11 @@ struct FaithView: View {
                 HStack {
                     D("— " + tr(verse.ref)).font(.hs(13, .semibold)).foregroundStyle(HS.peach)
                     Spacer()
+                    ShareLink(item: VerseShare.text(verse.shown, tr(verse.ref))) {
+                        T("Share ↗").font(.hs(13)).foregroundStyle(HS.peach).frame(minHeight: 44)
+                    }
                     Button { image = VerseCard(text: verse.shown, ref: tr(verse.ref), translation: "", attribution: "") } label: {
-                        T("Share as image").font(.hs(13)).foregroundStyle(HS.peach).frame(minHeight: 44)
+                        T("Image").font(.hs(13)).foregroundStyle(HS.peach).frame(minHeight: 44).padding(.leading, 12)
                     }
                 }
             }

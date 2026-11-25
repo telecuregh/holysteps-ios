@@ -53,6 +53,7 @@ struct ProfileView: View {
                             link("calendar", "Weekly recap", RecapReminder.on ? tr("On") : tr("Off"), 0x8B5CF6) { WeeklyRecapView() }
                         }
                         group("About") {
+                            link("hand.raised", "Our promises to you", "", 0xD9B49F) { TrustView() }
                             item("doc.text", "Terms of Service", "", 0x9F948B) { openURL(URL(string: AppLinks.site + "/terms")!) }
                             item("lock", "Privacy Policy", "", 0x9F948B) { openURL(URL(string: AppLinks.site + "/privacy")!) }
                         }

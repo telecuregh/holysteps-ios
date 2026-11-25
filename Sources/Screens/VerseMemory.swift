@@ -89,7 +89,10 @@ private struct PracticeSheet: View {
             .padding(20)
             .background(HSBackground())
             .navigationTitle(verse.ref).navigationBarTitleDisplayMode(.inline)
-            .toolbar { ToolbarItem(placement: .cancellationAction) { Button(tr("Close")) { dismiss() } } }
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) { Button(tr("Close")) { dismiss() } }
+                ToolbarItem(placement: .primaryAction) { ShareLink(item: VerseShare.text(verse.text, verse.ref)) { T("Share ↗") } }
+            }
         }
         .presentationDetents([.medium, .large])
     }

@@ -2,6 +2,7 @@ import Foundation
 import Security
 import CryptoKit
 import UIKit
+import UserNotifications
 
 // Phase 2: the account and its plans, as Android does it (firebase/FirebaseAuthManager.kt, data/Plans.kt,
 // data/WebStore.kt, data/WebCheckout.kt).
@@ -316,6 +317,21 @@ final class AccountStore: ObservableObject {
                          subscriptionTier: Int(int("subscriptionTier")), premiumExpiresAt: int("premiumExpiresAt"), playExpiresAt: int("playExpiresAt"),
                          faithEndsAt: int("faithEndsAt"), fitnessEndsAt: int("fitnessEndsAt"), cycleEndsAt: int("cycleEndsAt"),
                          wellnessEndsAt: int("wellnessEndsAt"), trialUsedAt: int("trialUsedAt"), banned: bool("banned"))
+        scheduleEndingNotice()
+    }
+
+    /// "If a plan is going to end, we tell you three days before": one local reminder, three days before the latest end.
+    private func scheduleEndingNotice() {
+        let c = UNUserNotificationCenter.current()
+        c.removePendingNotificationRequests(withIdentifiers: ["planEnding"])
+        guard let end = latestEnd else { return }
+        let when = end.addingTimeInterval(-3 * 86400)
+        guard when > Date() else { return }
+        let n = UNMutableNotificationContent()
+        n.title = tr("Your plan ends in 3 days")
+        n.body = tr("It ends on") + " " + end.formatted(date: .long, time: .omitted) + ". " + tr("Renew or manage it on holysteps.org.")
+        let comps = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute], from: when)
+        c.add(UNNotificationRequest(identifier: "planEnding", content: n, trigger: UNCalendarNotificationTrigger(dateMatching: comps, repeats: false)))
     }
 
     // MARK: HolySteps' own server (holysteps.org/holysteps/api)
