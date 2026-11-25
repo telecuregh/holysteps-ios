@@ -184,7 +184,7 @@ struct FormCoachView: View {
             T("Workout complete!").font(.hs(26, .bold)).foregroundStyle(HS.text)
             T("\(sets) sets of \(reps) reps")
                 .font(.hs(16)).foregroundStyle(HS.textMuted)
-            T("+30 points").font(.hs(14, .semibold)).foregroundStyle(HS.gold)
+            T("+20 points, once a day").font(.hs(14, .semibold)).foregroundStyle(HS.gold)
                 .padding(.horizontal, 16).padding(.vertical, 6)
                 .background(Capsule().fill(HS.goldButton.opacity(0.15)))
             Spacer()
