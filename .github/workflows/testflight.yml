@@ -19,7 +19,7 @@ jobs:
   upload:
     runs-on: macos-latest
     timeout-minutes: 45
-    steps:
+    steps
       - uses: actions/checkout@v4
 
       - name: Check the App Store Connect key is set
@@ -56,6 +56,7 @@ jobs:
             -configuration Release \
             -destination 'generic/platform=iOS' \
             -archivePath build/HolySteps.xcarchive \
+                        CODE_SIGN_IDENTITY="Apple Distribution" \
             -allowProvisioningUpdates \
             -authenticationKeyPath "$RUNNER_TEMP/AuthKey.p8" \
             -authenticationKeyID "$ASC_KEY_ID" \
