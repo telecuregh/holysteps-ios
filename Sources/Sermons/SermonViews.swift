@@ -232,11 +232,13 @@ private let topics: [SermonTopic] = [
     SermonTopic(name: "Anxiety and worry", feels: "Your mind won't stop racing", sermonId: "facing_01", group: "Anxiety and fear"),
     SermonTopic(name: "Panic attacks", feels: "Your heart races and you can't catch your breath", sermonId: "facing_19", group: "Anxiety and fear"),
     SermonTopic(name: "Fear", feels: "The future scares you", sermonId: "facing_10", group: "Anxiety and fear"),
+    SermonTopic(name: "Life's storms", feels: "One thing after another, and it won't stop", sermonId: "joel_it_is_well", group: "Anxiety and fear"),
     SermonTopic(name: "Overthinking", feels: "You can't stop replaying it", sermonId: "facing_11", group: "Anxiety and fear"),
     SermonTopic(name: "Depression", feels: "Heavy days that don't lift", sermonId: "facing_02", group: "Low and heavy days", crisisNote: true),
     SermonTopic(name: "Hopelessness", feels: "It's hard to see a way forward", sermonId: "facing_03", group: "Low and heavy days", crisisNote: true),
     SermonTopic(name: "Low self-worth", feels: "You don't feel like enough", sermonId: "facing_07", group: "Low and heavy days"),
     SermonTopic(name: "Burnout", feels: "You're running on empty", sermonId: "facing_08", group: "Low and heavy days"),
+    SermonTopic(name: "A tired soul", feels: "Tired in a way sleep doesn't fix", sermonId: "joel_tired_soul", group: "Low and heavy days"),
     SermonTopic(name: "Stress and overwhelm", feels: "Everything is too much right now", sermonId: "facing_09", group: "Stress, anger and rest"),
     SermonTopic(name: "Anger", feels: "Your temper is taking over", sermonId: "facing_12", group: "Stress, anger and rest"),
     SermonTopic(name: "Trouble sleeping", feels: "Your mind won't let you rest", sermonId: "facing_13", group: "Stress, anger and rest"),
@@ -288,10 +290,10 @@ struct CrisisCard: View {
     }
 }
 
-/// Picks what plays for a facing topic: Joel's recording needs sign-in (phase 2), so the preacher's narrated weekly
-/// sermon on the same topic plays when there is one; otherwise the phone reads Joel's script.
+/// Picks what plays for a facing topic: Joel's own recording in English; in Spanish the preacher's narrated weekly
+/// sermon on the same topic, whose words are translated, when there is one.
 private func playable(for topic: SermonTopic) -> Sermon? {
-    if let n = topic.sermonId.split(separator: "_").last.map(String.init), topic.sermonId.hasPrefix("facing_"),
+    if I18n.shared.spanish, let n = topic.sermonId.split(separator: "_").last.map(String.init), topic.sermonId.hasPrefix("facing_"),
        let weekly = SermonLibrary.weeklyForFacing[n], let s = SermonLibrary.sermon(weekly) { return s }
     return SermonLibrary.sermon(topic.sermonId)
 }
@@ -409,7 +411,7 @@ struct SermonLibraryView: View {
     @State private var query = ""
 
     var body: some View {
-        let list = SermonLibrary.narratedWeekly.filter {
+        let list = SermonLibrary.weekly.filter {
             query.isEmpty || tr($0.title).localizedCaseInsensitiveContains(query) || tr($0.subtitle).localizedCaseInsensitiveContains(query)
         }
         ZStack {
@@ -555,5 +557,15 @@ struct WeeklySermonCard: View {
             }
         }
         .onChange(of: week.remind) { _, on in if on { SermonReminder.requestPermission() } }
+    }
+}
+
+/// A sermon opened straight from a tile (its player, pushed like any screen).
+struct QuickSermonView: View {
+    let id: String
+    var body: some View {
+        if let s = SermonLibrary.sermon(id) {
+            SermonPlayerView(sermon: s).toolbar(.hidden, for: .navigationBar)
+        }
     }
 }

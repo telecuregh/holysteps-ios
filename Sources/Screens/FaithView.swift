@@ -256,6 +256,10 @@ struct FaithView: View {
                      destination: AnyView(SermonTopicsView())),
             ToolItem(symbol: "book", color: HS.faith, title: "Sermons through the Bible", sub: "A new book every week, Genesis to Revelation",
                      destination: AnyView(BibleSermonsView())),
+            ToolItem(symbol: "waveform", color: HS.mind, title: "Anxiety, in 90 Seconds", sub: "Maya and Jordan on calming the alarm",
+                     destination: AnyView(QuickSermonView(id: "talk_anxiety"))),
+            ToolItem(symbol: "sun.max", color: HS.gold, title: "The Greatest Story Ever Told", sub: "From the garden to the empty tomb, and to you",
+                     destination: AnyView(QuickSermonView(id: "joel_greatest_story"))),
         ])
         ToolSection(title: "Calm", items: [
             ToolItem(symbol: "heart.text.square", color: HS.mind, title: "Calm check", sub: "Your heart rate and calm in 30 seconds",
