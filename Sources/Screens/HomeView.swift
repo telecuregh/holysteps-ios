@@ -132,7 +132,7 @@ struct HomeView: View {
                     .buttonStyle(.plain)
                     .accessibilityLabel(tr("Profile"))
                 }
-                .padding(.top, 44 + safeTop).padding(.leading, 20).padding(.trailing, 16)
+                .padding(.top, 4 + safeTop).padding(.leading, 20).padding(.trailing, 16)
                 Spacer()
                 VStack(spacing: 4) {
                     D(greeting).font(.hs(14, light ? .semibold : .regular)).tracking(0.4)
