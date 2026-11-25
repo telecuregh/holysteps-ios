@@ -303,6 +303,8 @@ struct WomensCycleView: View {
     @ViewBuilder private var more: some View {
         BodyEnergyEntryCard().padding(.horizontal, 20).padding(.top, 16)
         NewParentsEntryCard().padding(.horizontal, 20).padding(.top, 12)
+        CoverCard(emoji: "🤕", title: "Headache diary", subtitle: "Log headaches and see what goes with yours") { HeadacheView() }
+            .padding(.horizontal, 20).padding(.top, 12)
         GlassCard {
             VStack(alignment: .leading, spacing: 12) {
                 T("🔒 Where your cycle data lives").font(.hs(15, .bold)).foregroundStyle(HS.text)
@@ -496,6 +498,7 @@ struct MensWellnessView: View {
             .overlay(RoundedRectangle(cornerRadius: 16).strokeBorder(color.opacity(0.3), lineWidth: 1))
 
             BodyEnergyEntryCard().padding(.top, 10)
+            CoverCard(emoji: "🤕", title: "Headache diary", subtitle: "Log headaches and see what goes with yours") { HeadacheView() }
             NewParentsEntryCard(title: "New dad, or a baby on the way?", subtitle: "Postpartum depression in moms and dads, how to care for her, and for yourself")
             HStack(spacing: 12) {
                 stat("👟", "Steps", steps.today.formatted(), color)
