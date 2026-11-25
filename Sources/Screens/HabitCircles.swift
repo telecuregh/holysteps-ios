@@ -165,7 +165,7 @@ final class CirclesModel: ObservableObject {
     func join(code: String, displayName: String) async -> Bool {
         guard let uid else { return false }
         guard let inv = await InviteCode.resolve(code), inv.type == "habitCircle" else { message = tr("That code wasn't found. Check it and try again."); return false }
-        let already = (try? await Firestore.get("habitCircles/\(inv.target)"))??.fields["memberUids"]?.array.map(\.string).contains(uid) ?? false
+        let already = (try? await Firestore.get("habitCircles/\(inv.target)"))?.fields["memberUids"]?.array.map(\.string).contains(uid) ?? false
         do {
             if !already {
                 try await Firestore.commit([.update("habitCircles/\(inv.target)", ["joinCode": .string(InviteCode.clean(code))], unions: ["memberUids": [.string(uid)]])])
