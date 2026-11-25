@@ -1,24 +1,23 @@
 import SwiftUI
 
-/// Android's prayer garden (data/PrayerGarden.kt, ui/screens/PrayerGardenScreen.kt): every prayer on the list is a
-/// plant. It grows with the days it is prayed for and blooms only when the prayer is marked answered. Nothing wilts.
+/// The prayer garden: every prayer on the list is its own plant. Each time the user prays for it, the plant grows
+/// (seed → sprout → seedling → young plant → leafy plant → budding, then its buds keep swelling), and it bursts into
+/// flower only when the prayer is marked answered. Nothing wilts. `PrayerItem.daysPrayed` counts the prayers.
 enum PrayerGarden {
-    static let bedSize = 20, fullBed = 6, stemDays = 3, budDays = 7
+    static let bedSize = 20
 
-    enum Stage: Int { case sprout, stem, bud, bloom
-        var label: String { ["Sprout", "Growing", "Bud", "In bloom"][rawValue] }
+    enum Stage: Int { case seed, sprout, seedling, young, leafy, budding, bloom
+        var label: String { ["Seed", "Sprout", "Seedling", "Young plant", "Leafy plant", "Budding", "In bloom"][rawValue] }
     }
     static func stage(_ r: PrayerItem) -> Stage {
         if r.answered { return .bloom }
-        if r.daysPrayed >= budDays { return .bud }
-        if r.daysPrayed >= stemDays { return .stem }
-        return .sprout
-    }
-    static func daysToNext(_ r: PrayerItem) -> Int? {
-        switch stage(r) {
-        case .sprout: max(1, stemDays - r.daysPrayed)
-        case .stem: max(1, budDays - r.daysPrayed)
-        default: nil
+        switch r.daysPrayed {
+        case ..<1: return .seed
+        case 1: return .sprout
+        case 2...3: return .seedling
+        case 4...5: return .young
+        case 6...7: return .leafy
+        default: return .budding
         }
     }
     static func forOthers(_ r: PrayerItem) -> Bool {
@@ -30,16 +29,16 @@ enum PrayerGarden {
         Dictionary(grouping: all.filter { $0.bed < current }, by: \.bed).sorted { $0.key > $1.key }.map { ($0.key, $0.value.sorted { $0.created < $1.created }) }
     }
 
-    /// The picture of the one garden that fits these plants (the bed's average growth).
+    /// The small garden picture on Faith → Pray and in the share card: the scene that fits the bed's average growth.
     static func scene(_ plants: [PrayerItem]) -> String {
         if plants.isEmpty { return "garden_empty" }
-        if plants.allSatisfy({ !$0.answered && $0.daysPrayed <= 1 }) { return "garden_seeds" }
-        let avg = Double(plants.map { stage($0).rawValue }.reduce(0, +)) / Double(max(plants.count, fullBed))
+        let avg = Double(plants.map { stage($0).rawValue }.reduce(0, +)) / Double(plants.count)
         switch avg {
-        case ..<0.5: return "garden_sprouts"
-        case ..<1.0: return "garden_seedlings"
-        case ..<1.75: return "garden_stems"
-        case ..<2.5: return "garden_buds"
+        case ..<0.75: return "garden_seeds"
+        case ..<1.75: return "garden_sprouts"
+        case ..<2.75: return "garden_seedlings"
+        case ..<4.0: return "garden_stems"
+        case ..<5.5: return "garden_buds"
         default: return "garden_bloom"
         }
     }
@@ -60,6 +59,9 @@ enum PrayerGarden {
     static func tally(_ p: [PrayerItem]) -> Tally {
         Tally(plants: p.count, answered: p.filter(\.answered).count, praying: p.filter { !$0.answered }.count, daysOfPrayer: p.map(\.daysPrayed).reduce(0, +))
     }
+
+    /// Flower and bud color: pink for prayers for others, lavender for your own.
+    static func flowerColor(_ r: PrayerItem) -> Color { forOthers(r) ? Color(hex: 0xED93B1) : Color(hex: 0xAFA9EC) }
 
     static func color(_ r: PrayerItem) -> Color {
         stage(r) == .bloom ? Color(hex: 0xF4C46A) : forOthers(r) ? Color(hex: 0xED93B1) : Color(hex: 0xAFA9EC)
@@ -160,14 +162,16 @@ struct PrayerGardenView: View {
         .sheet(isPresented: $showAdd) {
             AddPrayerSheet { text, who in
                 store.prayers.insert(PrayerItem(text: text, forWhom: who, bed: bed), at: 0)
-                note = "A new sprout is in your garden."
+                note = "A new seed is planted in your garden."
             }
         }
         .sheet(item: $answering) { p in
             AnsweredSheet(prayer: p.text) { testimony in
                 if let i = store.prayers.firstIndex(where: { $0.id == p.id }) {
-                    store.prayers[i].answered = true
-                    store.prayers[i].testimony = testimony
+                    withAnimation(.spring(response: 1.2, dampingFraction: 0.6)) {
+                        store.prayers[i].answered = true
+                        store.prayers[i].testimony = testimony
+                    }
                 }
                 selectedId = p.id
                 note = "It bloomed. Praise God!"
@@ -185,19 +189,21 @@ struct PrayerGardenView: View {
     private func garden(_ plants: [PrayerItem], _ scene: String) -> some View {
         Color.clear
             .aspectRatio(720.0 / 894.0, contentMode: .fit)
-            .overlay(Image(scene).resizable().scaledToFill().accessibilityLabel(tr("Your prayer garden")))
+            .overlay(Image("garden_empty").resizable().scaledToFill().accessibilityLabel(tr("Your prayer garden")))
             .overlay(GeometryReader { g in
-                ForEach(Array(plants.prefix(PrayerGarden.bedSize).enumerated()), id: \.element.id) { i, p in
+                // Back rows first so nearer plants overlap them.
+                ForEach(Array(plants.prefix(PrayerGarden.bedSize).enumerated()).reversed(), id: \.element.id) { i, p in
                     let (fx, fy, sc) = PrayerGarden.spot(i)
-                    marker(p, size: 30 * sc)
-                        .position(x: g.size.width * fx, y: g.size.height * fy)
+                    let pw = g.size.width * 0.2 * sc, ph = pw * 1.35
+                    marker(p, index: i, width: pw, height: ph)
+                        .position(x: g.size.width * fx, y: g.size.height * fy - ph / 2 + ph * 0.07)
                 }
             })
             .overlay(alignment: .bottom) {
                 if plants.isEmpty {
                     VStack(spacing: 6) {
                         T("Fresh soil, ready for your first prayer").font(.hs(15, .semibold)).foregroundStyle(.white).multilineTextAlignment(.center)
-                        T("Pray for someone or something on your heart and a sprout will appear.").font(.hs(12)).foregroundStyle(.white.opacity(0.85)).multilineTextAlignment(.center)
+                        T("Pray for someone or something on your heart and a seed will be planted.").font(.hs(12)).foregroundStyle(.white.opacity(0.85)).multilineTextAlignment(.center)
                         gardenButton("Plant a prayer", primary: true) { showAdd = true }.padding(.top, 4)
                     }
                     .padding(16)
@@ -209,18 +215,15 @@ struct PrayerGardenView: View {
             .padding(.horizontal, 16)
     }
 
-    private func marker(_ p: PrayerItem, size: CGFloat) -> some View {
-        let st = PrayerGarden.stage(p), c = PrayerGarden.color(p), sel = p.id == selectedId
-        return Button { selectedId = sel ? nil : p.id } label: {
-            ZStack {
-                Circle().fill(RadialGradient(colors: [c.opacity(0.55), .clear], center: .center, startRadius: 0, endRadius: size / 2))
-                Circle().fill(st == .sprout ? Color(hex: 0x97C459) : c).frame(width: size / 2, height: size / 2)
-                    .overlay(Circle().strokeBorder(.white.opacity(sel ? 1 : 0.7), lineWidth: sel ? 2 : 1))
-            }
-            .frame(width: size, height: size)
-            .scaleEffect(sel ? 1.25 : (st == .bloom ? (pulse ? 1.1 : 0.9) : 1))
-            .frame(width: max(44, size), height: max(44, size))
-            .contentShape(Rectangle())
+    private func marker(_ p: PrayerItem, index: Int, width: CGFloat, height: CGFloat) -> some View {
+        let st = PrayerGarden.stage(p), sel = p.id == selectedId
+        return Button { withAnimation(.spring(response: 0.3)) { selectedId = sel ? nil : p.id } } label: {
+            PrayerPlant(growth: Double(p.daysPrayed), bloom: p.answered ? 1 : 0, flower: PrayerGarden.flowerColor(p), seed: index)
+                .frame(width: width, height: height)
+                .shadow(color: sel ? HS.gold.opacity(0.9) : .clear, radius: 6)
+                .scaleEffect(sel ? 1.12 : (st == .bloom && pulse ? 1.04 : 1), anchor: .bottom)
+                .frame(minWidth: 44, minHeight: 44)
+                .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
         .accessibilityLabel(p.text + ", " + tr(st.label))
@@ -228,17 +231,20 @@ struct PrayerGardenView: View {
 
     private func detail(_ p: PrayerItem) -> some View {
         let st = PrayerGarden.stage(p)
-        let today = AppStore.dayKey()
-        let days = p.daysPrayed == 1 ? tr("1 day") : tr("\(p.daysPrayed) days")
+        let times = p.daysPrayed == 1 ? tr("Prayed 1 time.") : tr("Prayed \(p.daysPrayed) times.")
         let growth: String = {
             if p.answered && !p.testimony.isEmpty { return tr("What God did:") + " " + p.testimony }
-            if p.answered { return tr("Answered. You prayed for this on \(days).") }
-            if let n = PrayerGarden.daysToNext(p) {
-                return tr("Prayed on \(days).") + " " + tr(n == 1 ? "1 more day of prayer and it grows." : "\(n) more days of prayer and it grows.")
-            }
-            return tr("Prayed on \(days).") + " " + tr("Only God's answer makes it bloom. \"Be not weary in well doing.\" Galatians 6:9")
+            if p.answered { return times + " " + tr("God answered, and it bloomed.") }
+            if p.daysPrayed == 0 { return tr("A seed in the soil. Pray for it and watch it grow.") }
+            if st == .budding { return times + " " + tr("Only God's answer makes it bloom. \"Be not weary in well doing.\" Galatians 6:9") }
+            return times + " " + tr("Every prayer makes it grow.")
         }()
         return GlassCard {
+          HStack(alignment: .top, spacing: 14) {
+            PrayerPlant(growth: Double(p.daysPrayed), bloom: p.answered ? 1 : 0, flower: PrayerGarden.flowerColor(p),
+                        seed: (PrayerGarden.plants(store.prayers, bed: bed).firstIndex { $0.id == p.id } ?? 0))
+                .frame(width: 96, height: 130)
+                .background(RoundedRectangle(cornerRadius: 14).fill(Color(hex: 0x1E1410).opacity(0.35)))
             VStack(alignment: .leading, spacing: 8) {
                 HStack(spacing: 8) {
                     Circle().fill(PrayerGarden.color(p)).frame(width: 12, height: 12)
@@ -246,13 +252,9 @@ struct PrayerGardenView: View {
                 }
                 D(p.text).font(.hs(17, .semibold)).foregroundStyle(HS.text)
                 D(growth).font(.hs(13)).foregroundStyle(HS.textMuted)
-                HStack(spacing: 8) {
+                VStack(spacing: 8) {
                     if !p.answered {
-                        if p.lastPrayedDay != today {
-                            gardenButton("I prayed today", primary: true) { pray(p) }
-                        } else {
-                            gardenButton("Prayed today ✓", primary: false) { note = "You've already prayed for this today. Come back tomorrow." }
-                        }
+                        gardenButton("I prayed", primary: true) { pray(p) }
                         gardenButton("Prayer answered", primary: false) { answering = p }
                     } else {
                         ShareLink(item: testimonyText(p)) {
@@ -263,6 +265,7 @@ struct PrayerGardenView: View {
                 }
                 .padding(.top, 4)
             }
+          }
         }
         .padding(.horizontal, 20)
     }
@@ -270,10 +273,12 @@ struct PrayerGardenView: View {
     private func pray(_ p: PrayerItem) {
         guard let i = store.prayers.firstIndex(where: { $0.id == p.id }) else { return }
         let before = PrayerGarden.stage(store.prayers[i])
-        store.prayers[i].daysPrayed += 1
-        store.prayers[i].lastPrayedDay = AppStore.dayKey()
+        withAnimation(.spring(response: 0.8, dampingFraction: 0.7)) {
+            store.prayers[i].daysPrayed += 1
+            store.prayers[i].lastPrayedDay = AppStore.dayKey()
+        }
         let after = PrayerGarden.stage(store.prayers[i])
-        note = after != before ? "It grew into a \(after.label.lowercased())!" : "Watered with prayer today."
+        note = after != before ? "It grew into a \(after.label.lowercased())!" : "It grew a little more."
     }
 
     private func newBed() {
@@ -287,7 +292,7 @@ struct PrayerGardenView: View {
     private func testimonyText(_ p: PrayerItem) -> String {
         var s = tr("God answered my prayer:") + " " + p.text
         if !p.testimony.isEmpty { s += "\n\n" + p.testimony }
-        s += "\n\n" + tr(p.daysPrayed == 1 ? "Prayed for on 1 day. — from my prayer garden on HolySteps" : "Prayed for on \(p.daysPrayed) days. — from my prayer garden on HolySteps")
+        s += "\n\n" + tr(p.daysPrayed == 1 ? "Prayed for 1 time. — from my prayer garden on HolySteps" : "Prayed for \(p.daysPrayed) times. — from my prayer garden on HolySteps")
         return s
     }
 
