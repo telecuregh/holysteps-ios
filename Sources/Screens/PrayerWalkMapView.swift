@@ -102,7 +102,7 @@ struct PrayerWalkMapView: View {
                 }
             }
         }
-        .mapStyle(.standard(pointsOfInterest: .all))
+        .mapStyle(.hybrid(pointsOfInterest: .all))
         .ignoresSafeArea(edges: .top)
     }
 

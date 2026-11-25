@@ -527,7 +527,7 @@ struct WalkMapView: View {
                 }
             }
         }
-        .mapStyle(.standard(pointsOfInterest: .excludingAll))
+        .mapStyle(.hybrid(pointsOfInterest: .excludingAll))
         .onAppear { if !follow { camera = .automatic } }
         .accessibilityLabel(tr("Map of your walk"))
     }

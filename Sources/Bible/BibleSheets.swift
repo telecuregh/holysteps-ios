@@ -435,7 +435,7 @@ struct BibleMapView: View {
                             Marker(p.name, coordinate: CLLocationCoordinate2D(latitude: p.lat, longitude: p.lon)).tint(HS.goldButton)
                         }
                     }
-                    .mapStyle(.standard(elevation: .realistic))
+                    .mapStyle(.hybrid(elevation: .realistic))
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 6) {
                             ForEach(places) { p in
