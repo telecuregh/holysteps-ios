@@ -48,6 +48,9 @@ struct ProfileView: View {
                             item("calendar.badge.clock", "Weekly sermon", tr("Day and reminder"), 0x8B5CF6) { sheet = .sermon }
                         }
                         group("Reminders and routines") {
+                            item("bell.badge", "Notifications", tr("App alerts"), 0xF59E0B) {
+                                openURL(URL(string: "app-settings:")!)
+                            }
                             link("alarm", "Wake-up alarm", WakeAlarm.on ? WakeAlarm.timeLabel : tr("Off"), 0xF59E0B) { WakeAlarmView() }
                             link("moon.stars", "Bedtime reminder", BedtimeReminder.on ? tr("On") : tr("Off"), 0x8B5CF6) { SleepView() }
                             link("calendar", "Weekly recap", RecapReminder.on ? tr("On") : tr("Off"), 0x8B5CF6) { WeeklyRecapView() }

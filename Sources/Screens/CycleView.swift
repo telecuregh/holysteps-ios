@@ -92,20 +92,9 @@ struct WomensCycleView: View {
         if r.phase == .menstrual {
             SectionHeader(title: "Flow today").padding(.top, 8)
             GlassCard {
-                VStack(alignment: .leading, spacing: 10) {
+                VStack(alignment: .leading, spacing: 14) {
                     T("Day \(r.cycleDay ?? 1) of about \(store.periodLength)").font(.hs(11)).foregroundStyle(HS.textMuted)
-                    HStack(spacing: 8) {
-                        ForEach(CycleLog.flows, id: \.self) { f in
-                            let on = log.flow[AppStore.dayKey()] == f
-                            Button { log.setFlow(f) } label: {
-                                T(f).font(.hs(12, on ? .semibold : .regular)).foregroundStyle(on ? HS.text : HS.textSecondary)
-                                    .frame(maxWidth: .infinity).padding(.vertical, 10)
-                                    .background(RoundedRectangle(cornerRadius: 10).fill(on ? HS.goldButton.opacity(0.22) : HS.cardFill))
-                                    .overlay(RoundedRectangle(cornerRadius: 10).strokeBorder(on ? Color(hex: 0xD9B49F) : Color(hex: 0xD9B49F).opacity(0.22), lineWidth: 1))
-                            }
-                            .buttonStyle(.plain)
-                        }
-                    }
+                    FlowBandPicker(selected: log.flow[AppStore.dayKey()]) { f in log.setFlow(f) }
                 }
             }
             .padding(.horizontal, 20)
@@ -346,6 +335,53 @@ struct LogPeriodSheet: View {
             .padding(20)
         }
         .presentationDetents([.large])
+    }
+}
+
+/// Stepped horizontal track picker for menstrual flow: Spotting → Light → Medium → Heavy.
+/// Circles grow in size and fill with the rose accent when selected; labels sit underneath.
+struct FlowBandPicker: View {
+    let selected: String?
+    let onSelect: (String) -> Void
+    private let flows = CycleLog.flows           // ["Spotting", "Light", "Medium", "Heavy"]
+    private let dotSizes: [CGFloat] = [13, 17, 21, 26]
+
+    var body: some View {
+        HStack(spacing: 0) {
+            ForEach(Array(flows.enumerated()), id: \.offset) { i, f in
+                let on = selected == f
+                Button { onSelect(f) } label: {
+                    VStack(spacing: 7) {
+                        ZStack {
+                            Circle()
+                                .fill(on ? Color(hex: 0xD9B49F) : Color(hex: 0xD9B49F).opacity(0.18))
+                                .frame(width: dotSizes[i], height: dotSizes[i])
+                                .shadow(color: on ? Color(hex: 0xD9B49F).opacity(0.5) : .clear, radius: 4)
+                            if on {
+                                Circle()
+                                    .strokeBorder(Color(hex: 0xEDC9AE), lineWidth: 1.5)
+                                    .frame(width: dotSizes[i] + 4, height: dotSizes[i] + 4)
+                            }
+                        }
+                        .frame(width: 32, height: 32)
+                        T(f)
+                            .font(.hs(10, on ? .semibold : .regular))
+                            .foregroundStyle(on ? HS.text : HS.textMuted)
+                            .multilineTextAlignment(.center)
+                            .lineLimit(1)
+                    }
+                }
+                .buttonStyle(.plain)
+                .frame(maxWidth: .infinity)
+            }
+        }
+        .background(alignment: .top) {
+            Rectangle()
+                .fill(Color(hex: 0xD9B49F).opacity(0.28))
+                .frame(height: 2)
+                .padding(.horizontal, 28)
+                .padding(.top, 15)
+        }
     }
 }
 

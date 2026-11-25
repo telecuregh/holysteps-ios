@@ -240,7 +240,7 @@ struct AccountView: View {
     }
 }
 
-/// Shows the content when this person's plan covers the feature, otherwise a short lock card that opens the plans.
+/// Shows the content when this person's plan covers the feature, otherwise a premium lock card that opens the plans.
 struct Gated<Content: View>: View {
     let feature: Feature
     @ViewBuilder var content: () -> Content
@@ -251,16 +251,84 @@ struct Gated<Content: View>: View {
         if account.canUse(feature) {
             content()
         } else {
-            GlassCard {
-                VStack(alignment: .leading, spacing: 10) {
-                    HStack(spacing: 8) {
-                        Image(systemName: "lock.fill").foregroundStyle(HS.gold).accessibilityHidden(true)
-                        T(feature.lockMessage).font(.hs(15, .semibold)).foregroundStyle(HS.text)
+            PremiumLockCard(feature: feature) { showPlans = true }
+                .sheet(isPresented: $showPlans) { PlansView(feature: feature) }
+        }
+    }
+}
+
+/// Premium paywall card shown whenever a Gated feature is locked.
+struct PremiumLockCard: View {
+    let feature: Feature
+    let onUnlock: () -> Void
+
+    var body: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: 20)
+                .fill(LinearGradient(
+                    colors: [Color(hex: 0x251810), Color(hex: 0x180F08)],
+                    startPoint: .topLeading, endPoint: .bottomTrailing))
+            RadialGradient(
+                colors: [Color(hex: 0xD9B49F).opacity(0.14), .clear],
+                center: .topLeading, startRadius: 0, endRadius: 220)
+            .clipShape(RoundedRectangle(cornerRadius: 20))
+
+            VStack(alignment: .leading, spacing: 14) {
+                HStack(alignment: .top) {
+                    ZStack {
+                        Circle()
+                            .fill(Color(hex: 0xD9B49F).opacity(0.14))
+                            .frame(width: 52, height: 52)
+                        Image(systemName: "crown.fill")
+                            .font(.system(size: 24))
+                            .foregroundStyle(Color(hex: 0xD9B49F))
                     }
-                    GoldButton(title: "See plans") { showPlans = true }
+                    Spacer()
+                    Text("PREMIUM")
+                        .font(.system(size: 10, weight: .bold, design: .rounded))
+                        .foregroundStyle(Color(hex: 0xD9B49F))
+                        .padding(.horizontal, 9).padding(.vertical, 4)
+                        .background(Capsule().fill(Color(hex: 0xD9B49F).opacity(0.14)))
+                        .overlay(Capsule().strokeBorder(Color(hex: 0xD9B49F).opacity(0.3), lineWidth: 1))
+                        .padding(.top, 4)
                 }
+
+                T(feature.lockMessage)
+                    .font(.hs(16, .semibold))
+                    .foregroundStyle(.white)
+                    .fixedSize(horizontal: false, vertical: true)
+
+                VStack(alignment: .leading, spacing: 6) {
+                    perk("Unlimited access, no interruptions")
+                    perk("Synced across all your devices")
+                    perk("New features added every month")
+                }
+
+                Button(action: onUnlock) {
+                    HStack(spacing: 6) {
+                        Image(systemName: "crown.fill").font(.system(size: 12))
+                        T("Unlock now").font(.hs(15, .semibold))
+                    }
+                    .foregroundStyle(Color(hex: 0x180F08))
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 13)
+                    .background(LinearGradient(
+                        colors: [Color(hex: 0xE8C4A0), Color(hex: 0xC99872)],
+                        startPoint: .leading, endPoint: .trailing))
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                }
+                .buttonStyle(.plain)
             }
-            .sheet(isPresented: $showPlans) { PlansView(feature: feature) }
+            .padding(20)
+        }
+    }
+
+    private func perk(_ text: String) -> some View {
+        HStack(spacing: 8) {
+            Image(systemName: "checkmark.circle.fill")
+                .font(.system(size: 13))
+                .foregroundStyle(Color(hex: 0xD9B49F))
+            T(text).font(.hs(13)).foregroundStyle(Color.white.opacity(0.75))
         }
     }
 }
