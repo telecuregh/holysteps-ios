@@ -8,7 +8,13 @@ struct HolyStepsApp: App {
     /// Someone who already used the app before setup existed (a name saved) skips it.
     @AppStorage("onboarded") private var onboarded = UserDefaults.standard.object(forKey: "name") != nil
 
-    init() { I18n.shared.warmUp() }
+    init() {
+        // UI tests start each run from a fresh install's data (the arguments themselves live in their own domain).
+        if ProcessInfo.processInfo.arguments.contains("-uiTestReset"), let id = Bundle.main.bundleIdentifier {
+            UserDefaults.standard.removePersistentDomain(forName: id)
+        }
+        I18n.shared.warmUp()
+    }
 
     var body: some Scene {
         WindowGroup {

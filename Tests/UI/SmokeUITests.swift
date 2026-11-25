@@ -19,7 +19,7 @@ final class SmokeUITests: XCTestCase {
 
     private func launch(_ args: [String]) -> XCUIApplication {
         let app = XCUIApplication()
-        app.launchArguments = args + ["-sermonAskedNotify", "YES"] + (args.contains("-onboarded") ? [] : ["-onboarded", "YES"])
+        app.launchArguments = args + ["-uiTestReset", "-sermonAskedNotify", "YES"] + (args.contains("-onboarded") ? [] : ["-onboarded", "YES"])
         app.launch()
         return app
     }
@@ -66,6 +66,42 @@ final class SmokeUITests: XCTestCase {
         XCTAssertTrue(ready)
         button(app, containing: "Start My Journey").tap()
         XCTAssertTrue(tab(app, "Faith").waitForExistence(timeout: 10))
+    }
+
+    /// Phase 2 and 3 screens: the prayer garden, calm check, breathing pace, body & energy, men's plan and the plans.
+    func testNewScreens() {
+        let app = launch(["-hs_lang", "en"])
+        XCTAssertTrue(tab(app, "Faith").waitForExistence(timeout: 20))
+        tab(app, "Faith").tap()
+        button(app, containing: "Your prayer garden").tap(); sleep(1)
+        shot(app, "60-garden-empty")
+        button(app, containing: "Plant a prayer").tap()
+        app.textFields.firstMatch.tap(); app.textFields.firstMatch.typeText("Healing for Mum")
+        button(app, containing: "Plant").tap(); sleep(1)
+        shot(app, "61-garden-planted")
+        XCTAssertTrue(app.staticTexts["A new sprout is in your garden."].waitForExistence(timeout: 5))
+        app.navigationBars.buttons.firstMatch.tap(); sleep(1)
+        tab(app, "Mind").tap(); app.swipeUp()
+        button(app, containing: "Calm check").tap(); sleep(1)
+        shot(app, "62-calm-check")
+        app.navigationBars.buttons.firstMatch.tap(); sleep(1)
+        button(app, containing: "Breathing pace").tap(); sleep(1)
+        shot(app, "63-breath-pace")
+        app.navigationBars.buttons.firstMatch.tap(); sleep(1)
+        tab(app, "Cycle").tap(); sleep(1)
+        tab(app, "More").tap(); sleep(1)
+        button(app, containing: "menopause, arthritis").tap(); sleep(1)
+        shot(app, "64-body-energy")
+        button(app, containing: "Arthritis").tap()
+        button(app, containing: "Save").tap(); sleep(1)
+        shot(app, "65-body-energy-log")
+        button(app, containing: "Close").tap(); sleep(1)
+        tab(app, "Profile").tap(); sleep(1)
+        button(app, containing: "Your plan").tap(); sleep(1)
+        shot(app, "66-account")
+        button(app, containing: "See plans").tap(); sleep(2)
+        shot(app, "67-plans")
+        app.swipeUp(); shot(app, "68-plans-more")
     }
 
     func testEnglishBible() {
@@ -266,5 +302,9 @@ final class SmokeUITests: XCTestCase {
         XCTAssertTrue(tab(man, "Wellness").waitForExistence(timeout: 20))
         tab(man, "Wellness").tap(); sleep(1)
         shot(man, "59-mens-wellness")
+        button(man, containing: "Good").tap()
+        button(man, containing: "Save Today's Check-in").tap(); sleep(1)
+        tab(man, "Plan").tap(); sleep(1)
+        shot(man, "59b-mens-plan")
     }
 }
