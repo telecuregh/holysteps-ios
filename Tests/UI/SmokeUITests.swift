@@ -79,7 +79,7 @@ final class SmokeUITests: XCTestCase {
         app.textFields.firstMatch.tap(); app.textFields.firstMatch.typeText("Healing for Mum")
         button(app, containing: "Plant").tap(); sleep(1)
         shot(app, "61-garden-planted")
-        XCTAssertTrue(app.staticTexts["A new sprout is in your garden."].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["A new seed is planted in your garden."].waitForExistence(timeout: 5))
         app.navigationBars.buttons.firstMatch.tap(); sleep(1)
         tab(app, "Mind").tap(); app.swipeUp()
         button(app, containing: "Calm check").tap(); sleep(1)
