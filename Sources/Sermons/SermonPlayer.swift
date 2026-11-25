@@ -63,6 +63,13 @@ final class SermonPlayer: NSObject, ObservableObject, AVSpeechSynthesizerDelegat
         loading = true
         activateSession()
         task = Task { await run(s) }
+        LiveActivities.start(.sermon, title: tr(s.group == .sleep ? "Sleep" : "Sermon"), liveState(s))
+    }
+
+    /// The Lock Screen card: the sermon's title and how far along it is.
+    private func liveState(_ s: Sermon) -> HolyStepsActivityAttributes.ContentState {
+        .init(headline: tr(s.title), detail: paused ? tr("Paused") : tr("Listening"), endsAt: nil, since: nil,
+              progress: Double(index) / Double(max(1, segments.count)), paused: paused)
     }
 
     func toggle() { playing ? pause() : resume() }
@@ -74,6 +81,7 @@ final class SermonPlayer: NSObject, ObservableObject, AVSpeechSynthesizerDelegat
         clip.pause()
         if synth.isSpeaking { synth.pauseSpeaking(at: .word) }
         updateNowPlaying()
+        if let s = sermon { LiveActivities.update(liveState(s)) }
     }
 
     func resume() {
@@ -85,6 +93,7 @@ final class SermonPlayer: NSObject, ObservableObject, AVSpeechSynthesizerDelegat
         clip.resume()
         if synth.isPaused { synth.continueSpeaking() }
         updateNowPlaying()
+        if let s = sermon { LiveActivities.update(liveState(s)) }
     }
 
     /// Moves a paragraph forward or back.
@@ -103,6 +112,7 @@ final class SermonPlayer: NSObject, ObservableObject, AVSpeechSynthesizerDelegat
 
     func stop() {
         stopPlayback()
+        if sermon != nil { LiveActivities.end() }
         sermon = nil
         captions = []
         MPNowPlayingInfoCenter.default().nowPlayingInfo = nil
@@ -161,6 +171,7 @@ final class SermonPlayer: NSObject, ObservableObject, AVSpeechSynthesizerDelegat
             updateNowPlaying()
         }
         finished = true
+        LiveActivities.end()
         playing = false
         if s.group != .sleep { SermonWeek.shared.markHeard(s.id) }
         updateNowPlaying()

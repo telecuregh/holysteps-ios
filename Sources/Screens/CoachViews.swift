@@ -205,9 +205,11 @@ struct WorkoutLibraryView: View {
 final class RoutineRunner: ObservableObject {
     @Published var index = 0
     @Published var left = 0
-    @Published var paused = false
+    @Published var paused = false { didSet { if paused != oldValue { liveUpdate() } } }
     @Published var finished = false
     let routine: GuidedRoutine
+    /// The Lock Screen card shows for Fitness-plan workouts.
+    private var live: Bool { AccountStore.shared.canUse(.walkPlus) }
     private var task: Task<Void, Never>?
     private var pack: VoicePacks.Pack?
     private let clip = ClipPlayer()
@@ -233,6 +235,10 @@ final class RoutineRunner: ObservableObject {
             index = i
             let step = routine.steps[i]
             left = step.seconds
+            if live {
+                if i == start && !liveStarted { liveStarted = true; LiveActivities.start(.workout, title: tr(routine.title), liveState()) }
+                else { liveUpdate() }
+            }
             await say(routine.announcement(i))
             while left > 0 && !Task.isCancelled {
                 try? await Task.sleep(nanoseconds: 1_000_000_000)
@@ -244,6 +250,7 @@ final class RoutineRunner: ObservableObject {
         }
         if Task.isCancelled { return }
         finished = true
+        if live { LiveActivities.end(.init(headline: tr("Workout complete. Well done."), detail: tr(routine.title), endsAt: nil, since: nil, progress: 1, paused: false)) }
         CoachLog.shared.finished(routine)
         await say(GuidedRoutine.done)
         UIApplication.shared.isIdleTimerDisabled = false
@@ -259,7 +266,22 @@ final class RoutineRunner: ObservableObject {
     func stop() {
         task?.cancel(); clip.stop(); synth.stopSpeaking(at: .immediate)
         UIApplication.shared.isIdleTimerDisabled = false
+        if !finished { LiveActivities.end() }
     }
+
+    // MARK: Live Activity
+
+    private var liveStarted = false
+
+    private func liveState() -> HolyStepsActivityAttributes.ContentState {
+        let s = routine.steps[min(index, routine.steps.count - 1)]
+        let next = routine.steps.dropFirst(index + 1).first { !$0.rest }
+        let detail = (s.rest ? tr("Rest") : tr("Step \(index + 1) of \(routine.steps.count)")) + (next.map { " · " + tr("Next: \($0.name)") } ?? "")
+        return .init(headline: tr(s.rest ? "Rest" : s.name), detail: detail, endsAt: paused ? nil : Date().addingTimeInterval(TimeInterval(left)),
+                     since: nil, progress: Double(index) / Double(max(1, routine.steps.count)), paused: paused)
+    }
+
+    private func liveUpdate() { if live && liveStarted && !finished { LiveActivities.update(liveState()) } }
 
     private func say(_ text: String) async {
         if let data = pack?.audio(for: text) { _ = await clip.play(data); return }

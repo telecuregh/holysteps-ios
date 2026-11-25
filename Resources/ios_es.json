@@ -808,5 +808,16 @@
   "Light": "Luz",
   "Shepherd": "Pastor",
   "Pillar": "Pilar",
-  "Overcomer": "Vencedor"
+  "Overcomer": "Vencedor",
+  "Step {0} of {1}": "Paso {0} de {1}",
+  "Next: {0}": "Sigue: {0}",
+  "Walk complete": "Caminata completa",
+  "Walking": "Caminando",
+  "Listening": "Escuchando",
+  "Paused": "En pausa",
+  "{0} steps": "{0} pasos",
+  "Warm-up": "Calentamiento",
+  "Main": "Principal",
+  "Recover": "Recuperación",
+  "Cool-down": "Enfriamiento"
 }

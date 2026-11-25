@@ -76,5 +76,8 @@ struct VerseWidget: Widget {
 
 @main
 struct HolyStepsWidgets: WidgetBundle {
-    var body: some Widget { VerseWidget() }
+    var body: some Widget {
+        VerseWidget()
+        HolyStepsLiveActivity()
+    }
 }

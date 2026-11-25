@@ -227,6 +227,9 @@ final class WalkRecorder: NSObject, ObservableObject, CLLocationManagerDelegate 
         }
         timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] _ in Task { @MainActor in self?.tick() } }
         UIApplication.shared.isIdleTimerDisabled = true
+        if AccountStore.shared.canUse(.walkPlus) {
+            LiveActivities.start(.walk, title: tr(p.isFree ? "Walk" : p.title), liveState())
+        }
         try? AVAudioSession.sharedInstance().setCategory(.playback, mode: .spokenAudio, options: [.duckOthers, .mixWithOthers])
     }
 
@@ -268,6 +271,7 @@ final class WalkRecorder: NSObject, ObservableObject, CLLocationManagerDelegate 
     private func tick() {
         guard started, !paused else { return }
         activeSec += 1
+        if activeSec % 15 == 0 { LiveActivities.update(liveState()) }
         if outdoor, let s = speedKmh, let last = lastFix, Date().timeIntervalSince(last.timestamp) < 10 {
             band = s < 1 && (cadence ?? 0) < 20 ? nil : PaceBand.from(kmh: s)
         } else if let c = cadence, c >= 20 {
@@ -291,6 +295,18 @@ final class WalkRecorder: NSObject, ObservableObject, CLLocationManagerDelegate 
     func togglePause() {
         paused.toggle()
         if !paused { segment += 1; lastFix = nil; samples = [] }
+        LiveActivities.update(liveState())
+    }
+
+    /// The Lock Screen card: time walking (counts up), distance and steps, the plan's phase.
+    private func liveState() -> HolyStepsActivityAttributes.ContentState {
+        let miles = distanceM / 1609.344
+        let detail = String(format: "%.2f mi", miles) + " · " + tr("\(steps.formatted()) steps")
+        let phase = cursor.1.map { tr($0.kind.rawValue) } ?? tr("Walking")
+        let total = plan.phases.reduce(0) { $0 + $1.seconds }
+        return .init(headline: phase, detail: detail, endsAt: nil,
+                     since: paused ? nil : Date().addingTimeInterval(-TimeInterval(activeSec)),
+                     progress: total > 0 ? min(1, Double(activeSec) / Double(total)) : 0, paused: paused)
     }
 
     func finish() {
@@ -302,9 +318,11 @@ final class WalkRecorder: NSObject, ObservableObject, CLLocationManagerDelegate 
                            kcal: Int(kcal.rounded()), route: route)
         if activeSec >= 60 { WalkStore.shared.add(r); ActivityLog.shared.add(.walk) }
         finished = r
+        LiveActivities.end(.init(headline: tr("Walk complete"), detail: String(format: "%.2f mi", Double(r.distanceM) / 1609.344) + " · " + tr("\(r.steps.formatted()) steps"),
+                                 endsAt: nil, since: nil, progress: 1, paused: false))
     }
 
-    func discard() { stop(); finished = nil }
+    func discard() { stop(); finished = nil; LiveActivities.end() }
 
     private func stop() {
         started = false
