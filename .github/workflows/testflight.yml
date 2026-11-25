@@ -56,7 +56,6 @@ jobs:
             -configuration Release \
             -destination 'generic/platform=iOS' \
             -archivePath build/HolySteps.xcarchive \
-                        CODE_SIGN_IDENTITY="Apple Distribution" \
             -allowProvisioningUpdates \
             -authenticationKeyPath "$RUNNER_TEMP/AuthKey.p8" \
             -authenticationKeyID "$ASC_KEY_ID" \
