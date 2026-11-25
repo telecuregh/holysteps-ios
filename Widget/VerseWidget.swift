@@ -78,7 +78,6 @@ struct VerseWidget: Widget {
 struct HolyStepsWidgets: WidgetBundle {
     var body: some Widget {
         VerseWidget()
-        NightWatchWidget()
         HolyStepsLiveActivity()
     }
 }
