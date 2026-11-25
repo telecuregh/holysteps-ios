@@ -21,6 +21,7 @@ targets:
       path: Info.plist
       properties:
         UIBackgroundModes: [audio, location]
+        HSScreenTimeEnabled: false
         UIAppFonts: [PlayfairDisplay-Italic.ttf, Inter-Regular.ttf, Inter-Medium.ttf, Inter-SemiBold.ttf, Inter-Bold.ttf, Fraunces-Medium.ttf, Fraunces-SemiBold.ttf]
         UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait]
     entitlements:

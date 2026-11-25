@@ -91,31 +91,32 @@ enum Feature: String {
     case adaptiveCoach, formCoach, walkPlus, walkAiCheck, realStakes, wearableInsights
     case cycleInsights, partnerCoaching, trends, mensHealth, aiUnlimited, liveRooms, habitTemplates
     case babyTracker, bodyEnergy, hymns, bibleNotes, journalHistory, createGroup, church
+    case freedomShield, faithCoach
 
     var minTier: Int {
         switch self {
         case .bibleJourneys, .versesPremium, .devotionalPlans, .prayerWalkMap, .wearableInsights, .mensHealth,
-             .babyTracker, .bodyEnergy, .hymns, .bibleNotes, .journalHistory, .createGroup: 1
+             .babyTracker, .bodyEnergy, .hymns, .bibleNotes, .journalHistory, .createGroup, .faithCoach: 1
         case .aiUnlimited, .liveRooms: 2
         case .sanctuaryFull, .bibleAudio: 3
         case .adaptiveCoach, .formCoach, .walkPlus: 4
         case .cycleInsights, .trends: 5
-        case .familyRelay, .realStakes, .partnerCoaching, .habitTemplates, .church: 6
+        case .familyRelay, .realStakes, .partnerCoaching, .habitTemplates, .church, .freedomShield: 6
         case .walkAiCheck: 7
         }
     }
     var plans: Set<Plan> {
         switch self {
-        case .bibleJourneys, .versesPremium, .sanctuaryFull, .bibleAudio, .devotionalPlans, .familyRelay, .prayerWalkMap, .hymns, .bibleNotes: [.faith]
+        case .bibleJourneys, .versesPremium, .sanctuaryFull, .bibleAudio, .devotionalPlans, .familyRelay, .prayerWalkMap, .hymns, .bibleNotes, .faithCoach: [.faith]
         case .adaptiveCoach, .formCoach, .walkPlus, .walkAiCheck, .realStakes: [.fitness]
         case .wearableInsights: [.fitness, .wellness]
         case .cycleInsights: [.cycle]
         case .partnerCoaching, .trends, .babyTracker, .bodyEnergy: [.cycle, .wellness]
         case .mensHealth: [.wellness]
-        case .aiUnlimited, .liveRooms, .habitTemplates, .journalHistory, .createGroup, .church: Set(Plan.allCases)
+        case .aiUnlimited, .liveRooms, .habitTemplates, .journalHistory, .createGroup, .church, .freedomShield: Set(Plan.allCases)
         }
     }
-    var needsAll: Bool { self == .habitTemplates || self == .church }
+    var needsAll: Bool { self == .habitTemplates || self == .church || self == .freedomShield }
     /// Free for everyone, like the big Bible apps: the whole Bible to read and hear, with highlights and notes.
     var freeLikeBibleApps: Bool { self == .bibleAudio || self == .bibleNotes }
     /// Android's paywall reason line for this feature.
@@ -148,12 +149,14 @@ enum Feature: String {
         case .journalHistory: "Your older entries are safe.\nEvery plan opens your whole journal."
         case .createGroup: "Groups, duels, circles and posting on the prayer wall\ncome with any plan."
         case .church: "Your church comes with Complete,\nor a seat on your church's own plan."
+        case .freedomShield: "Freedom Shield, real app and website blocking\nwith a partner's code, comes with Complete."
+        case .faithCoach: "Your private faith coach on this iPhone\nis part of the Faith plan."
         }
     }
     /// Which plan the paywall points at (null = Complete).
     var suggestedPlan: Plan? {
         switch self {
-        case .bibleJourneys, .versesPremium, .sanctuaryFull, .bibleAudio, .devotionalPlans, .familyRelay, .prayerWalkMap, .hymns, .bibleNotes: .faith
+        case .bibleJourneys, .versesPremium, .sanctuaryFull, .bibleAudio, .devotionalPlans, .familyRelay, .prayerWalkMap, .hymns, .bibleNotes, .faithCoach: .faith
         case .adaptiveCoach, .formCoach, .walkPlus, .walkAiCheck, .realStakes: .fitness
         case .cycleInsights, .partnerCoaching: .cycle
         case .mensHealth: .wellness

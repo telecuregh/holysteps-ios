@@ -94,6 +94,7 @@ struct FreedomView: View {
                     if !freedom.checkedInToday { checkInCard }
                     noteSection
                     SectionHeader(title: "Support").padding(.top, 10)
+                    if FreedomShield.available { FreedomShieldCard().padding(.horizontal, 20) }
                     supportSection
                     SectionHeader(title: "Wisdom for the fight").padding(.top, 10)
                     storiesSection
