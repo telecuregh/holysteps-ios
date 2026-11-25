@@ -215,6 +215,8 @@ struct FaithView: View {
                      badge: dev.readToday ? "✓" : nil, destination: AnyView(DevotionalView())),
             ToolItem(symbol: "highlighter", color: HS.body, title: "Highlights and notes", sub: "\(bible.highlights.count) saved",
                      destination: AnyView(HighlightsView())),
+            ToolItem(symbol: "brain.head.profile", color: HS.gold, title: "Verse Memory", sub: "\(VerseMemory.mastered.count) of \(VerseMemory.all.count) mastered",
+                     destination: AnyView(VerseMemoryView())),
         ])
         Spacer().frame(height: 16)
         ToolSection(title: "Reflect", items: [
