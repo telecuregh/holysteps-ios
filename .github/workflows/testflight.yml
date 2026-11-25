@@ -1,7 +1,7 @@
 name: TestFlight
 
 # Builds a signed Release version and uploads it to App Store Connect, where it appears in TestFlight (private testing,
-# not the App Store). Run it from the Actions tab ("Run workflow"), or push a tag named beta-<anything>.
+# not the App Store). Run it from the Actions tab ("Run workflow"), push a tag named beta-<anything>, or push to the testflight branch.
 #
 # Needs three repository secrets (Settings › Secrets and variables › Actions), from an App Store Connect API key
 # (Users and Access › Integrations › App Store Connect API, role Admin, so Xcode can create the signing certificate):
@@ -14,6 +14,7 @@ on:
   workflow_dispatch:
   push:
     tags: ['beta-*']
+    branches: [testflight]   # push main to this branch to build for TestFlight (used when tags can't be pushed)
 
 jobs:
   upload:
