@@ -208,7 +208,10 @@ private struct PostSermonSheet: View {
     let church: Church
     var done: () -> Void
     @Environment(\.dismiss) private var dismiss
-    @State private var title = "", speaker = "", passages = "", outline = ""
+    @State private var title = ""
+    @State private var speaker = ""
+    @State private var passages = ""
+    @State private var outline = ""
     @State private var date = Date()
 
     var body: some View {
