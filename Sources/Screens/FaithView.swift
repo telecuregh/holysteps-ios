@@ -56,7 +56,7 @@ struct FaithView: View {
             T("Daily Devotion").font(.hs(26)).foregroundStyle(HS.text)
             ItalicAccent(text: "Grow closer to God, one day at a time", size: 17)
             Spacer().frame(height: 12)
-            FaithStatsPill(prayerDays: store.prayerStreak, bibleDay: max(0, bible.readingDay - 1), points: 0)
+            FaithStatsPill(prayerDays: store.prayerStreak, bibleDay: max(0, bible.readingDay - 1), points: Points.total)
         }
         .padding(.top, 44).padding(.horizontal, 20).padding(.bottom, 14)
     }

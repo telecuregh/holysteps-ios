@@ -69,6 +69,10 @@ final class AppStore: ObservableObject {
         var today = prayerDoneToday
         guard today.indices.contains(i) else { return }
         today[i].toggle()
+        let award = "\(AppStore.dayKey())-\(i)"
+        if today[i], UserDefaults.standard.string(forKey: "prayerAwarded\(i)") != award {
+            UserDefaults.standard.set(award, forKey: "prayerAwarded\(i)"); Points.award(10)
+        }
         prayerLog[AppStore.dayKey()] = today
     }
 
