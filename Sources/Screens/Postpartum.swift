@@ -204,6 +204,19 @@ struct PostpartumView: View {
             .padding(14).background(RoundedRectangle(cornerRadius: 16).fill(HS.cardFill))
         }
         .buttonStyle(.plain)
+        NavigationLink { TemperatureView() } label: {
+            HStack(spacing: 10) {
+                D("🌡️").font(.system(size: 22))
+                VStack(alignment: .leading, spacing: 2) {
+                    T("Temperature").font(.hs(15, .bold)).foregroundStyle(HS.text)
+                    T("Fever check for you or your baby").font(.hs(12)).foregroundStyle(HS.textSecondary)
+                }
+                Spacer(minLength: 0)
+                Image(systemName: "chevron.right").foregroundStyle(HS.textMuted)
+            }
+            .padding(14).background(RoundedRectangle(cornerRadius: 16).fill(HS.cardFill))
+        }
+        .buttonStyle(.plain)
         SectionHeader(title: "Free help, any time").padding(.horizontal, -20)
         GlassCard {
             VStack(alignment: .leading, spacing: 14) {
