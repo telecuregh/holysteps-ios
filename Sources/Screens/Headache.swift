@@ -40,7 +40,7 @@ enum Headache {
 
     struct Link { let emoji, label, tip: String; let withRate, withoutRate: Int }
     /// Android's links(): headache days against the days around them, factor by factor (5+ days each side, a clearly higher rate).
-    static func links(sleepByDay: [String: Int], steps: [String: Int], periodWindow: (String) -> Bool?) -> [Link] {
+    static func links(sleepByDay: [String: Int], steps: [String: Int], periodWindow: @escaping (String) -> Bool?) -> [Link] {
         let all = entries
         guard let first = all.map(\.date).min(), let start = AppStore.date(fromKey: first) else { return [] }
         let hd = Set(all.map(\.date)), today = AppStore.dayKey()
