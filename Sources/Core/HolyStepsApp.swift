@@ -1,5 +1,6 @@
 import SwiftUI
 import UserNotifications
+import WidgetKit
 
 @main
 struct HolyStepsApp: App {
@@ -7,6 +8,7 @@ struct HolyStepsApp: App {
     @StateObject private var i18n = I18n.shared
     @StateObject private var appearance = Appearance.shared
     @StateObject private var notifications = NotificationRouter.shared
+    @Environment(\.scenePhase) private var phase
     /// Someone who already used the app before setup existed (a name saved) skips it.
     @AppStorage("onboarded") private var onboarded = UserDefaults.standard.object(forKey: "name") != nil
 
@@ -31,6 +33,21 @@ struct HolyStepsApp: App {
                 .preferredColorScheme(appearance.mode.isLight ? .light : .dark)
                 .task { await AccountStore.shared.start() }
                 .fullScreenCover(isPresented: $notifications.ringing) { WakeRingView { notifications.ringing = false }.environmentObject(i18n) }
+                .onChange(of: phase) { _, p in if p != .active { shareWithWidgets() } }
         }
+    }
+
+    /// What the widgets show (steps, prayer, streak, Faith plan), handed over each time the app goes to the background.
+    @MainActor private func shareWithWidgets() {
+        let days = store.prayerDays.union(store.readDays)
+        var streak = 0
+        var d = Date()
+        if !days.contains(AppStore.dayKey(d)) { d = d.addingTimeInterval(-86400) }
+        while days.contains(AppStore.dayKey(d)) { streak += 1; d = d.addingTimeInterval(-86400) }
+        SharedState.save(steps: StepsModel.shared.stepsByDay[AppStore.dayKey()] ?? 0, goal: store.stepGoal,
+                         prayedToday: store.prayerDays.contains(AppStore.dayKey()), streak: streak,
+                         faith: AccountStore.shared.canUse(.devotionalPlans))
+        WidgetCenter.shared.reloadAllTimelines()
+        WatchLink.shared.send(fitness: AccountStore.shared.canUse(.walkPlus))
     }
 }

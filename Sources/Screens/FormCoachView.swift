@@ -3,9 +3,8 @@ import AVFoundation
 
 /// Android's Form Coach: camera-based rep counter using the front camera to watch posture
 /// during bodyweight exercises (data/FormCoach.kt, ui/screens/FormCoachScreen.kt).
-/// On iOS we use AVCaptureSession for a live preview; actual pose estimation is not available
-/// without Create ML, so the coach counts reps by time (1 rep every ~2 seconds) and shows
-/// a posture tip. Premium feature (.formCoach).
+/// Vision body pose (PoseCoach.swift) counts the reps from the front camera and gives form cues;
+/// the Rep button still counts by hand. Premium feature (.formCoach).
 
 struct FormCoachView: View {
     let routineName: String
@@ -17,7 +16,7 @@ struct FormCoachView: View {
     @State private var running = false
     @State private var cameraGranted = false
     @State private var showCamera = false
-    @State private var timer: Timer?
+    @StateObject private var tracker = PoseTracker()
     @State private var done = false
     @ObservedObject private var account = AccountStore.shared
     @Environment(\.dismiss) private var dismiss
@@ -46,8 +45,11 @@ struct FormCoachView: View {
             }
         }
         .toolbar(.hidden, for: .navigationBar)
-        .onAppear { checkCamera() }
-        .onDisappear { stopTimer() }
+        .onAppear {
+            tracker.onRep = { manualRep() }
+            checkCamera()
+        }
+        .onDisappear { stopTimer(); tracker.stop() }
     }
 
     // MARK: Header
@@ -79,7 +81,7 @@ struct FormCoachView: View {
     private var cameraArea: some View {
         ZStack {
             if showCamera && cameraGranted {
-                CameraPreview()
+                PoseCameraView(tracker: tracker)
                     .frame(maxWidth: .infinity)
                     .frame(height: 320)
                     .clipShape(RoundedRectangle(cornerRadius: 20))
@@ -106,6 +108,10 @@ struct FormCoachView: View {
                     }
             }
             VStack {
+                if showCamera && cameraGranted && running && !tracker.seen {
+                    T("Step back so your whole body is in view").font(.hs(13, .semibold)).foregroundStyle(.white)
+                        .padding(.horizontal, 12).padding(.vertical, 6).background(Capsule().fill(.black.opacity(0.5))).padding(.top, 12)
+                }
                 Spacer()
                 // Rep counter overlay
                 VStack(spacing: 2) {
@@ -128,7 +134,7 @@ struct FormCoachView: View {
             GlassCard {
                 HStack(spacing: 8) {
                     Image(systemName: "lightbulb").font(.system(size: 14)).foregroundStyle(HS.gold)
-                    T(tips[tipIndex % tips.count]).font(.hs(13)).foregroundStyle(HS.textSecondary)
+                    T(tracker.cue ?? tips[tipIndex % tips.count]).font(.hs(13)).foregroundStyle(tracker.cue == nil ? HS.textSecondary : HS.gold)
                 }
             }
             .padding(.horizontal, 20).padding(.top, 20)
@@ -192,27 +198,18 @@ struct FormCoachView: View {
 
     private func checkCamera() {
         switch AVCaptureDevice.authorizationStatus(for: .video) {
-        case .authorized: cameraGranted = true; showCamera = true
+        case .authorized: cameraGranted = true; showCamera = true; tracker.start(PoseMove.from(routineName))
         case .notDetermined:
             AVCaptureDevice.requestAccess(for: .video) { ok in
-                DispatchQueue.main.async { cameraGranted = ok; showCamera = ok }
+                DispatchQueue.main.async { cameraGranted = ok; showCamera = ok; if ok { tracker.start(PoseMove.from(routineName)) } }
             }
         default: cameraGranted = false
         }
     }
 
-    private func startTimer() {
-        running = true
-        timer = Timer.scheduledTimer(withTimeInterval: 2.0, repeats: true) { _ in
-            manualRep()
-        }
-    }
+    private func startTimer() { running = true; tracker.counting = true }
 
-    private func stopTimer() {
-        running = false
-        timer?.invalidate()
-        timer = nil
-    }
+    private func stopTimer() { running = false; tracker.counting = false }
 
     private func manualRep() {
         if repCount < reps { repCount += 1 }

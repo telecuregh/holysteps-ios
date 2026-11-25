@@ -84,6 +84,7 @@ struct RootTabView: View {
         .environment(\.locale, i18n.locale)
         .environment(\.font, .hs(16))
         .id("\(i18n.language)-\(appearance.mode.rawValue)")   // redraw every screen in the new language or look
+        .fullScreenCover(item: $router.quick) { QuickRouteScreen(route: $0).environmentObject(store).environmentObject(i18n).environmentObject(appearance) }
     } // end phoneView
 
     @ViewBuilder
@@ -163,6 +164,8 @@ final class TabRouter: ObservableObject {
     @Published var tab = 0
     /// Faith's section: 0 Today, 1 Bible, 2 Listen, 3 Mind.
     @Published var faithTab = 0
+    /// A screen a Siri shortcut or the Action button asked for.
+    @Published var quick: QuickRoute?
 
     func open(tab: Int, faith: Int? = nil) { if let faith { faithTab = faith }; self.tab = tab }
 }

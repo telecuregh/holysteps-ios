@@ -203,10 +203,12 @@ struct FaithView: View {
     @ViewBuilder private var pray: some View {
         let answered = store.prayers.filter(\.answered).count
         PrayerGardenCard().padding(.top, 12)
+        SpiritStressCard().padding(.top, 12)
         ToolSection(title: "Ways to pray", items: [
             ToolItem(symbol: "checklist", color: HS.peach, title: "Prayer List", sub: "\(store.prayers.count - answered) praying · \(answered) answered",
                      destination: AnyView(PrayerJournalView(section: 0))),
-        ], visible: 8)
+        ] + (FaithCoach.available ? [ToolItem(symbol: "sparkles", color: HS.gold, title: "Faith coach", sub: "Private, on this iPhone", badge: "New",
+                     destination: AnyView(FaithCoachView()))] : []), visible: 8)
     }
 
     @ViewBuilder private var bibleTab: some View {
@@ -260,6 +262,10 @@ struct FaithView: View {
                      destination: AnyView(CalmCheckView())),
             ToolItem(symbol: "wind", color: HS.mind, title: "Breathing pace", sub: "How fast you breathe, in one minute",
                      destination: AnyView(BreathPaceView())),
+            ToolItem(symbol: "hand.tap", color: HS.mind, title: "Breath prayer", sub: "Your phone breathes with you, eyes closed", badge: "New",
+                     destination: AnyView(BreathPrayerView())),
+            ToolItem(symbol: "headphones", color: HS.faith, title: "Spatial Sanctuary", sub: "Rain, creek and chapel bell all around you", badge: "New",
+                     destination: AnyView(SpatialSanctuaryView())),
         ])
     }
 }
@@ -332,6 +338,7 @@ struct PrayerJournalView: View {
                     }
                     .disabled(draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
                 }
+                if section == 1 { JournalSuggestionButton(draft: $draft) }
                 List {
                     if section == 0 {
                         ForEach($store.prayers) { $p in

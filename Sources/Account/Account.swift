@@ -91,12 +91,12 @@ enum Feature: String {
     case adaptiveCoach, formCoach, walkPlus, walkAiCheck, realStakes, wearableInsights
     case cycleInsights, partnerCoaching, trends, mensHealth, aiUnlimited, liveRooms, habitTemplates
     case babyTracker, bodyEnergy, hymns, bibleNotes, journalHistory, createGroup, church
-    case freedomShield, faithCoach
+    case freedomShield, faithCoach, spiritStress
 
     var minTier: Int {
         switch self {
         case .bibleJourneys, .versesPremium, .devotionalPlans, .prayerWalkMap, .wearableInsights, .mensHealth,
-             .babyTracker, .bodyEnergy, .hymns, .bibleNotes, .journalHistory, .createGroup, .faithCoach: 1
+             .babyTracker, .bodyEnergy, .hymns, .bibleNotes, .journalHistory, .createGroup, .faithCoach, .spiritStress: 1
         case .aiUnlimited, .liveRooms: 2
         case .sanctuaryFull, .bibleAudio: 3
         case .adaptiveCoach, .formCoach, .walkPlus: 4
@@ -107,6 +107,7 @@ enum Feature: String {
     }
     var plans: Set<Plan> {
         switch self {
+        case .spiritStress: [.faith, .wellness]
         case .bibleJourneys, .versesPremium, .sanctuaryFull, .bibleAudio, .devotionalPlans, .familyRelay, .prayerWalkMap, .hymns, .bibleNotes, .faithCoach: [.faith]
         case .adaptiveCoach, .formCoach, .walkPlus, .walkAiCheck, .realStakes: [.fitness]
         case .wearableInsights: [.fitness, .wellness]
@@ -150,12 +151,14 @@ enum Feature: String {
         case .createGroup: "Groups, duels, circles and posting on the prayer wall\ncome with any plan."
         case .church: "Your church comes with Complete,\nor a seat on your church's own plan."
         case .freedomShield: "Freedom Shield, real app and website blocking\nwith a partner's code, comes with Complete."
+        case .spiritStress: "See how prayer days compare for stress and mood\nwith the Faith or Wellness plan."
         case .faithCoach: "Your private faith coach on this iPhone\nis part of the Faith plan."
         }
     }
     /// Which plan the paywall points at (null = Complete).
     var suggestedPlan: Plan? {
         switch self {
+        case .spiritStress: .faith
         case .bibleJourneys, .versesPremium, .sanctuaryFull, .bibleAudio, .devotionalPlans, .familyRelay, .prayerWalkMap, .hymns, .bibleNotes, .faithCoach: .faith
         case .adaptiveCoach, .formCoach, .walkPlus, .walkAiCheck, .realStakes: .fitness
         case .cycleInsights, .partnerCoaching: .cycle
