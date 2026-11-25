@@ -330,7 +330,11 @@ struct RoutinePlayerView: View {
                     let s = r.steps[runner.index]
                     T(s.rest ? "Rest" : "Step \(runner.index + 1) of \(r.steps.count)").font(.hs(12)).foregroundStyle(.white.opacity(0.6))
                     T(s.name).font(.hs(28, .semibold)).foregroundStyle(.white).multilineTextAlignment(.center)
-                    if let key = s.trainerKey {
+                    // Step 0 shows the routine's intro clip (big play button) when one is available.
+                    // All other steps (and step 0 when there's no intro clip) show TrainerMotion.
+                    if runner.index == 0, let demo = media.clip(r.id) {
+                        TrainerCard(clip: demo).frame(maxWidth: 320)
+                    } else if let key = s.trainerKey {
                         TrainerMotion(moveKey: key, moveName: s.name, animate: !runner.paused && !s.rest, mirrored: s.trainerMirrored)
                             .aspectRatio(864.0 / 470.0, contentMode: .fit)
                             .frame(maxWidth: .infinity)
