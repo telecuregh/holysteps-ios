@@ -25,6 +25,7 @@ struct ProfileView: View {
 
                         group("Plan and account") {
                             link("crown", "Your plan", tr(AccountStore.shared.planName), 0xD9B49F) { AccountView() }
+                            link("trophy", "Rewards & Achievements", tr("\(Points.total.formatted()) pts"), 0xF59E0B) { RewardsView() }
                         }
                         group("Language") {
                             item("globe", "Language", i18n.choice == .system ? tr(i18n.choice.label) : i18n.choice.label, 0x8B5CF6) { sheet = .language }
