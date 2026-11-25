@@ -55,6 +55,30 @@ enum PrayerGarden {
         return (x, y, 1 - depth * 0.35)
     }
 
+    /// Whole days from planting to answer (0 = the same day), or nil when the answer date isn't known.
+    static func daysToAnswer(_ r: PrayerItem) -> Int? {
+        guard r.answered, let a = r.answeredAt else { return nil }
+        let cal = Calendar.current
+        return max(0, cal.dateComponents([.day], from: cal.startOfDay(for: r.created), to: cal.startOfDay(for: a)).day ?? 0)
+    }
+    /// Days a prayer has been in the garden so far.
+    static func daysWaiting(_ r: PrayerItem, now: Date = Date()) -> Int {
+        let cal = Calendar.current
+        return max(0, cal.dateComponents([.day], from: cal.startOfDay(for: r.created), to: cal.startOfDay(for: now)).day ?? 0)
+    }
+    static func dayText(_ n: Int) -> String { n == 0 ? tr("the same day") : n == 1 ? tr("1 day") : tr("\(n) days") }
+
+    /// How fast prayers in this list were answered.
+    struct Speed { let timed: [(PrayerItem, Int)]; let average: Int; let fastest: Int; let slowest: Int; let averagePrayers: Int }
+    static func speed(_ all: [PrayerItem]) -> Speed? {
+        let timed = all.compactMap { r in daysToAnswer(r).map { (r, $0) } }.sorted { ($0.0.answeredAt ?? .distantPast) > ($1.0.answeredAt ?? .distantPast) }
+        guard !timed.isEmpty else { return nil }
+        let days = timed.map(\.1)
+        let avg = Int((Double(days.reduce(0, +)) / Double(days.count)).rounded())
+        let avgPrayers = Int((Double(timed.map { $0.0.daysPrayed }.reduce(0, +)) / Double(timed.count)).rounded())
+        return Speed(timed: timed, average: avg, fastest: days.min() ?? 0, slowest: days.max() ?? 0, averagePrayers: avgPrayers)
+    }
+
     struct Tally { let plants, answered, praying, daysOfPrayer: Int }
     static func tally(_ p: [PrayerItem]) -> Tally {
         Tally(plants: p.count, answered: p.filter(\.answered).count, praying: p.filter { !$0.answered }.count, daysOfPrayer: p.map(\.daysPrayed).reduce(0, +))
@@ -95,6 +119,8 @@ struct PrayerGardenView: View {
                     .padding(.horizontal, 20)
 
                     garden(plants, scene)
+
+                    if let sp = PrayerGarden.speed(store.prayers) { answerSpeed(sp, waiting: plants.filter { !$0.answered }) }
 
                     if let note { D(tr(note)).font(.hs(13, .semibold)).foregroundStyle(HS.gold).padding(.horizontal, 20) }
                     if let p = plants.first(where: { $0.id == selectedId }) { detail(p) }
@@ -146,7 +172,8 @@ struct PrayerGardenView: View {
                                 VStack(alignment: .leading, spacing: 4) {
                                     D(tr("Bed \(b + 1)") + " · " + tr("\(pt.plants) prayers") + " · " + tr("\(pt.answered) answered")).font(.hs(14, .semibold)).foregroundStyle(HS.text)
                                     ForEach(list.filter(\.answered).prefix(5)) { p in
-                                        D("🌸 " + p.text + (p.testimony.isEmpty ? "" : ": " + p.testimony)).font(.hs(12)).foregroundStyle(HS.textMuted).lineLimit(2)
+                                        D("🌸 " + p.text + (PrayerGarden.daysToAnswer(p).map { " · " + tr("answered in \(PrayerGarden.dayText($0))") } ?? "")
+                                          + (p.testimony.isEmpty ? "" : ": " + p.testimony)).font(.hs(12)).foregroundStyle(HS.textMuted).lineLimit(2)
                                     }
                                 }
                             }
@@ -170,6 +197,7 @@ struct PrayerGardenView: View {
                 if let i = store.prayers.firstIndex(where: { $0.id == p.id }) {
                     withAnimation(.spring(response: 1.2, dampingFraction: 0.6)) {
                         store.prayers[i].answered = true
+                        store.prayers[i].answeredAt = Date()
                         store.prayers[i].testimony = testimony
                     }
                 }
@@ -184,6 +212,60 @@ struct PrayerGardenView: View {
             T("This bed is kept as a keepsake with every answered prayer in it. Prayers you're still praying for move to the new bed and keep their growth.")
         }
         .onAppear { withAnimation(.easeInOut(duration: 1.6).repeatForever(autoreverses: true)) { pulse = true } }
+    }
+
+    /// How fast God answered: the averages, then each answered prayer with a bar for how long it took.
+    private func answerSpeed(_ sp: PrayerGarden.Speed, waiting: [PrayerItem]) -> some View {
+        let longest = max(1, sp.slowest)
+        return VStack(alignment: .leading, spacing: 0) {
+            SectionHeader(title: "How fast God answered")
+            GlassCard {
+                VStack(alignment: .leading, spacing: 14) {
+                    HStack(spacing: 10) {
+                        stat(sp.timed.count == 1 ? tr("1 prayer") : tr("\(sp.timed.count) prayers"), "answered")
+                        stat(PrayerGarden.dayText(sp.average), "average wait")
+                        stat(PrayerGarden.dayText(sp.fastest), "fastest")
+                    }
+                    D(sp.averagePrayers == 1 ? tr("On average you prayed 1 time before the answer came.")
+                                             : tr("On average you prayed \(sp.averagePrayers) times before the answer came."))
+                        .font(.hs(12)).foregroundStyle(HS.textMuted)
+                    ForEach(sp.timed.prefix(6), id: \.0.id) { p, d in
+                        VStack(alignment: .leading, spacing: 4) {
+                            HStack {
+                                D("🌸 " + p.text).font(.hs(13, .semibold)).foregroundStyle(HS.text).lineLimit(1)
+                                Spacer(minLength: 6)
+                                D(PrayerGarden.dayText(d)).font(.hs(12, .semibold)).foregroundStyle(HS.gold)
+                            }
+                            GeometryReader { g in
+                                ZStack(alignment: .leading) {
+                                    Capsule().fill(HS.overlay(0.08))
+                                    Capsule().fill(LinearGradient(colors: [PrayerGarden.flowerColor(p), HS.gold], startPoint: .leading, endPoint: .trailing))
+                                        .frame(width: max(8, g.size.width * CGFloat(d) / CGFloat(longest)))
+                                }
+                            }
+                            .frame(height: 6)
+                            D(p.daysPrayed == 1 ? tr("Prayed 1 time.") : tr("Prayed \(p.daysPrayed) times.")).font(.hs(11)).foregroundStyle(HS.textMuted)
+                        }
+                    }
+                    if let w = waiting.max(by: { PrayerGarden.daysWaiting($0) < PrayerGarden.daysWaiting($1) }), PrayerGarden.daysWaiting(w) > 0 {
+                        D(tr(waiting.count == 1 ? "1 prayer still growing" : "\(waiting.count) prayers still growing") + " · "
+                          + tr("the longest for \(PrayerGarden.dayText(PrayerGarden.daysWaiting(w)))") + ". " + tr("Keep praying."))
+                            .font(.hs(12)).foregroundStyle(HS.italic)
+                    }
+                }
+            }
+            .padding(.horizontal, 20)
+        }
+    }
+
+    private func stat(_ value: String, _ label: String) -> some View {
+        VStack(alignment: .leading, spacing: 2) {
+            D(value).font(.hs(17, .semibold)).foregroundStyle(HS.text).lineLimit(1).minimumScaleFactor(0.7)
+            T(label).font(.hs(11)).foregroundStyle(HS.textMuted)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(10)
+        .background(RoundedRectangle(cornerRadius: 12).fill(HS.overlay(0.06)))
     }
 
     private func garden(_ plants: [PrayerItem], _ scene: String) -> some View {
@@ -233,11 +315,14 @@ struct PrayerGardenView: View {
         let st = PrayerGarden.stage(p)
         let times = p.daysPrayed == 1 ? tr("Prayed 1 time.") : tr("Prayed \(p.daysPrayed) times.")
         let growth: String = {
-            if p.answered && !p.testimony.isEmpty { return tr("What God did:") + " " + p.testimony }
-            if p.answered { return times + " " + tr("God answered, and it bloomed.") }
-            if p.daysPrayed == 0 { return tr("A seed in the soil. Pray for it and watch it grow.") }
-            if st == .budding { return times + " " + tr("Only God's answer makes it bloom. \"Be not weary in well doing.\" Galatians 6:9") }
-            return times + " " + tr("Every prayer makes it grow.")
+            let answeredIn = PrayerGarden.daysToAnswer(p).map { tr("Answered in \(PrayerGarden.dayText($0)).") + " " } ?? ""
+            if p.answered && !p.testimony.isEmpty { return answeredIn + times + " " + tr("What God did:") + " " + p.testimony }
+            if p.answered { return answeredIn + times + " " + tr("God answered, and it bloomed.") }
+            let w = PrayerGarden.daysWaiting(p)
+            let planted = w == 0 ? tr("Planted today.") + " " : tr("Planted \(PrayerGarden.dayText(w)) ago.") + " "
+            if p.daysPrayed == 0 { return planted + tr("A seed in the soil. Pray for it and watch it grow.") }
+            if st == .budding { return planted + times + " " + tr("Only God's answer makes it bloom. \"Be not weary in well doing.\" Galatians 6:9") }
+            return planted + times + " " + tr("Every prayer makes it grow.")
         }()
         return GlassCard {
           HStack(alignment: .top, spacing: 14) {
@@ -291,6 +376,7 @@ struct PrayerGardenView: View {
 
     private func testimonyText(_ p: PrayerItem) -> String {
         var s = tr("God answered my prayer:") + " " + p.text
+        if let d = PrayerGarden.daysToAnswer(p) { s += "\n" + tr("Answered in \(PrayerGarden.dayText(d)).") }
         if !p.testimony.isEmpty { s += "\n\n" + p.testimony }
         s += "\n\n" + tr(p.daysPrayed == 1 ? "Prayed for 1 time. — from my prayer garden on HolySteps" : "Prayed for \(p.daysPrayed) times. — from my prayer garden on HolySteps")
         return s

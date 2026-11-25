@@ -6,6 +6,8 @@ struct PrayerItem: Codable, Identifiable, Equatable {
     var text: String
     var created = Date()
     var answered = false
+    /// When it was marked answered (prayers answered before this was added have none, and are left out of the timing).
+    var answeredAt: Date?
     /// The prayer garden (Android PrayerRequest): who it's for, the different days it was prayed, and its bed.
     var forWhom = ""
     var daysPrayed = 0
@@ -21,6 +23,7 @@ struct PrayerItem: Codable, Identifiable, Equatable {
         text = try c.decode(String.self, forKey: .text)
         created = try c.decodeIfPresent(Date.self, forKey: .created) ?? Date()
         answered = try c.decodeIfPresent(Bool.self, forKey: .answered) ?? false
+        answeredAt = try c.decodeIfPresent(Date.self, forKey: .answeredAt)
         forWhom = try c.decodeIfPresent(String.self, forKey: .forWhom) ?? ""
         daysPrayed = try c.decodeIfPresent(Int.self, forKey: .daysPrayed) ?? 0
         lastPrayedDay = try c.decodeIfPresent(String.self, forKey: .lastPrayedDay) ?? ""
