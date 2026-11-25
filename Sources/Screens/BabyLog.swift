@@ -292,15 +292,15 @@ struct BabyView: View {
         else {
             let next = BabyLog.nextSide(store.data.entries, baby.id)
             LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
-                quick("🤱", next.map { tr("Breastfeed") + " · " + tr($0.label) } ?? tr("Breastfeed")) {
+                quick("heart", next.map { tr("Breastfeed") + " · " + tr($0.label) } ?? tr("Breastfeed")) {
                     let s = next ?? .L
                     store.data.timer = BabyLog.Timer(babyId: baby.id, kind: .br, start: Date(), side: s, sideSince: Date(), firstSide: s)
                 }
-                quick("🍼", tr("Bottle")) { sheet = .bottle }
-                quick("😴", tr("Sleep")) { store.data.timer = BabyLog.Timer(babyId: baby.id, kind: .sl, start: Date()) }
-                quick("🧷", tr("Diaper")) { sheet = .diaper }
-                quick("🥣", tr("Solids")) { sheet = .solids }
-                quick("📏", tr("Growth")) { sheet = .growth }
+                quick("waterbottle", tr("Bottle")) { sheet = .bottle }
+                quick("moon.zzz", tr("Sleep")) { store.data.timer = BabyLog.Timer(babyId: baby.id, kind: .sl, start: Date()) }
+                quick("drop", tr("Diaper")) { sheet = .diaper }
+                quick("fork.knife", tr("Solids")) { sheet = .solids }
+                quick("ruler", tr("Growth")) { sheet = .growth }
             }
         }
         let day = Calendar.current.startOfDay(for: now)
@@ -407,9 +407,9 @@ struct BabyView: View {
         }
     }
 
-    private func quick(_ emoji: String, _ label: String, _ action: @escaping () -> Void) -> some View {
+    private func quick(_ symbol: String, _ label: String, _ action: @escaping () -> Void) -> some View {
         Button(action: action) {
-            VStack(spacing: 4) { D(emoji).font(.system(size: 24)); D(label).font(.hs(12, .semibold)).foregroundStyle(HS.text).multilineTextAlignment(.center).lineLimit(2) }
+            VStack(spacing: 6) { Image(systemName: symbol).font(.system(size: 22)).foregroundStyle(sky); D(label).font(.hs(12, .semibold)).foregroundStyle(HS.text).multilineTextAlignment(.center).lineLimit(2) }
                 .frame(maxWidth: .infinity, minHeight: 74).background(RoundedRectangle(cornerRadius: 14).fill(HS.cardFill))
                 .overlay(RoundedRectangle(cornerRadius: 14).strokeBorder(sky.opacity(0.3)))
         }

@@ -89,7 +89,7 @@ struct HeadacheView: View {
                     let month = all.filter { $0.date >= monthAgo }
                     GlassCard {
                         VStack(alignment: .leading, spacing: 4) {
-                            D(tr("Last 30 days: \(month.count) headache days") + (month.contains(where: \.migraine) ? " · " + tr("\(month.filter(\.migraine).count) migraines") : ""))
+                            D(tr(month.count == 1 ? "Last 30 days: 1 headache day" : "Last 30 days: \(month.count) headache days") + (month.contains(where: \.migraine) ? " · " + tr("\(month.filter(\.migraine).count) migraines") : ""))
                                 .font(.hs(14, .semibold)).foregroundStyle(HS.text)
                             if !month.isEmpty {
                                 D(tr("Average pain \(String(format: "%.1f", Double(month.map(\.pain).reduce(0, +)) / Double(month.count))) out of 10")).font(.hs(13)).foregroundStyle(HS.textSecondary)
