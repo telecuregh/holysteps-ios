@@ -80,7 +80,7 @@ final class PoseTracker: NSObject, ObservableObject, AVCaptureVideoDataOutputSam
         let dot = v1.dx * v2.dx + v1.dy * v2.dy
         let m = hypot(v1.dx, v1.dy) * hypot(v2.dx, v2.dy)
         guard m > 0 else { return nil }
-        return acos(max(-1, min(1, dot / m))) * 180 / .pi
+        return Foundation.acos(Double(max(-1, min(1, dot / m)))) * 180 / .pi
     }
 
     private func best(_ l: Double?, _ r: Double?) -> Double? { [l, r].compactMap { $0 }.min() }
