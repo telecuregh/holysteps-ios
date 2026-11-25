@@ -333,7 +333,7 @@ struct HomeView: View {
     private func listenToVerse() {
         ActivityLog.shared.add(.verse)
         let v = AppContent.verseOfTheDay()
-        VerseSpeaker.shared.speak("\(v.shown) \(tr(v.ref))")
+        VerseSpeaker.shared.speak("\(v.shown) \(tr(v.ref))", recording: "verse_\(v.id)_\(I18n.shared.spanish ? "es" : "en")")
     }
 
     // MARK: Tiles
@@ -406,15 +406,25 @@ struct HomeView: View {
     }
 }
 
-/// Reads a verse aloud in the app's language.
+/// Reads a verse aloud in the app's language: Grace's Kokoro recording when the app ships one for it
+/// (Resources/verses, made by tools/gen_verses.py), otherwise the phone's own voice.
 @MainActor
 final class VerseSpeaker {
     static let shared = VerseSpeaker()
     private let synth = AVSpeechSynthesizer()
-    func speak(_ text: String) {
+    private var player: AVAudioPlayer?
+    func speak(_ text: String, recording: String? = nil) {
         SermonPlayer.shared.stop(); MusicPlayer.shared.stop(); BibleListening.shared.stop()
         synth.stopSpeaking(at: .immediate)
+        player?.stop(); player = nil
         try? AVAudioSession.sharedInstance().setCategory(.playback, mode: .spokenAudio)
+        try? AVAudioSession.sharedInstance().setActive(true)
+        if let name = recording, let url = Bundle.main.url(forResource: name, withExtension: "mp3"),
+           let p = try? AVAudioPlayer(contentsOf: url) {
+            player = p
+            p.play()
+            return
+        }
         let u = AVSpeechUtterance(string: Narration.spoken(text))
         u.voice = AVSpeechSynthesisVoice(language: I18n.shared.speechLanguage)
         u.rate = AVSpeechUtteranceDefaultSpeechRate * 0.92
