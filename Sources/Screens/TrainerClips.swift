@@ -332,7 +332,7 @@ actor TrainerLoops {
     func prefetch(_ steps: [RoutineStep]) async {
         var seen = Set<URL>()
         for s in steps {
-            guard let k = TrainerClips.key(step: s.name, rest: s.rest), let p = TrainerClips.photo(k) else { continue }
+            guard let k = s.trainerKey, let p = TrainerClips.photo(k) else { continue }
             let u = TrainerClips.loop(forPhoto: p)
             guard seen.insert(u).inserted else { continue }
             _ = await TrainerPhotos.shared.image(p)

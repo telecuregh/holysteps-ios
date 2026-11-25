@@ -9,6 +9,11 @@ struct RoutineStep: Decodable, Hashable {
     let seconds: Int
     let cue: String
     let rest: Bool
+    /// The trainer clip key when it's known (program workouts); otherwise it's matched from the name.
+    var move: String? = nil
+
+    /// The trainer clip for this step: rests show the calm breath.
+    var trainerKey: String? { rest ? "BELLY_BREATH" : (move ?? TrainerClips.key(step: name, rest: false)) }
 }
 
 struct GuidedRoutine: Decodable, Identifiable, Hashable {

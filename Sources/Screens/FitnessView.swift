@@ -303,11 +303,14 @@ struct FitnessView: View {
 
     private var train: some View {
         VStack(spacing: 0) {
+            ProgramsEntryCard().padding(.horizontal, 20).padding(.bottom, 8)
             ToolSection(title: "Challenges", items: [
                 ToolItem(symbol: "trophy", color: HS.gold, title: "My challenges", sub: "Active fitness and faith commitments",
                          destination: AnyView(CommitmentsView())),
             ])
             ToolSection(title: "Train", items: [
+                ToolItem(symbol: "calendar", color: HS.gold, title: "Programs", sub: "A few weeks of short workouts with Scripture each day",
+                         destination: AnyView(ProgramsView())),
                 ToolItem(symbol: "figure.strengthtraining.traditional", color: HS.body, title: "Workouts", sub: "\(Coach.routines.count - 1) guided sessions with a coach's voice",
                          destination: AnyView(WorkoutLibraryView())),
                 ToolItem(symbol: "plus", color: HS.mind, title: "Log a Walk", sub: "Walked without your phone? Add it", action: { showManual = true }),

@@ -242,10 +242,26 @@ struct RingsWatchesView: View {
 /// Shown on Fitness when connected; an invitation to connect otherwise.
 struct WearableSummaryCard: View {
     @ObservedObject private var wear = WearableModel.shared
+    @ObservedObject private var account = AccountStore.shared
+    @State private var paywall = false
     var compact = false
 
     var body: some View {
-        if wear.on && wear.hasData {
+        if wear.on && wear.hasData && !account.canUse(.wearableInsights) {
+            Button { paywall = true } label: {
+                GlassCard(padding: 14) {
+                    HStack(spacing: 12) {
+                        Image(systemName: "lock.fill").foregroundStyle(HS.gold)
+                        VStack(alignment: .leading, spacing: 2) {
+                            T("From your ring & watch").font(.hs(15, .semibold)).foregroundStyle(HS.text)
+                            T(Feature.wearableInsights.lockMessage).font(.hs(12)).foregroundStyle(HS.textMuted)
+                        }
+                    }
+                }
+            }
+            .buttonStyle(.plain)
+            .sheet(isPresented: $paywall) { PlansView(feature: .wearableInsights) }
+        } else if wear.on && wear.hasData {
             GlassCard {
                 VStack(alignment: .leading, spacing: 12) {
                     T("From your ring & watch").font(.hs(15, .semibold)).foregroundStyle(HS.text)

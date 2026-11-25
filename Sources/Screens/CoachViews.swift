@@ -277,7 +277,11 @@ struct RoutinePlayerView: View {
     @StateObject private var runner: RoutineRunner
     @ObservedObject private var media = TrainerMedia.shared
     @Environment(\.dismiss) private var dismiss
-    init(routine: GuidedRoutine) { _runner = StateObject(wrappedValue: RoutineRunner(routine: routine)) }
+    private let onFinish: (() -> Void)?
+    init(routine: GuidedRoutine, onFinish: (() -> Void)? = nil) {
+        _runner = StateObject(wrappedValue: RoutineRunner(routine: routine))
+        self.onFinish = onFinish
+    }
 
     var body: some View {
         let r = runner.routine
@@ -302,12 +306,12 @@ struct RoutinePlayerView: View {
                 if runner.finished {
                     Image(systemName: "checkmark.circle.fill").font(.system(size: 64)).foregroundStyle(Color(hex: 0x56B892))
                     T("Workout complete. Well done.").font(.hs(22, .semibold)).foregroundStyle(.white)
-                    GoldButton(title: "Done") { dismiss() }.frame(width: 200)
+                    GoldButton(title: onFinish == nil ? "Done" : "Save my day") { onFinish?(); dismiss() }.frame(width: 200)
                 } else if r.steps.indices.contains(runner.index) {
                     let s = r.steps[runner.index]
                     T(s.rest ? "Rest" : "Step \(runner.index + 1) of \(r.steps.count)").font(.hs(12)).foregroundStyle(.white.opacity(0.6))
                     T(s.name).font(.hs(28, .semibold)).foregroundStyle(.white).multilineTextAlignment(.center)
-                    if let key = TrainerClips.key(step: s.name, rest: s.rest) {
+                    if let key = s.trainerKey {
                         TrainerMotion(moveKey: key, moveName: s.name, animate: !runner.paused && !s.rest)
                             .aspectRatio(864.0 / 470.0, contentMode: .fit)
                             .frame(maxWidth: .infinity)
