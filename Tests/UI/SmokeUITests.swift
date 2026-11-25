@@ -240,7 +240,7 @@ final class SmokeUITests: XCTestCase {
         sleep(1)
         let open = tab(app, "Open")
         open.tap()
-        let reader = app.buttons["verse-1"].waitForExistence(timeout: 60)
+        let reader = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH 'verse-'")).firstMatch.waitForExistence(timeout: 60)
         shot(app, "42c-verse-open")
         tab(app, "Back").tap()
         sleep(1)

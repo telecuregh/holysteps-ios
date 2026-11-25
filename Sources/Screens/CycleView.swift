@@ -369,9 +369,10 @@ struct MensWellnessView: View {
         NavigationStack {
             ZStack {
                 HSBackground()
+                ScrollViewReader { proxy in
                 ScrollView {
                     VStack(alignment: .leading, spacing: 0) {
-                        ScreenPhoto(name: ScreenPhoto.daily("screen_wellness_men"))
+                        ScreenPhoto(name: ScreenPhoto.daily("screen_wellness_men")).id("top")
                         VStack(alignment: .leading, spacing: 4) {
                             T("⚡ Men's Wellness").font(.hs(13, .bold)).foregroundStyle(color)
                             D(tr(greeting) + ", " + (store.name.isEmpty ? tr("Brother") : store.name)).font(.hs(22, .bold)).foregroundStyle(HS.text)
@@ -384,6 +385,8 @@ struct MensWellnessView: View {
                     }
                 }
                 .ignoresSafeArea(edges: .top)
+                .onChange(of: tab) { _, _ in withAnimation { proxy.scrollTo("top", anchor: .top) } }
+                }
             }
             .toolbar(.hidden, for: .navigationBar)
             .sheet(isPresented: $paywall) { PlansView(feature: .mensHealth) }
