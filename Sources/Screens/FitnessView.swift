@@ -266,6 +266,20 @@ struct FitnessView: View {
             }
         }
         .buttonStyle(.plain).padding(.horizontal, 20)
+        NavigationLink { PrayerWalkFeatureView() } label: {
+            GlassCard {
+                HStack(spacing: 12) {
+                    IconBadge(symbol: "map.fill", size: 36, tint: 0x56B892)
+                    VStack(alignment: .leading, spacing: 2) {
+                        T("Prayer Walk Map").font(.hs(15, .semibold)).foregroundStyle(HS.text)
+                        T("Pray for your neighborhood as you walk").font(.hs(12)).foregroundStyle(HS.textMuted)
+                    }
+                    Spacer()
+                    Image(systemName: "chevron.right").font(.system(size: 13)).foregroundStyle(HS.textMuted)
+                }
+            }
+        }
+        .buttonStyle(.plain).padding(.horizontal, 20)
     }
 
     private func minutesText(_ steps: Int) -> String {
