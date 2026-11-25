@@ -21,7 +21,7 @@ struct HomeView: View {
     @Environment(\.openURL) private var openURL
 
     enum HomeRoute: Hashable, Identifiable {
-        case sleep, recap, prayer, journal, quiz, bible(String?, Int?, Int?)
+        case sleep, recap, prayer, journal, quiz, calmCheck, walk, bible(String?, Int?, Int?)
         var id: String { "\(self)" }
     }
 
@@ -61,6 +61,8 @@ struct HomeView: View {
                         case .prayer: PrayerJournalView(section: 0)
                         case .journal: PrayerJournalView(section: 1)
                         case .quiz: BibleQuizView()
+                        case .calmCheck: CalmCheckView()
+                        case .walk: WalkSetupView()
                         case .bible(let b, let c, let v): BibleReaderView(startBook: b, startCh: c, startVerse: v)
                         }
                     }
@@ -169,6 +171,7 @@ struct HomeView: View {
     // MARK: Next up
 
     @ViewBuilder private var nextUp: some View {
+        RightNowCard { openRightNow($0) }
         if let day = week.step {
             VStack(spacing: 12) {
                 FirstWeekCard(day: day) { go(firstWeek: $0) }
@@ -204,6 +207,19 @@ struct HomeView: View {
         }
         let verse = AppContent.verseOfTheDay()
         return NextItem(symbol: "book", tint: 0x9D7FEA, title: "Today's verse", sub: verse.ref) { listenToVerse() }
+    }
+
+    /// Where each "Right now" pick goes. Android's guided-audio screen isn't on iPhone yet, so "audio" opens Faith → Listen.
+    private func openRightNow(_ r: RightNow.Route) {
+        switch r {
+        case .verses: ActivityLog.shared.add(.verse); openVerse(AppContent.verseOfTheDay().ref)
+        case .audio: router.open(tab: 1, faith: 2)
+        case .faith: router.open(tab: 1, faith: 0)
+        case .calmCheck: route = .calmCheck
+        case .walk: route = .walk
+        case .journal: route = .journal
+        case .sleep, .morningLight: route = .sleep
+        }
     }
 
     private func go(firstWeek day: Int) {
