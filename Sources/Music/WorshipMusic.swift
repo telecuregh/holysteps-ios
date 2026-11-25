@@ -90,6 +90,20 @@ enum WorshipMusic {
         t("around_the_table_2", "Around the Table (Remix)", "Family, bread and thanks together", "Acts 2:46", .steady, [.MARRIAGE, .LONELY], 115),
         t("the_lions_roared", "The Lions Roared", "Daniel in the den, and the God who shut their mouths", "Daniel 6:22", .lift, [.ANXIOUS, .URGE], 189),
         t("the_lions_roared_2", "The Lions Roared (Remix)", "Daniel in the den, and the God who shut their mouths", "Daniel 6:22", .lift, [.ANXIOUS, .URGE], 167),
+        t("the_ark_of_mercy", "The Ark of Mercy", "Noah, and the God who shuts us in safe", "Genesis 7:1", .steady, [.HOPE, .ANXIOUS], 148),
+        t("the_ark_of_mercy_2", "The Ark of Mercy (Remix)", "Noah, and the God who shuts us in safe", "Genesis 7:1", .steady, [.HOPE, .ANXIOUS], 130),
+        t("through_the_sea", "Through the Sea", "A dry path where there was no way", "Exodus 14:21", .lift, [.ANXIOUS, .HOPE], 128),
+        t("through_the_sea_2", "Through the Sea (Remix)", "A dry path where there was no way", "Exodus 14:21", .lift, [.ANXIOUS, .HOPE], 155),
+        t("the_battle_is_the_lords", "The Battle Is the Lord's", "David and the giant he didn't fight alone", "1 Samuel 17:47", .lift, [.URGE, .ANXIOUS], 104),
+        t("the_battle_is_the_lords_2", "The Battle Is the Lord's (Remix)", "David and the giant he didn't fight alone", "1 Samuel 17:47", .lift, [.URGE, .ANXIOUS], 112),
+        t("in_the_lions_den", "In the Lions' Den", "Daniel kept praying, and God kept him", "Daniel 6:22", .lift, [.ANXIOUS, .NIGHT], 150),
+        t("in_the_lions_den_2", "In the Lions' Den (Remix)", "Daniel kept praying, and God kept him", "Daniel 6:22", .lift, [.ANXIOUS, .NIGHT], 166),
+        t("the_father_ran", "The Father Ran", "The prodigal comes home to open arms", "Luke 15:20", .steady, [.AFTER_SLIP, .SHAME], 148),
+        t("the_father_ran_2", "The Father Ran (Remix)", "The prodigal comes home to open arms", "Luke 15:20", .steady, [.AFTER_SLIP, .SHAME], 145),
+        t("out_of_the_deep", "Out of the Deep", "Jonah cried from the deep, and God heard", "Jonah 2:2", .steady, [.AFTER_SLIP, .HOPE], 153),
+        t("out_of_the_deep_2", "Out of the Deep (Remix)", "Jonah cried from the deep, and God heard", "Jonah 2:2", .steady, [.AFTER_SLIP, .HOPE], 159),
+        t("whither_thou_goest", "Whither Thou Goest", "Ruth's loyal love, and a God who provides", "Ruth 1:16", .gentle, [.LONELY, .GRIEF], 150),
+        t("whither_thou_goest_2", "Whither Thou Goest (Remix)", "Ruth's loyal love, and a God who provides", "Ruth 1:16", .gentle, [.LONELY, .GRIEF], 155),
     ]
 
     /// Country gospel songs, their own section on the Hymns tab.
