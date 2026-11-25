@@ -129,7 +129,9 @@ final class SmokeUITests: XCTestCase {
         app.swipeUp(); shot(app, "68-plans-more")
     }
 
-    func testEnglishBible() {
+    // Renamed testZEnglishBible so it runs last — it downloads KJV (up to 90s network wait) and
+    // leaves the simulator exhausted; nothing should follow it alphabetically.
+    func testZEnglishBible() {
         let app = launch(["-hs_lang", "en", "-bibleTranslation", "KJV", "-bibleLastBook", "John", "-bibleLastCh", "1"])
         XCTAssertTrue(tab(app, "Home").waitForExistence(timeout: 20))
         shot(app, "01-home")
@@ -170,10 +172,8 @@ final class SmokeUITests: XCTestCase {
     }
 
     func testFaithTabs() {
-        // Terminate any lingering instance before launching to avoid CI timeout
-        let prev = XCUIApplication(); prev.terminate()
         let app = launch(["-hs_lang", "en"])
-        XCTAssertTrue(tab(app, "Faith").waitForExistence(timeout: 60))
+        XCTAssertTrue(tab(app, "Faith").waitForExistence(timeout: 20))
         tab(app, "Faith").tap()
         app.swipeUp()
         shot(app, "20b-faith-today-scrolled")
