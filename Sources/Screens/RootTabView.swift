@@ -36,7 +36,7 @@ struct RootTabView: View {
             // A soft scrim behind the clock and battery, so text scrolling up doesn't run under them.
             .overlay(alignment: .top) {
                 GeometryReader { g in
-                    LinearGradient(colors: [HS.bgTop.opacity(0.92), HS.bgTop.opacity(0)], startPoint: .top, endPoint: .bottom)
+                    LinearGradient(colors: [HS.bgTop.opacity(0.7), HS.bgTop.opacity(0)], startPoint: .top, endPoint: .bottom)
                         .frame(height: g.safeAreaInsets.top + 14)
                         .offset(y: -g.safeAreaInsets.top)
                 }
