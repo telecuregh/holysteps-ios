@@ -73,7 +73,7 @@ enum Plan: String, CaseIterable, Identifiable {
                       "Life and Health Trends with 90-day charts", "Weekly whole-person report: what really helps you",
                       "The baby tracker: feeds, sleep, diapers, growth charts, milestones and white noise",
                       "Body & energy: a daily log for menopause, arthritis, thyroid or chronic pain"]
-        case .wellness: ["Your whole men's health plan: every move, meal and mindset idea, each day", "Partner coaching: deeper guidance to support your wife through every phase",
+        case .wellness: ["Your whole men's health plan: every move, meal and mindset idea, each day", "Partner coaching: deeper guidance to support your partner through every phase",
                          "Life and Health Trends with 90-day charts", "Weekly whole-person report: what really helps you",
                          "Calm check, sleep sounds and breathing insights: what calms you most and how your nights compare",
                          "The baby tracker: feeds, sleep, diapers, growth charts, milestones and white noise",

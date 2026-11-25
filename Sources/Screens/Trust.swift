@@ -16,7 +16,7 @@ struct TrustView: View {
                     card("Your data", [
                         "We do not sell your personal information. There are no ad networks in HolySteps.",
                         "Your mood check-ins, journal and prayers stay on your phone.",
-                        "Sharing your cycle with your husband sends only your phase dates, never symptoms, notes or moods. You choose how long the code works.",
+                        "Sharing your cycle with your partner sends only your phase dates, never symptoms, notes or moods. You choose how long the code works.",
                     ], link: "Read the Privacy Policy") { openURL(URL(string: AppLinks.site + "/privacy")!) }
                     card("Paying", [
                         "Most of HolySteps is free for good. Safety help, including 988 and the mood check, is always free.",

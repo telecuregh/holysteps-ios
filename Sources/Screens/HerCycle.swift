@@ -1,7 +1,7 @@
 import SwiftUI
 import zlib
 
-/// Android's "Support her cycle" (ui/screens/SupportHerCycle.kt): she sends her husband a short code; his phone works
+/// Android's "Support her cycle" (ui/screens/SupportHerCycle.kt): she sends her partner a short code; his phone works
 /// out her phase from it, offline. No server and no account link: the code carries only her last period start, cycle
 /// and period length, whether she shares her fertile days, and an end date she chooses (7, 30 or 60 days). Symptoms,
 /// notes and moods are never in it. Same code format as Android, so an iPhone and an Android phone understand each other.
@@ -97,7 +97,7 @@ struct ShareWithHusbandCard: View {
     var body: some View {
         GlassCard {
             VStack(alignment: .leading, spacing: 8) {
-                T("💞 Let your husband support you").font(.hs(14, .semibold)).foregroundStyle(HS.text)
+                T("💞 Let your partner support you").font(.hs(14, .semibold)).foregroundStyle(HS.text)
                 T("Send him a private code. His HolySteps shows your phase, when your period is due, and how to love you well that week. Your symptoms, notes and moods are never shared.")
                     .font(.hs(11)).foregroundStyle(HS.textMuted)
                 T("You choose how long the code works. A code can't be pulled back once it's sent, so pick the shortest time you're comfortable with. When it ends, he sees nothing until you send a new one.")
@@ -139,7 +139,7 @@ struct SupportHerCycleView: View {
                 VStack(alignment: .leading, spacing: 12) {
                     T("💞 MARRIAGE").font(.hs(12, .bold)).foregroundStyle(HS.readable(0xF472B6))
                     T("Support her cycle").font(.hs(24)).foregroundStyle(HS.text)
-                    T("When your wife shares her code, you'll see where she is in her cycle and simple ways to love her well. It stays on your phone.").font(.hs(13)).foregroundStyle(HS.textSecondary)
+                    T("When your partner shares her code, you'll see where she is in her cycle and simple ways to love her well. It stays on your phone.").font(.hs(13)).foregroundStyle(HS.textSecondary)
                     if let s = share, s.untilEpoch >= today {
                         let day = HerCycleCode.cycleDay(s, today)
                         let phase = CyclePhase.forDay(day, periodLength: s.periodLen, cycleLength: s.cycleLen)
@@ -170,7 +170,7 @@ struct SupportHerCycleView: View {
                                     .onChange(of: input) { _, _ in bad = false }
                                 if bad { T("That code doesn't look right, copy it again from her message.").font(.hs(11)).foregroundStyle(Color(hex: 0xF43F5E)) }
                                 SmallChip(label: "Connect") { connect(today) }
-                                T("She makes the code in her HolySteps: Cycle → Let your husband support you.").font(.hs(11)).foregroundStyle(HS.textMuted)
+                                T("She makes the code in her HolySteps: Cycle → Let your partner support you.").font(.hs(11)).foregroundStyle(HS.textMuted)
                             }
                         }
                     }
