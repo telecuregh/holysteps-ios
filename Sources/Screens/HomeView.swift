@@ -2,8 +2,8 @@ import SwiftUI
 import UIKit
 import AVFoundation
 
-/// Home, as one scroll (the clarity plan): the greeting with the avatar, search and theme switch; "Next up", the one
-/// most useful thing to do now; today's rings; today's verse; four big tiles (Faith, Fitness, Wellness or Cycle,
+/// Home, as one scroll (the clarity plan): the greeting with the avatar, search and theme switch; the "Right now" pick
+/// and first-week steps; today's rings; today's verse; four big tiles (Faith, Fitness, Wellness or Cycle,
 /// Sleep); "This week" from day 7; and 988 and safety help at the bottom. Everything longer lives on the tabs.
 struct HomeView: View {
     @EnvironmentObject var store: AppStore
@@ -34,7 +34,6 @@ struct HomeView: View {
         let part = h < 12 ? "Good morning, {0}" : (h < 17 ? "Good afternoon, {0}" : "Good evening, {0}")
         return tr(part).replacingOccurrences(of: "{0}", with: name)
     }
-    private var evening: Bool { let h = Calendar.current.component(.hour, from: Date()); return h >= 19 || h < 4 }
 
     var body: some View {
         NavigationStack {
@@ -180,37 +179,10 @@ struct HomeView: View {
                 FirstWeekCard(day: day) { go(firstWeek: $0) }
                 if day == 7 { FreeWeekPanel() }
             }
-        } else {
-            let item = nextItem
-            Button(action: item.action) {
-                GlassCard(warm: true) {
-                    HStack(spacing: 14) {
-                        IconBadge(symbol: item.symbol, size: 40, tint: item.tint)
-                        VStack(alignment: .leading, spacing: 3) {
-                            T("NEXT UP").font(.hs(11, .semibold)).tracking(1.4).foregroundStyle(HS.peach)
-                            T(item.title).font(.hs(16, .semibold)).foregroundStyle(HS.text)
-                            T(item.sub).font(.hs(12)).foregroundStyle(HS.textMuted).lineLimit(2)
-                        }
-                        Spacer(minLength: 4)
-                        GoldPlayBadge(symbol: "chevron.right", size: 32)
-                    }
-                }
-            }
-            .buttonStyle(.plain)
         }
     }
 
     private struct RingItem: Identifiable { let label: String; let value: String; let hex: UInt32; let progress: Double; var id: String { label } }
-
-    private struct NextItem { let symbol: String; let tint: UInt32; let title: String; let sub: String; let action: () -> Void }
-
-    private var nextItem: NextItem {
-        if evening, let story = SleepLibrary.byId(SleepLibrary.firstStory) {
-            return NextItem(symbol: "moon.stars", tint: 0x64A5E8, title: "A bedtime story", sub: "\(tr(story.title)) · \(tr(story.minutesLabel))") { route = .sleep }
-        }
-        let verse = AppContent.verseOfTheDay()
-        return NextItem(symbol: "book", tint: 0x9D7FEA, title: "Today's verse", sub: verse.ref) { listenToVerse() }
-    }
 
     /// Where each "Right now" pick goes. Android's guided-audio screen isn't on iPhone yet, so "audio" opens Faith → Listen.
     private func openRightNow(_ r: RightNow.Route) {
