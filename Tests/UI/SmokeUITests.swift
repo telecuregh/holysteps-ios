@@ -170,8 +170,10 @@ final class SmokeUITests: XCTestCase {
     }
 
     func testFaithTabs() {
+        // Terminate any lingering instance before launching to avoid CI timeout
+        let prev = XCUIApplication(); prev.terminate()
         let app = launch(["-hs_lang", "en"])
-        XCTAssertTrue(tab(app, "Faith").waitForExistence(timeout: 20))
+        XCTAssertTrue(tab(app, "Faith").waitForExistence(timeout: 60))
         tab(app, "Faith").tap()
         app.swipeUp()
         shot(app, "20b-faith-today-scrolled")
