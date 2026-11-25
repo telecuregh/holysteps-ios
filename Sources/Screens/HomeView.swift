@@ -111,31 +111,31 @@ struct HomeView: View {
                                    .init(color: .clear, location: light ? 0.25 : 0.28)], startPoint: .top, endPoint: .bottom)
                 .accessibilityHidden(true)
             VStack(spacing: 0) {
-                HStack(spacing: 8) {
-                    HolyStepsMark().frame(width: 26, height: 26)
-                    D("HolySteps").font(.hs(19)).foregroundStyle(light ? Color(hex: 0x3A3135) : Color.white.opacity(0.88))
+                HStack(spacing: 6) {
+                    HolyStepsMark().frame(width: 22, height: 22)
+                    D("HolySteps").font(.hs(17)).foregroundStyle(light ? Color(hex: 0x3A3135) : Color.white.opacity(0.88))
                     Spacer()
                     chipButton(ink: ink, fill: chip, edge: chipEdge, label: "Search") { showSearch = true } content: {
-                        Image(systemName: "magnifyingglass").font(.system(size: 17))
+                        Image(systemName: "magnifyingglass").font(.system(size: 15))
                     }
                     let all = ThemeMode.allCases
                     let next = all[((all.firstIndex(of: appearance.mode) ?? 0) + 1) % all.count]
                     chipButton(ink: ink, fill: chip, edge: chipEdge, label: "Switch theme") { appearance.mode = next } content: {
-                        T(next.emoji).font(.system(size: 16))
+                        T(next.emoji).font(.system(size: 14))
                     }
                     Button { router.open(tab: 4) } label: {
                         ZStack {
                             Circle().fill(LinearGradient(colors: [Color(hex: 0xF1D7A8), HS.goldButton, Color(hex: 0xB98C52)], startPoint: .topLeading, endPoint: .bottomTrailing))
-                            if let c = store.name.first { D(String(c).uppercased()).font(.hs(16, .bold)).foregroundStyle(HS.onGold) }
-                            else { Image(systemName: "person.fill").font(.system(size: 16)).foregroundStyle(HS.onGold) }
+                            if let c = store.name.first { D(String(c).uppercased()).font(.hs(14, .bold)).foregroundStyle(HS.onGold) }
+                            else { Image(systemName: "person.fill").font(.system(size: 14)).foregroundStyle(HS.onGold) }
                         }
-                        .frame(width: 38, height: 38)
+                        .frame(width: 32, height: 32)
                         .overlay(Circle().strokeBorder(chipEdge, lineWidth: 1))
                     }
                     .buttonStyle(.plain)
                     .accessibilityLabel(tr("Profile"))
                 }
-                .padding(.top, 4 + safeTop).padding(.leading, 20).padding(.trailing, 16)
+                .padding(.top, safeTop).padding(.leading, 20).padding(.trailing, 16)
                 Spacer()
                 VStack(spacing: 4) {
                     D(greeting).font(.hs(14, light ? .semibold : .regular)).tracking(0.4)
@@ -161,7 +161,7 @@ struct HomeView: View {
     private func chipButton<C: View>(ink: Color, fill: Color, edge: Color, label: String, action: @escaping () -> Void, @ViewBuilder content: () -> C) -> some View {
         Button(action: action) {
             content().foregroundStyle(ink)
-                .frame(width: 38, height: 38)
+                .frame(width: 32, height: 32)
                 .background(Circle().fill(fill))
                 .overlay(Circle().strokeBorder(edge, lineWidth: 1))
         }
@@ -394,7 +394,7 @@ struct HomeView: View {
     }
 
     private var footer: some View {
-        HStack(spacing: 8) {
+        HStack(spacing: 6) {
             Image(systemName: "phone").font(.system(size: 13)).foregroundStyle(HS.textMuted)
             if CrisisLine.has988 {
                 Button { openURL(URL(string: "tel:988")!) } label: { T("Call or text 988").font(.hs(13, .semibold)).foregroundStyle(HS.gold) }
