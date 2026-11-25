@@ -271,14 +271,17 @@ struct PrayerGardenView: View {
     private func garden(_ plants: [PrayerItem], _ scene: String) -> some View {
         Color.clear
             .aspectRatio(720.0 / 894.0, contentMode: .fit)
-            .overlay(Image("garden_empty").resizable().scaledToFill().accessibilityLabel(tr("Your prayer garden")))
+            // Your garden pictures, one per stage of the same garden: the whole bed fills in as its prayers grow.
+            .overlay(Image(scene).resizable().scaledToFill().id(scene).transition(.opacity)
+                .animation(.easeInOut(duration: 0.6), value: scene)
+                .accessibilityLabel(tr("Your prayer garden")))
             .overlay(GeometryReader { g in
                 // Back rows first so nearer plants overlap them.
                 ForEach(Array(plants.prefix(PrayerGarden.bedSize).enumerated()).reversed(), id: \.element.id) { i, p in
                     let (fx, fy, sc) = PrayerGarden.spot(i)
-                    let pw = g.size.width * 0.2 * sc, ph = pw * 1.35
+                    let pw = g.size.width * 0.11 * sc, ph = pw
                     marker(p, index: i, width: pw, height: ph)
-                        .position(x: g.size.width * fx, y: g.size.height * fy - ph / 2 + ph * 0.07)
+                        .position(x: g.size.width * fx, y: g.size.height * fy - ph / 2)
                 }
             })
             .overlay(alignment: .bottom) {
@@ -300,9 +303,12 @@ struct PrayerGardenView: View {
     private func marker(_ p: PrayerItem, index: Int, width: CGFloat, height: CGFloat) -> some View {
         let st = PrayerGarden.stage(p), sel = p.id == selectedId
         return Button { withAnimation(.spring(response: 0.3)) { selectedId = sel ? nil : p.id } } label: {
-            PrayerPlant(growth: Double(p.daysPrayed), bloom: p.answered ? 1 : 0, flower: PrayerGarden.flowerColor(p), seed: index)
+            // A marker on the picture for each prayer (Android's PlantMarker): its stage, in its color.
+            Circle().fill(Color(hex: 0x140C18).opacity(0.55))
+                .overlay(Circle().strokeBorder(PrayerGarden.color(p), lineWidth: 2.5))
+                .overlay(Text(["🫘", "🌱", "🌱", "🌿", "🌿", "🌷", "🌸"][st.rawValue]).font(.system(size: width * 0.5)))
                 .frame(width: width, height: height)
-                .shadow(color: sel ? HS.gold.opacity(0.9) : .clear, radius: 6)
+                .shadow(color: sel ? HS.gold.opacity(0.9) : .black.opacity(0.3), radius: sel ? 6 : 2)
                 .scaleEffect(sel ? 1.12 : (st == .bloom && pulse ? 1.04 : 1), anchor: .bottom)
                 .frame(minWidth: 44, minHeight: 44)
                 .contentShape(Rectangle())
