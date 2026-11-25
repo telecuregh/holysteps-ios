@@ -184,6 +184,10 @@ actor VoicePacks {
         ("Psalms", 103), ("Hebrews", 11), ("Luke", 15),
     ].map { "\($0.0)|\($0.1)" })
 
+    /// Any KJV chapter may have a recording: the server's index decides (`ensure` returns nil when it doesn't), so
+    /// chapters recorded later play in Grace's voice without an app update.
+    static func mayBeRecorded(translation: String) -> Bool { translation == "KJV" }
+
     static func isRecorded(translation: String, book: String, ch: Int) -> Bool {
         translation == "KJV" && recordedChapters.contains("\(book)|\(ch)")
     }

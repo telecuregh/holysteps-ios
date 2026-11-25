@@ -113,7 +113,7 @@ final class BibleListening: NSObject, ObservableObject, AVSpeechSynthesizerDeleg
     /// Loads the narrator's recording when this chapter has one, then starts reading.
     private func beginChapter(book: String, ch: Int, from: Int, gen: Int) async {
         pack = nil
-        if narrator != VoicePacks.deviceVoice && VoicePacks.isRecorded(translation: translation, book: book, ch: ch) {
+        if narrator != VoicePacks.deviceVoice && VoicePacks.mayBeRecorded(translation: translation) {
             loading = true
             pack = await VoicePacks.shared.ensure(voice: narrator, packId: VoicePacks.biblePackId(book: book, ch: ch))
         }
