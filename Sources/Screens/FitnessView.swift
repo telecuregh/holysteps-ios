@@ -153,7 +153,7 @@ struct FitnessView: View {
             .sheet(isPresented: $showManual) { ManualWalkSheet { model.logWalk(minutes: $0) } }
             .sheet(isPresented: $showGoal) { StepGoalSheet() }
             .navigationDestination(isPresented: $music) { MusicView(tab: 0) }
-            .task { await model.refresh() }
+            .task { await model.refresh(); await WearableModel.shared.refresh() }
         }
     }
 
@@ -220,6 +220,7 @@ struct FitnessView: View {
         T("Calories and distance are for an average adult.")
             .font(.hs(11)).foregroundStyle(HS.textSubtle).multilineTextAlignment(.center)
             .frame(maxWidth: .infinity).padding(.horizontal, 20).padding(.top, 4)
+        WearableSummaryCard(compact: true).padding(.horizontal, 20).padding(.top, 12)
         if model.available && !model.asked {
             Button { Task { await model.request() } } label: {
                 GlassCard {

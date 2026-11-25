@@ -43,6 +43,9 @@ struct ProfileView: View {
                         group("Goals") {
                             item("figure.walk", "Daily Step Goal", tr("\(stepGoal.formatted()) steps"), 0x8B5CF6) { sheet = .stepGoal }
                         }
+                        group("Health") {
+                            link("applewatch", "Rings & watches", WearableModel.shared.on ? tr("Connected") : tr("Connect"), 0x56B892) { RingsWatchesView() }
+                        }
                         group("Faith and content") {
                             item("mic", "Narrator", VoicePacks.narrators.first { $0.id == listening.narrator }?.name ?? tr("Phone voice"), 0x8B5CF6) { sheet = .narrator }
                             item("calendar.badge.clock", "Weekly sermon", tr("Day and reminder"), 0x8B5CF6) { sheet = .sermon }
