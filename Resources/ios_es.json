@@ -674,5 +674,14 @@
   "{0} prayers still growing": "{0} oraciones todavía creciendo",
   "the longest for {0}": "la más larga desde hace {0}",
   "Keep praying.": "Sigue orando.",
-  "Trainer showing the move": "Entrenador mostrando el movimiento"
+  "Trainer": "Entrenador",
+  "Watch the trainer": "Ver al entrenador",
+  "Your trainer": "Tu entrenador",
+  "Watch {0} demonstrate this": "Mira cómo {0} lo demuestra",
+  "With {0}": "Con {0}",
+  "This video could not be played here.": "Este video no se pudo reproducir aquí.",
+  "Check your connection, or open it in your browser.": "Revisa tu conexión o ábrelo en tu navegador.",
+  "Try again": "Intentar de nuevo",
+  "Open in browser": "Abrir en el navegador",
+  "Your trainer's video shows when you're back online.": "El video de tu entrenador se mostrará cuando vuelvas a tener conexión."
 }

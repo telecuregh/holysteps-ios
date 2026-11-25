@@ -336,6 +336,7 @@ struct WalkSetupView: View {
     @State private var warmCool = true
     @State private var paywall = false
     @ObservedObject private var account = AccountStore.shared
+    @ObservedObject private var media = TrainerMedia.shared
 
     var body: some View {
         ZStack {
@@ -377,6 +378,7 @@ struct WalkSetupView: View {
                     }
                     .buttonStyle(.plain)
                 }
+                if let demo = media.clip(planId) { TrainerCard(clip: demo) }
                 if !WalkPlan.byId(planId).isFree {
                     Toggle(isOn: $warmCool) { T("Warm-up and cool-down").font(.hs(14)).foregroundStyle(HS.text) }.tint(HS.goldButton)
                 }
@@ -389,6 +391,7 @@ struct WalkSetupView: View {
             .padding(20)
         }
         .sheet(isPresented: $paywall) { PlansView(feature: .walkPlus) }
+        .task { await media.refresh() }
     }
 }
 

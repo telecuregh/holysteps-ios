@@ -275,6 +275,7 @@ final class RoutineRunner: ObservableObject {
 
 struct RoutinePlayerView: View {
     @StateObject private var runner: RoutineRunner
+    @ObservedObject private var media = TrainerMedia.shared
     @Environment(\.dismiss) private var dismiss
     init(routine: GuidedRoutine) { _runner = StateObject(wrappedValue: RoutineRunner(routine: routine)) }
 
@@ -294,6 +295,9 @@ struct RoutinePlayerView: View {
                 if !r.caution.isEmpty && runner.index == 0 {
                     T(r.caution).font(.hs(11)).foregroundStyle(.white.opacity(0.6)).multilineTextAlignment(.center)
                 }
+                if runner.index == 0, !runner.finished, let demo = media.clip(r.id) {
+                    TrainerCard(clip: demo).frame(maxWidth: 320)
+                }
                 Spacer()
                 if runner.finished {
                     Image(systemName: "checkmark.circle.fill").font(.system(size: 64)).foregroundStyle(Color(hex: 0x56B892))
@@ -304,12 +308,10 @@ struct RoutinePlayerView: View {
                     T(s.rest ? "Rest" : "Step \(runner.index + 1) of \(r.steps.count)").font(.hs(12)).foregroundStyle(.white.opacity(0.6))
                     T(s.name).font(.hs(28, .semibold)).foregroundStyle(.white).multilineTextAlignment(.center)
                     if let key = TrainerClips.key(step: s.name, rest: s.rest) {
-                        TrainerLoop(key: key, trainer: TrainerClips.trainer(forStep: runner.index))
+                        TrainerMotion(moveKey: key, moveName: s.name, animate: !runner.paused && !s.rest)
                             .aspectRatio(864.0 / 470.0, contentMode: .fit)
                             .frame(maxWidth: .infinity)
-                            .background(RoundedRectangle(cornerRadius: 18).fill(Color(hex: 0xECEBEE)))
-                            .clipShape(RoundedRectangle(cornerRadius: 18))
-                            .accessibilityLabel(tr("Trainer showing the move"))
+                            .id(runner.index)          // each move gets its own player
                     }
                     ZStack {
                         Circle().stroke(Color.white.opacity(0.12), lineWidth: 8)
@@ -338,7 +340,8 @@ struct RoutinePlayerView: View {
         }
         .preferredColorScheme(.dark)
         .onAppear { runner.start() }
-        .task { await TrainerClipStore.shared.prefetch(runner.routine) }
+        .task { await TrainerLoops.shared.prefetch(runner.routine.steps) }
+        .task { await media.refresh() }
         .onDisappear { runner.stop() }
     }
 
