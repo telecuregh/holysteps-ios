@@ -114,7 +114,7 @@ struct CommitmentsView: View {
                     D(tr("Challenges")).font(.hs(28)).foregroundStyle(HS.text)
                     ItalicAccent(text: "Commit to a streak. Earn points when you finish.", size: 15)
                 }
-                        .padding(.horizontal, 20).padding(.top, 24)
+                        .padding(.horizontal, 20).padding(.top, 58)
                     if store.commitments.isEmpty {
                         emptyState
                     } else {
@@ -128,6 +128,7 @@ struct CommitmentsView: View {
             }
         }
         .toolbar(.hidden, for: .navigationBar)
+        .hsBackButton()
         .sheet(isPresented: $showAdd) { AddCommitmentSheet() }
     }
 

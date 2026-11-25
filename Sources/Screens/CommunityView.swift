@@ -330,7 +330,7 @@ struct FamilyRelayView: View {
                     D(tr("Family Relay")).font(.hs(28)).foregroundStyle(HS.text)
                     ItalicAccent(text: "One streak. The whole family.", size: 15)
                 }
-                        .padding(.horizontal, 20).padding(.top, 24)
+                        .padding(.horizontal, 20).padding(.top, 58)
 
                     Gated(feature: .familyRelay) {
                         familyContent
@@ -341,6 +341,7 @@ struct FamilyRelayView: View {
             }
         }
         .toolbar(.hidden, for: .navigationBar)
+        .hsBackButton()
     }
 
     private var familyContent: some View {

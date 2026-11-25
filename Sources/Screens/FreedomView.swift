@@ -89,7 +89,7 @@ struct FreedomView: View {
                     D(tr("Freedom")).font(.hs(28)).foregroundStyle(HS.text)
                     ItalicAccent(text: "Breaking free, one day at a time", size: 15)
                 }
-                        .padding(.horizontal, 20).padding(.top, 24)
+                        .padding(.horizontal, 20).padding(.top, 58)
                     streakCard
                     if !freedom.checkedInToday { checkInCard }
                     noteSection
@@ -104,6 +104,7 @@ struct FreedomView: View {
         .navigationTitle(tr("Freedom"))
         .navigationBarTitleDisplayMode(.inline)
         .toolbar(.hidden, for: .navigationBar)
+        .hsBackButton()
         .confirmationDialog(tr("Reset streak?"), isPresented: $showReset, titleVisibility: .visible) {
             Button(tr("Reset to day 0"), role: .destructive) { freedom.reset() }
             Button(tr("Cancel"), role: .cancel) { }

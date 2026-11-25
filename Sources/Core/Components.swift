@@ -310,3 +310,35 @@ struct ScreenPhoto: View {
             .accessibilityHidden(true)
     }
 }
+
+/// A back button for screens that hide the navigation bar (for their full-height header), which also hides the
+/// system back button and the swipe back. Shown only when the screen was opened from another one, never on a tab's
+/// own first screen.
+struct HSBackButton: ViewModifier {
+    @Environment(\.isPresented) private var presented
+    @Environment(\.dismiss) private var dismiss
+
+    func body(content: Content) -> some View {
+        ZStack(alignment: .topLeading) {
+            content
+            if presented {
+                Button { dismiss() } label: {
+                    Image(systemName: "chevron.left").font(.system(size: 17, weight: .semibold)).foregroundStyle(HS.text)
+                        .frame(width: 40, height: 40)
+                        .background(Circle().fill(HS.cardFill))
+                        .overlay(Circle().strokeBorder(HS.gold.opacity(0.3), lineWidth: 1))
+                        .frame(width: 44, height: 44)
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(tr("Back"))
+                .padding(.leading, 12).padding(.top, 2)
+            }
+        }
+    }
+}
+
+extension View {
+    /// Adds HSBackButton; use with `.toolbar(.hidden, for: .navigationBar)`.
+    func hsBackButton() -> some View { modifier(HSBackButton()) }
+}
