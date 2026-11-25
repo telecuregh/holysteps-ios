@@ -115,10 +115,11 @@ final class BibleListening: NSObject, ObservableObject, AVSpeechSynthesizerDeleg
         pack = nil
         if narrator != VoicePacks.deviceVoice && VoicePacks.mayBeRecorded(translation: translation) {
             loading = true
-            pack = await VoicePacks.shared.ensure(voice: narrator, packId: VoicePacks.biblePackId(book: book, ch: ch))
+            pack = await VoicePacks.shared.ensure(voice: VoicePacks.bibleVoice(narrator: narrator, translation: translation),
+                                                  packId: VoicePacks.biblePackId(translation: translation, book: book, ch: ch))
         }
         guard gen == generation else { return }
-        let name = VoicePacks.narrators.first { $0.id == narrator }?.name
+        let name = translation == "RVES" ? "Grace" : VoicePacks.narrators.first { $0.id == narrator }?.name
         reader = pack != nil && name != nil ? name! : tr("Your phone's voice")
         startChapter(book: book, ch: ch, from: from)
     }
