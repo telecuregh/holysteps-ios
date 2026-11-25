@@ -22,6 +22,7 @@ targets:
       properties:
         UIBackgroundModes: [audio, location]
         UIAppFonts: [PlayfairDisplay-Italic.ttf, Inter-Regular.ttf, Inter-Medium.ttf, Inter-SemiBold.ttf, Inter-Bold.ttf, Fraunces-Medium.ttf, Fraunces-SemiBold.ttf]
+        UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait]
     entitlements:
       path: HolySteps.entitlements
       properties:
@@ -31,7 +32,7 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: com.holysteps.app
         DEVELOPMENT_TEAM: 4N2U2W77LM
         CODE_SIGN_STYLE: Automatic
-        TARGETED_DEVICE_FAMILY: "1,2"
+        TARGETED_DEVICE_FAMILY: "1"
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         GENERATE_INFOPLIST_FILE: YES
         INFOPLIST_KEY_CFBundleDisplayName: HolySteps
