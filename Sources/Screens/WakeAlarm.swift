@@ -96,7 +96,9 @@ final class WakeSpeaker: ObservableObject {
                     u.voice = AVSpeechSynthesisVoice(language: I18n.shared.speechLanguage)
                     u.rate = AVSpeechUtteranceDefaultSpeechRate * 0.92
                     synth.speak(u)
-                    try? await Task.sleep(nanoseconds: UInt64(min(14, Double(l.split(separator: " ").count) / 2.5 + 0.8) * 1_000_000_000))
+                    let words = Double(l.split(separator: " ").count)
+                    let secs: Double = min(14, words / 2.5 + 0.8)
+                    try? await Task.sleep(nanoseconds: UInt64(secs * 1_000_000_000))
                 }
                 try? await Task.sleep(nanoseconds: 600_000_000)
             }
