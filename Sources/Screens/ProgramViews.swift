@@ -250,7 +250,12 @@ struct TrainerThumb: View {
             HS.overlay(0.06)
             if let image { Image(uiImage: image).resizable().scaledToFill() }
         }
-        .accessibilityLabel(tr("Trainer") + " " + TrainerClips.trainerName)
-        .task(id: key) { if let u = TrainerClips.photo(key) { image = await TrainerPhotos.shared.image(u) } }
+        .accessibilityLabel(tr("Trainer") + " " + TrainerClips.coachName(key))
+        .task(id: key) {
+            guard let u = TrainerClips.photo(key) else { return }
+            if TrainerClips.sharedPoster.contains(key) {
+                if let f = await TrainerLoops.shared.load(TrainerClips.loop(forPhoto: u)) { image = await TrainerPhotos.frame(f) }
+            } else { image = await TrainerPhotos.shared.image(u) }
+        }
     }
 }

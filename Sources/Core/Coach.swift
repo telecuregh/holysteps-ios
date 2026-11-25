@@ -13,7 +13,9 @@ struct RoutineStep: Decodable, Hashable {
     var move: String? = nil
 
     /// The trainer clip for this step: rests show the calm breath.
-    var trainerKey: String? { rest ? "BELLY_BREATH" : (move ?? TrainerClips.key(step: name, rest: false)) }
+    var trainerKey: String? { rest ? "BELLY_BREATH" : (move ?? TrainerClips.key(step: name, rest: false)).map { TrainerClips.sided($0, step: name) } }
+    /// A right-side step of a move recorded on the left only plays mirrored.
+    var trainerMirrored: Bool { !rest && trainerKey.map { TrainerClips.mirrored(step: name, key: $0) } == true }
 }
 
 struct GuidedRoutine: Decodable, Identifiable, Hashable {

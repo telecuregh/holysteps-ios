@@ -47,7 +47,7 @@ enum TrainerClips {
         (["sit-to-stand", "squat to chair"], [], "SIT_TO_STAND"),
         (["supported squat"], [], "SUPPORTED_SQUAT"),
         (["squat"], [], "SQUAT"),
-        (["step-up", "step up"], [], "STEP_UP"),
+        (["step-up", "step up", "stair climb", "hill climb"], [], "STEP_UP"),
         (["calf"], [], "CALF_RAISE"),
         (["bird dog"], [], "BIRD_DOG"),
         (["dead bug"], [], "DEAD_BUG"),
@@ -101,6 +101,26 @@ enum TrainerClips {
     /// Coach Kojo for men, Coach Amara for everyone else (Android Programs.photo).
     static var isMale: Bool { UserDefaults.standard.string(forKey: "gender") == "male" }
     static var trainerName: String { isMale ? "Kojo" : "Amara" }
+    /// Moves Coach Amara has recorded herself; on the rest, the server's women's set carries Coach Kojo's clip,
+    /// so his name is shown with it (checked against every clip on the server, Nov 25, 2026).
+    static let amaraKeys: Set<String> = ["MARCH", "WALK", "RUN", "SQUAT", "SUMO_SQUAT", "LUNGE_LEFT", "LUNGE_RIGHT", "SIDE_LUNGE_LEFT",
+                                         "SIDE_LUNGE_RIGHT", "CURTSY_LUNGE", "DEADLIFT", "ROMANIAN_DEADLIFT", "STEP_UP", "JUMP_JACK", "SQUAT_JUMP"]
+    static func coachName(_ key: String) -> String { isMale || !amaraKeys.contains(key) ? "Kojo" : "Amara" }
+    /// These moves share their server photo with another move (the push-up photo, the calf-raise photo, the bird-dog
+    /// photo), so their own video's frame is shown instead, and two moves never look the same.
+    static let sharedPoster: Set<String> = ["MOUNTAIN_CLIMBER", "BURPEE_DOWN", "HIGH_KNEES", "BUTT_KICK", "SKATER", "BEAR_CRAWL"]
+    /// One-sided moves recorded on one side only: a "right" step shows the clip mirrored.
+    static let oneSided: Set<String> = ["BIRD_DOG", "LOW_LUNGE", "SIDE_LYING_LEG_LIFT", "TORSO_TWIST", "WORLDS_GREATEST"]
+    static func mirrored(step name: String, key: String) -> Bool {
+        let n = name.lowercased()
+        return oneSided.contains(key) && (n.contains("right") || n.contains("derech"))
+    }
+    /// The right-side clip when the server has one.
+    static func sided(_ key: String, step name: String) -> String {
+        let n = name.lowercased()
+        if key == "SIDE_PLANK_LEFT" && (n.contains("right") || n.contains("derech")) { return "SIDE_PLANK_RIGHT" }
+        return key
+    }
     static func photo(_ key: String, male: Bool = isMale) -> URL? { URL(string: "\(base)/\(male ? "man_3d" : "woman_3d")/\(key).jpg") }
     static func loop(forPhoto url: URL) -> URL { url.deletingPathExtension().appendingPathExtension("mp4") }
 }
@@ -218,6 +238,15 @@ actor TrainerPhotos {
         guard let d = try? Data(contentsOf: local(url)), let img = UIImage(data: d) else { return nil }
         memory.setObject(img, forKey: url as NSURL)
         return img
+    }
+
+    /// A frame from a cached clip, for moves whose server photo is shared with another move.
+    static func frame(_ file: URL) async -> UIImage? {
+        let g = AVAssetImageGenerator(asset: AVURLAsset(url: file))
+        g.appliesPreferredTrackTransform = true
+        g.maximumSize = CGSize(width: 864, height: 864)
+        guard let cg = try? await g.image(at: CMTime(seconds: 0.6, preferredTimescale: 600)).image else { return nil }
+        return UIImage(cgImage: cg)
     }
 
     func image(_ url: URL) async -> UIImage? {
@@ -350,6 +379,7 @@ struct TrainerMotion: View {
     let moveKey: String
     let moveName: String
     let animate: Bool
+    var mirrored = false
     @Environment(\.scenePhase) private var scene
     @State private var photo: UIImage?
     @State private var clip: URL?
@@ -361,7 +391,8 @@ struct TrainerMotion: View {
             Color(hex: 0xECEBEE)
             if let photo {
                 Image(uiImage: photo).resizable().scaledToFill()
-                    .accessibilityLabel(tr("Trainer") + " " + TrainerClips.trainerName)
+                    .scaleEffect(x: mirrored ? -1 : 1, y: 1)
+                    .accessibilityLabel(tr("Trainer") + " " + TrainerClips.coachName(moveKey))
             } else if photoTried && clip == nil {
                 VStack(spacing: 6) {
                     D(tr(moveName)).font(.hs(16, .semibold)).foregroundStyle(Color(hex: 0x2A2230))
@@ -373,7 +404,8 @@ struct TrainerMotion: View {
             if let clip {
                 LoopingVideo(url: clip, playing: animate && scene == .active, firstFrame: $firstFrame)
                     .opacity(firstFrame ? 1 : 0)
-                    .accessibilityLabel(tr("Trainer") + " " + TrainerClips.trainerName)
+                    .scaleEffect(x: mirrored ? -1 : 1, y: 1)
+                    .accessibilityLabel(tr("Trainer") + " " + TrainerClips.coachName(moveKey))
             }
         }
         .clipShape(RoundedRectangle(cornerRadius: 16))
@@ -384,6 +416,13 @@ struct TrainerMotion: View {
         photo = nil; clip = nil; photoTried = false; firstFrame = false
         guard let p = TrainerClips.photo(moveKey) else { photoTried = true; return }
         let loopURL = TrainerClips.loop(forPhoto: p)
+        if TrainerClips.sharedPoster.contains(moveKey) {
+            // Its server photo belongs to another move: show its own video, with its first frame while it loads.
+            let f = await TrainerLoops.shared.load(loopURL)
+            photoTried = true
+            if let f { photo = await TrainerPhotos.frame(f); clip = f }
+            return
+        }
         photo = await TrainerPhotos.shared.cached(p)
         if let c = await TrainerLoops.shared.cached(loopURL) { clip = c; return }
         async let img = TrainerPhotos.shared.image(p)

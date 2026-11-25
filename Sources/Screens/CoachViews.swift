@@ -321,9 +321,6 @@ struct RoutinePlayerView: View {
                 if !r.caution.isEmpty && runner.index == 0 {
                     T(r.caution).font(.hs(11)).foregroundStyle(.white.opacity(0.6)).multilineTextAlignment(.center)
                 }
-                if runner.index == 0, !runner.finished, let demo = media.clip(r.id) {
-                    TrainerCard(clip: demo).frame(maxWidth: 320)
-                }
                 Spacer()
                 if runner.finished {
                     Image(systemName: "checkmark.circle.fill").font(.system(size: 64)).foregroundStyle(Color(hex: 0x56B892))
@@ -334,7 +331,7 @@ struct RoutinePlayerView: View {
                     T(s.rest ? "Rest" : "Step \(runner.index + 1) of \(r.steps.count)").font(.hs(12)).foregroundStyle(.white.opacity(0.6))
                     T(s.name).font(.hs(28, .semibold)).foregroundStyle(.white).multilineTextAlignment(.center)
                     if let key = s.trainerKey {
-                        TrainerMotion(moveKey: key, moveName: s.name, animate: !runner.paused && !s.rest)
+                        TrainerMotion(moveKey: key, moveName: s.name, animate: !runner.paused && !s.rest, mirrored: s.trainerMirrored)
                             .aspectRatio(864.0 / 470.0, contentMode: .fit)
                             .frame(maxWidth: .infinity)
                             .id(runner.index)          // each move gets its own player
