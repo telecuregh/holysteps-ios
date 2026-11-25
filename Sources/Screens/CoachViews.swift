@@ -282,7 +282,7 @@ struct RoutinePlayerView: View {
         let r = runner.routine
         ZStack {
             LinearGradient(colors: [Color(hex: 0x1A1226), Color(hex: 0x0B0810)], startPoint: .top, endPoint: .bottom).ignoresSafeArea()
-            VStack(spacing: 18) {
+            VStack(spacing: 14) {
                 HStack {
                     Button { runner.stop(); dismiss() } label: { Image(systemName: "xmark").font(.system(size: 18)).foregroundStyle(.white).frame(width: 44, height: 44) }
                         .accessibilityLabel(tr("Close"))
@@ -303,14 +303,22 @@ struct RoutinePlayerView: View {
                     let s = r.steps[runner.index]
                     T(s.rest ? "Rest" : "Step \(runner.index + 1) of \(r.steps.count)").font(.hs(12)).foregroundStyle(.white.opacity(0.6))
                     T(s.name).font(.hs(28, .semibold)).foregroundStyle(.white).multilineTextAlignment(.center)
+                    if let key = TrainerClips.key(step: s.name, rest: s.rest) {
+                        TrainerLoop(key: key, trainer: TrainerClips.trainer(forStep: runner.index))
+                            .aspectRatio(864.0 / 470.0, contentMode: .fit)
+                            .frame(maxWidth: .infinity)
+                            .background(RoundedRectangle(cornerRadius: 18).fill(Color(hex: 0xECEBEE)))
+                            .clipShape(RoundedRectangle(cornerRadius: 18))
+                            .accessibilityLabel(tr("Trainer showing the move"))
+                    }
                     ZStack {
                         Circle().stroke(Color.white.opacity(0.12), lineWidth: 8)
                         Circle().trim(from: 0, to: CGFloat(runner.left) / CGFloat(max(1, s.seconds)))
                             .stroke(s.rest ? Color(hex: 0x64A5E8) : Color(hex: 0xF3D5C0), style: StrokeStyle(lineWidth: 8, lineCap: .round))
                             .rotationEffect(.degrees(-90)).animation(.linear(duration: 1), value: runner.left)
-                        D("\(runner.left)").font(.hs(56)).foregroundStyle(.white)
+                        D("\(runner.left)").font(.hs(44)).foregroundStyle(.white)
                     }
-                    .frame(width: 200, height: 200)
+                    .frame(width: 140, height: 140)
                     T(s.cue).font(.hs(15)).foregroundStyle(.white.opacity(0.8)).multilineTextAlignment(.center).padding(.horizontal, 24)
                     if let next = r.steps.dropFirst(runner.index + 1).first(where: { !$0.rest }) {
                         T("Next up: \(next.name)").font(.hs(12)).foregroundStyle(.white.opacity(0.55))
@@ -330,6 +338,7 @@ struct RoutinePlayerView: View {
         }
         .preferredColorScheme(.dark)
         .onAppear { runner.start() }
+        .task { await TrainerClipStore.shared.prefetch(runner.routine) }
         .onDisappear { runner.stop() }
     }
 
