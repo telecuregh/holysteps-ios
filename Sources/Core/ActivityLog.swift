@@ -7,6 +7,7 @@ final class ActivityLog: ObservableObject {
 
     enum Event: String, CaseIterable {
         case verse, walk, prayerAudio, sleepStory, sermon, journal, quiz, tracker, recap
+        case freedomCheckIn, commitmentCheckIn, workoutSet
     }
 
     @Published private(set) var days: [String: [String]] {
@@ -46,6 +47,9 @@ extension ActivityLog.Event {
         case .sleepStory, .sermon: 15
         case .journal, .quiz: 10
         case .verse, .tracker: 5
+        case .freedomCheckIn: 15
+        case .commitmentCheckIn: 10
+        case .workoutSet: 20
         case .recap: 0
         }
     }

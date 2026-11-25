@@ -56,10 +56,10 @@ extension EnergyZone {
     var key: String { switch self { case .recover: "RECOVER"; case .low: "LOW"; case .steady: "STEADY"; case .high: "HIGH" } }
     var headline: String {
         switch self {
-        case .recover: "Today is for recovery — rest is part of the plan, not a break from it."
-        case .low: "Go gentle today — restorative movement and grounding Scripture."
-        case .steady: "A steady day — consistent, moderate effort is the win."
-        case .high: "High-energy day — go bold in body and in faith."
+        case .recover: "Today is for recovery, rest is part of the plan, not a break from it."
+        case .low: "Go gentle today, restorative movement and grounding Scripture."
+        case .steady: "A steady day, consistent, moderate effort is the win."
+        case .high: "High-energy day, go bold in body and in faith."
         }
     }
     var colorHex: UInt32 { switch self { case .recover: 0xEC4899; case .low: 0x8B5CF6; case .steady: 0x3B82F6; case .high: 0x10B981 } }
@@ -139,20 +139,20 @@ enum Coach {
         var reasons: [String] = []
         if let c {
             switch c.energy {
-            case 1: zone = .recover; reasons.append("You checked in at energy 1/5 — today is about recovery.")
-            case 2: if zone.rawValue > EnergyZone.low.rawValue { zone = .low; reasons.append("Energy 2/5 — your plan is gentler than your rhythm alone suggests.") }
-            case 3: if zone.rawValue > EnergyZone.steady.rawValue { zone = .steady; reasons.append("Energy 3/5 — steady beats all-out today.") }
-            case 5: if zone != .high { zone = zone.up; reasons.append("Energy 5/5 — we've turned it up a notch.") }
+            case 1: zone = .recover; reasons.append("You checked in at energy 1/5, today is about recovery.")
+            case 2: if zone.rawValue > EnergyZone.low.rawValue { zone = .low; reasons.append("Energy 2/5, your plan is gentler than your rhythm alone suggests.") }
+            case 3: if zone.rawValue > EnergyZone.steady.rawValue { zone = .steady; reasons.append("Energy 3/5, steady beats all-out today.") }
+            case 5: if zone != .high { zone = zone.up; reasons.append("Energy 5/5, we've turned it up a notch.") }
             default: break
             }
-            if c.sleep == "poor" && zone.rawValue > EnergyZone.steady.rawValue { zone = .steady; reasons.append("Poor sleep logged — recovery beats intensity today.") }
-            if c.mood <= 2 && zone.rawValue > EnergyZone.steady.rawValue { zone = .steady; reasons.append("Low mood today — moderate movement lifts mood without draining you.") }
+            if c.sleep == "poor" && zone.rawValue > EnergyZone.steady.rawValue { zone = .steady; reasons.append("Poor sleep logged, recovery beats intensity today.") }
+            if c.mood <= 2 && zone.rawValue > EnergyZone.steady.rawValue { zone = .steady; reasons.append("Low mood today, moderate movement lifts mood without draining you.") }
         }
         if let s = symptoms.first(where: { sym in pain.contains { sym.contains($0) } }), zone.rawValue > EnergyZone.low.rawValue {
-            zone = .low; reasons.append("\(Emoji.strip(s).trimmingCharacters(in: .whitespaces)) logged — swapped to gentler movement.")
+            zone = .low; reasons.append("\(Emoji.strip(s).trimmingCharacters(in: .whitespaces)) logged, swapped to gentler movement.")
         }
         if let s = symptoms.first(where: { sym in tired.contains { sym.contains($0) } }), zone.rawValue > EnergyZone.steady.rawValue {
-            zone = .steady; reasons.append("\(Emoji.strip(s).trimmingCharacters(in: .whitespaces)) logged — capped at a steady effort.")
+            zone = .steady; reasons.append("\(Emoji.strip(s).trimmingCharacters(in: .whitespaces)) logged, capped at a steady effort.")
         }
         return (zone, reasons)
     }
@@ -191,7 +191,7 @@ enum Coach {
             nourish = switch zone {
             case .high: "Fuel the effort: protein and slow carbs a couple of hours before you train."
             case .steady: "Protein at every meal and plenty of water keep a steady day steady."
-            case .low: "Warm, simple food today — soup, eggs, oats. Be kind to your body."
+            case .low: "Warm, simple food today, soup, eggs, oats. Be kind to your body."
             case .recover: "Hydrate, eat something nourishing, and don't skip meals on a recovery day."
             }
         }

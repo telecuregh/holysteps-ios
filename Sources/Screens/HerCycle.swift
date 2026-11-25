@@ -56,15 +56,15 @@ enum HerCycleCode {
         switch p {
         case .menstrual: ["Energy is often lowest now and cramps are common. Take something off her list without being asked.",
                           "A heating pad, her favorite snack, or handling dinner says a lot.",
-                          "Ask \"What would help today?\" — then do that, not what you'd want.",
-                          "Pray for her by name today — rest, comfort and strength."]
+                          "Ask \"What would help today?\", then do that, not what you'd want.",
+                          "Pray for her by name today, rest, comfort and strength."]
         case .follicular: ["Energy and mood usually rise this week. A good time for plans, projects and date nights.",
-                           "Try something new together — a walk, a class, a new place.",
+                           "Try something new together, a walk, a class, a new place.",
                            "Read a psalm of thanks together this week."]
-        case .ovulation: ["Many women feel most social and confident around now. Compliment her — specifically.",
+        case .ovulation: ["Many women feel most social and confident around now. Compliment her, specifically.",
                           "Plan quality time; she may enjoy being out with friends too.",
                           "Thank God out loud for one thing you love about her."]
-        case .luteal: ["In the days before her period, many women feel more tired, bloated or irritable. It's hormones, not you — stay patient.",
+        case .luteal: ["In the days before her period, many women feel more tired, bloated or irritable. It's hormones, not you, stay patient.",
                        "Keep plans light, offer comfort food and a quiet night, and pick up extra chores.",
                        "Listen more than you fix.",
                        "Pray for peace and patience for both of you this week."]
@@ -152,7 +152,7 @@ struct SupportHerCycleView: View {
                                 if s.fertile && (phase == .ovulation || (s.cycleLen - 19...s.cycleLen - 12).contains(day)) {
                                     T("✨ Likely fertile window").font(.hs(12)).foregroundStyle(Color(hex: 0xF59E0B))
                                 }
-                                T("These are predictions from her last period — every cycle varies.").font(.hs(10)).foregroundStyle(HS.textMuted)
+                                T("These are predictions from her last period, every cycle varies.").font(.hs(10)).foregroundStyle(HS.textMuted)
                             }
                         }
                         SectionHeader(title: "How to love her this week").padding(.horizontal, -20)
@@ -168,7 +168,7 @@ struct SupportHerCycleView: View {
                                 TextField("HS-…", text: $input).textInputAutocapitalization(.characters).autocorrectionDisabled()
                                     .padding(10).background(RoundedRectangle(cornerRadius: 10).fill(HS.overlay(0.05)))
                                     .onChange(of: input) { _, _ in bad = false }
-                                if bad { T("That code doesn't look right — copy it again from her message.").font(.hs(11)).foregroundStyle(Color(hex: 0xF43F5E)) }
+                                if bad { T("That code doesn't look right, copy it again from her message.").font(.hs(11)).foregroundStyle(Color(hex: 0xF43F5E)) }
                                 SmallChip(label: "Connect") { connect(today) }
                                 T("She makes the code in her HolySteps: Cycle → Let your husband support you.").font(.hs(11)).foregroundStyle(HS.textMuted)
                             }

@@ -73,7 +73,7 @@ struct Rhythm {
     var zone: (zone: EnergyZone, reason: String) {
         if male {
             let z: EnergyZone = switch mens { case .peak: .high; case .build: .steady; case .rest: .low; case .reset: .recover }
-            return (z, "\(mens.emoji) \(mens.label) — \(mens.tip)")
+            return (z, "\(mens.emoji) \(mens.label), \(mens.tip)")
         }
         guard let phase, let day = cycleDay else {
             return (.steady, "🌸 Log your last period and this plan syncs to your cycle. Until then, a steady day.")
@@ -82,12 +82,12 @@ struct Rhythm {
         switch phase {
         case .menstrual:
             return day <= 2 ? (.recover, "🌹 Period day \(day): hormones are at their lowest. Gentle movement and heat can ease cramps.")
-                : (.low, "🌹 Period day \(day): energy is usually still building back — keep it gentle.")
+                : (.low, "🌹 Period day \(day): energy is usually still building back, keep it gentle.")
         case .follicular: return (.high, "🌱 Follicular phase (day \(day)): rising estrogen, and many women feel more energetic.")
         case .ovulation: return (.high, "✨ Around ovulation (day \(day)): many women feel their strongest this week.")
         case .luteal:
             if left <= 0 { return (.low, "🌙 Your period is due: energy often dips around now, so gentler training usually feels better.") }
-            if left <= 5 { return (.low, "🌙 Late luteal (\(left) day\(left == 1 ? "" : "s") before your period): energy often dips — gentler training usually feels better.") }
+            if left <= 5 { return (.low, "🌙 Late luteal (\(left) day\(left == 1 ? "" : "s") before your period): energy often dips, gentler training usually feels better.") }
             return (.steady, "🌙 Luteal phase (day \(day)): progesterone is up, and many find steady, moderate effort feels best.")
         }
     }

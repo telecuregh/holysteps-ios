@@ -52,6 +52,9 @@ struct ProfileView: View {
                             link("moon.stars", "Bedtime reminder", BedtimeReminder.on ? tr("On") : tr("Off"), 0x8B5CF6) { SleepView() }
                             link("calendar", "Weekly recap", RecapReminder.on ? tr("On") : tr("Off"), 0x8B5CF6) { WeeklyRecapView() }
                         }
+                        group("Community") {
+                            link("person.3", "Family Relay", tr("Shared streak"), 0x56B892) { FamilyRelayView() }
+                        }
                         group("About") {
                             link("hand.raised", "Our promises to you", "", 0xD9B49F) { TrustView() }
                             item("doc.text", "Terms of Service", "", 0x9F948B) { openURL(URL(string: AppLinks.site + "/terms")!) }

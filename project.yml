@@ -31,7 +31,7 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: com.holysteps.app
         DEVELOPMENT_TEAM: 4N2U2W77LM
         CODE_SIGN_STYLE: Automatic
-        TARGETED_DEVICE_FAMILY: "1"
+        TARGETED_DEVICE_FAMILY: "1,2"
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         GENERATE_INFOPLIST_FILE: YES
         INFOPLIST_KEY_CFBundleDisplayName: HolySteps

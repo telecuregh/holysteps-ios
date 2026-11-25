@@ -200,7 +200,7 @@ struct FitnessView: View {
                 T(target < goal ? "Goal today: \(target.formatted()) steps (a gentler day; usually \(goal.formatted()))" : "Goal: \(goal.formatted()) steps")
                     .font(.hs(13)).foregroundStyle(HS.textMuted).multilineTextAlignment(.center).padding(.top, 12)
                 T(progress >= 1 ? "Goal reached! +20 pts earned"
-                  : (progress >= 0.75 ? "So close — \((target - model.today).formatted()) more steps to your goal"
+                  : (progress >= 0.75 ? "So close, \((target - model.today).formatted()) more steps to your goal"
                      : "\((target - model.today).formatted()) steps to your goal · +20 pts when you hit it"))
                     .font(.hs(13, .semibold)).foregroundStyle(progress >= 1 ? HS.body : HS.gold)
                     .multilineTextAlignment(.center).padding(.top, 6)
@@ -287,6 +287,10 @@ struct FitnessView: View {
     // MARK: Train
 
     private var train: some View {
+        ToolSection(title: "Challenges", items: [
+            ToolItem(symbol: "trophy", color: HS.gold, title: "My challenges", sub: "Active fitness and faith commitments",
+                     destination: AnyView(CommitmentsView())),
+        ])
         ToolSection(title: "Train", items: [
             ToolItem(symbol: "figure.strengthtraining.traditional", color: HS.body, title: "Workouts", sub: "\(Coach.routines.count - 1) guided sessions with a coach's voice",
                      destination: AnyView(WorkoutLibraryView())),
@@ -339,7 +343,7 @@ struct FitnessView: View {
     private func insight(_ goalDays: Int) -> String {
         let pct = model.today * 100 / max(1, goal)
         if pct >= 100 { return "You've crushed your goal today!" }
-        if goalDays >= 5 { return "\(goalDays) goal days this week — that's real discipline. Keep showing up." }
+        if goalDays >= 5 { return "\(goalDays) goal days this week, that's real discipline. Keep showing up." }
         if pct >= 50 { return "Halfway there! A 15-minute walk after a meal is an easy way to finish." }
         return "Start with just 10 minutes. Short walks add up fast."
     }

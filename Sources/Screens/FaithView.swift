@@ -19,7 +19,7 @@ struct FaithView: View {
                             header
                             Spacer().frame(height: 4)
                             // At most four sections: praying lives in Today.
-                            SubTabs(tabs: ["Today", "Bible", "Listen", "Mind"], selected: $router.faithTab)
+                            SubTabs(tabs: ["Today", "Bible", "Listen", "Mind", "Together"], selected: $router.faithTab)
                             Spacer().frame(height: 16)
                             switch router.faithTab {
                             case 0:
@@ -28,7 +28,8 @@ struct FaithView: View {
                                 pray
                             case 1: bibleTab
                             case 2: listen
-                            default: mind
+                            case 4: CommunityView()
+            default: mind
                             }
                             Spacer().frame(height: 100)
                         }
@@ -97,7 +98,7 @@ struct FaithView: View {
         SectionHeader(title: "Prayer Streak")
         prayerWeek
         Spacer().frame(height: 16)
-        InsightBubble(text: "\"The Lord is near to all who call on him, to all who call on him in truth.\" — Psalm 145:18")
+        InsightBubble(text: "\"The Lord is near to all who call on him, to all who call on him in truth.\", Psalm 145:18")
     }
 
     private var prayerLog: some View {
@@ -239,6 +240,10 @@ struct FaithView: View {
 
     @ViewBuilder private var mind: some View {
         CrisisCard().padding(.horizontal, 20)
+        ToolSection(title: "Freedom", items: [
+            ToolItem(symbol: "flame", color: Color(hex: 0xFF6B35), title: "Break Free", sub: "Daily habit-breaking streak tracker",
+                     destination: AnyView(FreedomView())),
+        ])
         Spacer().frame(height: 16)
         ToolSection(title: "Support", items: [
             ToolItem(symbol: "hands.sparkles", color: HS.faith, title: "Sermons for what you're facing", sub: "Anxiety, grief, loneliness, anger and more",

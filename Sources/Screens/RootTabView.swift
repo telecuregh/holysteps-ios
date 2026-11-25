@@ -8,7 +8,9 @@ struct RootTabView: View {
     @EnvironmentObject var store: AppStore
     @EnvironmentObject var appearance: Appearance
     @ObservedObject private var router = TabRouter.shared
+    @Environment(\.horizontalSizeClass) private var hSizeClass
     private var tab: Int { router.tab }
+    private var isIPad: Bool { hSizeClass == .regular }
 
     private var tabs: [(label: String, symbol: String)] {
         [("Home", "house.fill"), ("Faith", "cross"), ("Fitness", "figure.run"),
@@ -17,6 +19,32 @@ struct RootTabView: View {
     }
 
     var body: some View {
+        if isIPad {
+            iPadSplitView
+        } else {
+            phoneView
+        }
+    }
+
+    private var iPadSplitView: some View {
+        NavigationSplitView {
+            List(selection: Binding(get: { router.tab }, set: { router.tab = $0 })) {
+                ForEach(Array(tabs.enumerated()), id: \.offset) { i, t in
+                    Label(t.label, systemImage: t.symbol == "cross" ? "cross" : t.symbol)
+                        .tag(i)
+                }
+            }
+            .navigationTitle("HolySteps")
+            .listStyle(.sidebar)
+        } detail: {
+            page(router.tab)
+        }
+        .environment(\.locale, i18n.locale)
+        .environment(\.font, .hs(16))
+        .id("\(i18n.language)-\(appearance.mode.rawValue)")
+    }
+
+    private var phoneView: some View {
         // The screens sit above the bar, never under it (Android's Scaffold gives them the bar's height as padding).
         VStack(spacing: 0) {
             ZStack {
@@ -50,7 +78,7 @@ struct RootTabView: View {
         .environment(\.locale, i18n.locale)
         .environment(\.font, .hs(16))
         .id("\(i18n.language)-\(appearance.mode.rawValue)")   // redraw every screen in the new language or look
-    }
+    } // end phoneView
 
     @ViewBuilder
     private func page(_ i: Int) -> some View {

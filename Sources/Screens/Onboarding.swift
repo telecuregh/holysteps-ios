@@ -12,7 +12,7 @@ enum Profile {
     ]
     static let traditions: [(String, String, String, String)] = [
         ("CATHOLIC", "✝️", "Catholic", "Daily Rosary mystery, saints, and the Hail Mary / Glory Be."),
-        ("PROTESTANT", "📖", "Protestant", "Scripture-first prayer with the ACTS model — Adoration, Confession, Thanksgiving, Supplication."),
+        ("PROTESTANT", "📖", "Protestant", "Scripture-first prayer with the ACTS model, Adoration, Confession, Thanksgiving, Supplication."),
         ("ORTHODOX", "☦️", "Orthodox", "The Jesus Prayer, the Trisagion, and the saints of the Church."),
         ("NON_DENOMINATIONAL", "🙏", "Non-denominational", "A simple, broadly Christian daily walk with God."),
     ]
@@ -21,12 +21,12 @@ enum Profile {
         ("PREGNANT", "🤰", "I'm pregnant"), ("POSTPARTUM", "🍼", "Just had a baby"), ("WELLNESS", "🌸", "Understand my body"),
     ]
     static let lifeStages: [(String, String, String, String, String)] = [
-        ("CYCLING", "🌸", "I have periods", "Regular or irregular — your plan syncs to your cycle", "season_cycling"),
-        ("PERIMENOPAUSE", "🌗", "My periods are changing", "Perimenopause — cycles shifting, maybe hot flashes or poorer sleep", "season_perimenopause"),
-        ("POSTMENOPAUSE", "🌿", "My periods have stopped", "Menopause — 12 months or more without a period. No cycle tracking; a plan built for this season instead", "season_postmenopause"),
+        ("CYCLING", "🌸", "I have periods", "Regular or irregular, your plan syncs to your cycle", "season_cycling"),
+        ("PERIMENOPAUSE", "🌗", "My periods are changing", "Perimenopause, cycles shifting, maybe hot flashes or poorer sleep", "season_perimenopause"),
+        ("POSTMENOPAUSE", "🌿", "My periods have stopped", "Menopause, 12 months or more without a period. No cycle tracking; a plan built for this season instead", "season_postmenopause"),
     ]
     static let regularity: [(String, String, String)] = [
-        ("REGULAR", "📆", "Regular — about the same each month"), ("IRREGULAR", "🌀", "Irregular — it varies a lot"), ("UNSURE", "🤷‍♀️", "I'm not sure"),
+        ("REGULAR", "📆", "Regular, about the same each month"), ("IRREGULAR", "🌀", "Irregular, it varies a lot"), ("UNSURE", "🤷‍♀️", "I'm not sure"),
     ]
     static let reminders: [(String, String, String, Int, Int)] = [
         ("MORNING", "🌅", "Morning · 7:00 AM", 7, 0), ("MIDDAY", "☀️", "Midday · 12:30 PM", 12, 30),
@@ -162,7 +162,7 @@ struct OnboardingView: View {
                     .onChange(of: name) { _, v in if v.count > 30 { name = String(v.prefix(30)) } }
             }
         case .lifeStage:
-            Scaffold(title: "Which season\nare you in?", subtitle: "Your plan changes with it — and you can update it anytime in Profile.",
+            Scaffold(title: "Which season\nare you in?", subtitle: "Your plan changes with it, and you can update it anytime in Profile.",
                      enabled: lifeStage != nil, next: next) {
                 ForEach(Profile.lifeStages, id: \.0) { s in
                     let sel = lifeStage == s.0
@@ -186,7 +186,7 @@ struct OnboardingView: View {
             }
         case .periodStart: periodStart
         case .cycleDetails:
-            Scaffold(title: "Tell us about\nyour cycle", subtitle: "Not sure? Keep the defaults — HolySteps learns your real cycle length each time you log a period.", next: next) {
+            Scaffold(title: "Tell us about\nyour cycle", subtitle: "Not sure? Keep the defaults, HolySteps learns your real cycle length each time you log a period.", next: next) {
                 stepper("Cycle length", "From the first day of one period to the next", $cycleLen, 21...45)
                 stepper("Period length", "How many days you usually bleed", $periodLen, 2...10)
                 T("How regular is it?").font(.hs(15, .semibold)).foregroundStyle(HS.text).frame(maxWidth: .infinity, alignment: .leading).padding(.top, 8)
@@ -196,10 +196,10 @@ struct OnboardingView: View {
             choice("What matters most\nfor your cycle?", "We'll shape your insights and daily tips around this.",
                    Profile.cycleGoals.map { ($0.0, $0.1, $0.2, "") }, $cycleGoal)
         case .faith:
-            choice("Where are you\nin your faith walk?", "No wrong answers — devotionals will meet you right here.",
+            choice("Where are you\nin your faith walk?", "No wrong answers, devotionals will meet you right here.",
                    Profile.faithStages, $faithStage)
         case .tradition:
-            choice("Which tradition\nfeels like home?", "Your Rosary, Jesus Prayer, or scripture-first content will follow this — change it anytime in Profile.",
+            choice("Which tradition\nfeels like home?", "Your Rosary, Jesus Prayer, or scripture-first content will follow this, change it anytime in Profile.",
                    Profile.traditions, $tradition)
         case .activity:
             let levels: [(String, String, String, Int)] = [("🪑", "Getting started", "5,000 steps a day", 5000), ("🚶", "Lightly active", "8,000 steps a day", 8000),
@@ -238,7 +238,7 @@ struct OnboardingView: View {
                     T("Walk in faith, track your wellness,\ngrow in God every day.").font(.hs(15)).foregroundStyle(HS.textMuted).multilineTextAlignment(.center)
                         .padding(.bottom, 16)
                     ForEach(["🎧  A new sermon every week, through the whole Bible", "🙏  Guided prayer, morning to night",
-                             "📝  Prayer list — watch God answer", "📓  Faith Journal", "🌸  Cycle-synced faith & wellness"], id: \.self) { f in
+                             "📝  Prayer list, watch God answer", "📓  Faith Journal", "🌸  Cycle-synced faith & wellness"], id: \.self) { f in
                         T(f).font(.hs(14)).foregroundStyle(HS.text).frame(maxWidth: .infinity, alignment: .leading)
                             .padding(.horizontal, 16).padding(.vertical, 11)
                             .background(RoundedRectangle(cornerRadius: 14).fill(HS.cardFill))
@@ -282,8 +282,8 @@ struct OnboardingView: View {
                 .padding(.top, 12)
             if let lp = lastPeriod {
                 let ago = cal.dateComponents([.day], from: lp, to: cal.startOfDay(for: Date())).day ?? 0
-                D(ago == 0 ? tr("Started today — we'll take gentle care of you 🌹")
-                  : tr(ago == 1 ? "That's 1 day ago — you're on cycle day 2" : "That's \(ago) days ago — you're on cycle day \(ago + 1)"))
+                D(ago == 0 ? tr("Started today, we'll take gentle care of you 🌹")
+                  : tr(ago == 1 ? "That's 1 day ago, you're on cycle day 2" : "That's \(ago) days ago, you're on cycle day \(ago + 1)"))
                     .font(.hs(13, .semibold)).foregroundStyle(HS.readable(0xEC4899)).multilineTextAlignment(.center).padding(.top, 10)
             }
         }
@@ -305,7 +305,7 @@ struct OnboardingView: View {
             planRow(stage.1, "Your faith walk", stage.2)
             planRow(trad.1, "Your tradition", trad.2)
             if postMenopause {
-                planRow("🌿", "Vitality plan", "Strength, balance and heart days built for this season — no cycle tracking")
+                planRow("🌿", "Vitality plan", "Strength, balance and heart days built for this season, no cycle tracking")
             } else if isFemale {
                 if let lp = lastPeriod {
                     let day = CycleLogic.cycleDay(lastStart: lp, length: cycleLen)
@@ -316,7 +316,7 @@ struct OnboardingView: View {
                 }
                 if lifeStage == "PERIMENOPAUSE" { planRow("🌗", "Perimenopause support", "Track hot flashes, sleep and changing cycles alongside your plan") }
             }
-            planRow("🧭", "Daily coach", "A workout, a word and a moment of calm — tuned to how you feel each day")
+            planRow("🧭", "Daily coach", "A workout, a word and a moment of calm, tuned to how you feel each day")
             GlassCard {
                 VStack(alignment: .leading, spacing: 6) {
                     T("👑 Plans made for you").font(.hs(14, .bold)).foregroundStyle(HS.text)
