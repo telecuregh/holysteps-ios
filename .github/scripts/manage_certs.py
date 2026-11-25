@@ -55,25 +55,33 @@ def asc_delete(path):
     except urllib.error.HTTPError as e:
         return e.code
 
+DEV_TYPES = {"DEVELOPMENT", "IOS_DEVELOPMENT"}   # "Apple Development" (current) and legacy "iOS Development"
+
 try:
-    data  = asc_get("certificates?filter[certificateType]=IOS_DEVELOPMENT&limit=20")
-    certs = data.get("data", [])
-    print(f"iOS Development certificates on account: {len(certs)}")
+    data  = asc_get("certificates?limit=200")
+    allc  = data.get("data", [])
+    for c in allc:
+        a = c["attributes"]
+        print(f"  cert: type={a.get('certificateType')}  name='{a.get('name')}'  expires={a.get('expirationDate')}")
+    certs = [c for c in allc if c["attributes"].get("certificateType") in DEV_TYPES]
+    print(f"Development certificates on account: {len(certs)}")
 
     if len(certs) >= 2:
-        # Sort ascending by expiration date — revoke the oldest
-        oldest = sorted(certs, key=lambda c: c["attributes"].get("expirationDate", ""))[0]
+        # Prefer certs that earlier CI runs created through the API, so the one on your own Mac is kept.
+        by_ci = [c for c in certs if "via API" in (c["attributes"].get("name") or "")]
+        pool  = by_ci or certs
+        oldest = sorted(pool, key=lambda c: c["attributes"].get("expirationDate", ""))[0]
         cid    = oldest["id"]
         name   = oldest["attributes"].get("name", cid)
         exp    = oldest["attributes"].get("expirationDate", "unknown")
-        print(f"At limit. Revoking oldest cert: '{name}'  expires={exp}  id={cid}")
+        print(f"At limit. Revoking: '{name}'  expires={exp}  id={cid}")
         status = asc_delete(f"certificates/{cid}")
         if status in (200, 204):
-            print("Revoked successfully — the archive step can now create a fresh cert.")
+            print("Revoked — the archive step can now create a fresh cert.")
         else:
-            print(f"Revoke returned HTTP {status}. The archive may still succeed if one cert expired.")
+            print(f"Revoke returned HTTP {status}.")
     else:
-        print("Under the 2-cert limit — nothing to revoke.")
+        print("Under the limit — nothing to revoke.")
 
 except Exception as exc:
     # Non-fatal: print and let xcodebuild try anyway.
