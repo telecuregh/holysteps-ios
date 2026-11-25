@@ -334,7 +334,7 @@ struct FamilyRelayView: View {
 
                     Gated(feature: .familyRelay) {
                         familyContent
-                    } locked: { PlansView(feature: .familyRelay) }
+                    }
 
                     Spacer().frame(height: 100)
                 }
