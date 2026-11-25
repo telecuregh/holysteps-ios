@@ -185,6 +185,7 @@ final class SmokeUITests: XCTestCase {
         app.navigationBars.buttons.firstMatch.tap()
         tab(app, "Listen").tap()
         shot(app, "25-faith-listen")
+        app.swipeUp()   // SleepView section now above Audio; scroll to reach Gospel songs
         button(app, containing: "Gospel songs").tap()
         let song = button(app, containing: "Midnight Praise")
         let found = song.waitForExistence(timeout: 10)
