@@ -326,7 +326,10 @@ struct FamilyRelayView: View {
         ZStack { HSBackground()
             ScrollView {
                 VStack(alignment: .leading, spacing: 0) {
-                    ScreenTitle(title: "Family Relay", subtitle: "One streak. The whole family.")
+                    VStack(alignment: .leading, spacing: 4) {
+                    D(tr("Family Relay")).font(.hs(28)).foregroundStyle(HS.text)
+                    ItalicAccent(text: "One streak. The whole family.", size: 15)
+                }
                         .padding(.horizontal, 20).padding(.top, 24)
 
                     Gated(feature: .familyRelay) {

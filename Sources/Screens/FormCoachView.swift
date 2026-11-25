@@ -222,7 +222,7 @@ struct FormCoachView: View {
 
     private func finishSet() {
         stopTimer()
-        ActivityLog.award(event: .workoutSet)
+        ActivityLog.shared.add(.workoutSet)
         if currentSet >= sets {
             done = true
         } else {

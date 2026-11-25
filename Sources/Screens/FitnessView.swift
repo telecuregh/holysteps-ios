@@ -287,17 +287,19 @@ struct FitnessView: View {
     // MARK: Train
 
     private var train: some View {
-        ToolSection(title: "Challenges", items: [
-            ToolItem(symbol: "trophy", color: HS.gold, title: "My challenges", sub: "Active fitness and faith commitments",
-                     destination: AnyView(CommitmentsView())),
-        ])
-        ToolSection(title: "Train", items: [
-            ToolItem(symbol: "figure.strengthtraining.traditional", color: HS.body, title: "Workouts", sub: "\(Coach.routines.count - 1) guided sessions with a coach's voice",
-                     destination: AnyView(WorkoutLibraryView())),
-            ToolItem(symbol: "plus", color: HS.mind, title: "Log a Walk", sub: "Walked without your phone? Add it", action: { showManual = true }),
-            ToolItem(symbol: "target", color: HS.body, title: "Step goal", sub: "\(goal.formatted()) steps a day", action: { showGoal = true }),
-            ToolItem(symbol: "music.note", color: HS.peach, title: "Walking music", sub: "Gospel songs to walk with", destination: AnyView(MusicView(tab: 0))),
-        ])
+        VStack(spacing: 0) {
+            ToolSection(title: "Challenges", items: [
+                ToolItem(symbol: "trophy", color: HS.gold, title: "My challenges", sub: "Active fitness and faith commitments",
+                         destination: AnyView(CommitmentsView())),
+            ])
+            ToolSection(title: "Train", items: [
+                ToolItem(symbol: "figure.strengthtraining.traditional", color: HS.body, title: "Workouts", sub: "\(Coach.routines.count - 1) guided sessions with a coach's voice",
+                         destination: AnyView(WorkoutLibraryView())),
+                ToolItem(symbol: "plus", color: HS.mind, title: "Log a Walk", sub: "Walked without your phone? Add it", action: { showManual = true }),
+                ToolItem(symbol: "target", color: HS.body, title: "Step goal", sub: "\(goal.formatted()) steps a day", action: { showGoal = true }),
+                ToolItem(symbol: "music.note", color: HS.peach, title: "Walking music", sub: "Gospel songs to walk with", destination: AnyView(MusicView(tab: 0))),
+            ])
+        }
     }
 
     // MARK: Progress

@@ -56,7 +56,7 @@ final class FreedomStore: ObservableObject {
         ud.set(streak, forKey: streakKey)
         ud.set(today, forKey: dayKey)
         checkedInToday = true
-        ActivityLog.award(event: .freedomCheckIn)
+        ActivityLog.shared.add(.freedomCheckIn)
     }
 
     func reset() {
@@ -85,7 +85,10 @@ struct FreedomView: View {
         ZStack { HSBackground()
             ScrollView {
                 VStack(alignment: .leading, spacing: 0) {
-                    ScreenTitle(title: "Freedom", subtitle: "Breaking free, one day at a time")
+                    VStack(alignment: .leading, spacing: 4) {
+                    D(tr("Freedom")).font(.hs(28)).foregroundStyle(HS.text)
+                    ItalicAccent(text: "Breaking free, one day at a time", size: 15)
+                }
                         .padding(.horizontal, 20).padding(.top, 24)
                     streakCard
                     if !freedom.checkedInToday { checkInCard }

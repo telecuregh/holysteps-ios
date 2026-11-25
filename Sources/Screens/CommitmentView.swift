@@ -94,7 +94,7 @@ final class CommitmentStore: ObservableObject {
         commitments[i].daysHit.insert(AppStore.dayKey())
         if commitments[i].isComplete { commitments[i].active = false }
         save()
-        ActivityLog.award(event: .commitmentCheckIn)
+        ActivityLog.shared.add(.commitmentCheckIn)
     }
     func remove(_ id: String) { commitments.removeAll { $0.id == id }; save() }
 }
@@ -110,7 +110,10 @@ struct CommitmentsView: View {
         ZStack { HSBackground()
             ScrollView {
                 VStack(alignment: .leading, spacing: 0) {
-                    ScreenTitle(title: "Challenges", subtitle: "Commit to a streak. Earn points when you finish.")
+                    VStack(alignment: .leading, spacing: 4) {
+                    D(tr("Challenges")).font(.hs(28)).foregroundStyle(HS.text)
+                    ItalicAccent(text: "Commit to a streak. Earn points when you finish.", size: 15)
+                }
                         .padding(.horizontal, 20).padding(.top, 24)
                     if store.commitments.isEmpty {
                         emptyState

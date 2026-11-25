@@ -28,10 +28,16 @@ struct RootTabView: View {
 
     private var iPadSplitView: some View {
         NavigationSplitView {
-            List(selection: Binding(get: { router.tab }, set: { router.tab = $0 })) {
+            List {
                 ForEach(Array(tabs.enumerated()), id: \.offset) { i, t in
-                    Label(t.label, systemImage: t.symbol == "cross" ? "cross" : t.symbol)
-                        .tag(i)
+                    Button {
+                        router.tab = i
+                    } label: {
+                        Label(t.label, systemImage: t.symbol == "cross" ? "cross.fill" : t.symbol)
+                            .foregroundStyle(router.tab == i ? HS.peach : HS.text)
+                    }
+                    .buttonStyle(.plain)
+                    .listRowBackground(router.tab == i ? HS.peach.opacity(0.12) : Color.clear)
                 }
             }
             .navigationTitle("HolySteps")
