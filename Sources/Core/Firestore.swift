@@ -57,7 +57,7 @@ enum FSWrite {
     /// Create or replace the whole document. `mustNotExist` makes it a create.
     case set(String, [String: FSValue], mustNotExist: Bool = false)
     /// Change only the named fields (the document must exist), with optional counter steps.
-    case update(String, [String: FSValue], increments: [String: Int64] = [:])
+    case update(String, [String: FSValue], increments: [String: Int64] = [:], unions: [String: [FSValue]] = [:])
     case delete(String)
 }
 
@@ -131,13 +131,13 @@ enum Firestore {
                 var x: [String: Any] = ["update": ["name": "\(b)/\(p)", "fields": f.mapValues(\.json)]]
                 if mustNotExist { x["currentDocument"] = ["exists": false] }
                 return x
-            case .update(let p, let f, let inc):
+            case .update(let p, let f, let inc, let uni):
                 var x: [String: Any] = ["update": ["name": "\(b)/\(p)", "fields": f.mapValues(\.json)],
                                         "updateMask": ["fieldPaths": Array(f.keys)],
                                         "currentDocument": ["exists": true]]
-                if !inc.isEmpty {
-                    x["updateTransforms"] = inc.map { ["fieldPath": $0.key, "increment": ["integerValue": String($0.value)]] }
-                }
+                let t: [[String: Any]] = inc.map { ["fieldPath": $0.key, "increment": ["integerValue": String($0.value)]] }
+                    + uni.map { ["fieldPath": $0.key, "appendMissingElements": ["values": $0.value.map(\.json)]] }
+                if !t.isEmpty { x["updateTransforms"] = t }
                 return x
             case .delete(let p):
                 return ["delete": "\(b)/\(p)"]
