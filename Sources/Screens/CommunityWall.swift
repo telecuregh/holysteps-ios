@@ -301,7 +301,7 @@ struct PrayerWallView: View {
         .refreshable { await wall.load() }
         .sheet(item: $composing) { t in ComposeWallSheet(type: t) }
         .sheet(item: $open) { p in WallCommentsSheet(post: p) }
-        .sheet(item: $answering) { p in AnsweredSheet(post: p) }
+        .sheet(item: $answering) { p in WallAnsweredSheet(post: p) }
         .sheet(isPresented: $paywall) { PlansView(feature: .createGroup) }
         .alert(tr("Block this person?"), isPresented: Binding(get: { blocking != nil }, set: { if !$0 { blocking = nil } })) {
             Button(tr("Block"), role: .destructive) { if let b = blocking { wall.hidden.insert(b.authorKey) }; blocking = nil }
@@ -416,7 +416,7 @@ private struct ComposeWallSheet: View {
     }
 }
 
-private struct AnsweredSheet: View {
+private struct WallAnsweredSheet: View {
     let post: WallPost
     @Environment(\.dismiss) private var dismiss
     @State private var note = ""
