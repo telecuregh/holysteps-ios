@@ -389,14 +389,23 @@ struct BibleReaderView: View {
 }
 
 enum AppLinks {
-    static let site = "https://holysteps.org"
-    /// Where "Get the app" points. holysteps.org until the App Store listing exists.
-    static let store = "https://holysteps.org"
+    static let site      = "https://holysteps.org"
+    static let appStore  = "https://apps.apple.com/app/holysteps/id6745786898"
+    static let playStore = "https://play.google.com/store/apps/details?id=com.holysteps.app"
+    /// Legacy single-link alias (quiz share, church plan link, etc.)
+    static let store     = appStore
 }
 
 /// Android's one share helper for verses: "<verse>" — <reference>, a blank line, then where to get the app.
 enum VerseShare {
     static func text(_ verse: String, _ ref: String) -> String {
-        "\"\(verse)\" — \(ref)\n\n" + tr("Shared from HolySteps. Get the app:") + " " + AppLinks.store
+        """
+        "\(verse)" — \(ref)
+
+        \(tr("Shared from HolySteps"))
+        🌐 \(AppLinks.site)
+        🍎 \(AppLinks.appStore)
+        🤖 \(AppLinks.playStore)
+        """
     }
 }
