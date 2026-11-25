@@ -383,8 +383,9 @@ struct PrayerGardenCard: View {
                     .padding(14)
                 }
                 .clipShape(RoundedRectangle(cornerRadius: 20))
+                .contentShape(RoundedRectangle(cornerRadius: 20))
         }
         .buttonStyle(.plain)
-        .padding(.horizontal, 20)
+        .padding(.horizontal, 20).padding(.bottom, 12)
     }
 }

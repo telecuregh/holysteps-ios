@@ -429,8 +429,10 @@ private struct BabySheet: View {
     @State private var formula = false
     @State private var diaper = BabyLog.Diaper.w
     @State private var note = ""
-    @State private var lb = 0, ozW = 0
-    @State private var lengthIn = 0.0, headIn = 0.0
+    @State private var lb = 0
+    @State private var ozW = 0
+    @State private var lengthIn = 0.0
+    @State private var headIn = 0.0
     @State private var when = Date()
 
     var body: some View {
