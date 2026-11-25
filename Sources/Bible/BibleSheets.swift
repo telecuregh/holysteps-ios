@@ -459,26 +459,32 @@ struct VerseCard {
     let ref: String
     let translation: String
     let attribution: String
+    /// The small heading over the verse ("TODAY'S VERSE" for the daily verse).
+    var label = ""
 }
 
 struct VerseImageView: View {
     let card: VerseCard
     @State private var image: Image?
 
+    /// The Navy Glass design, 540 × 675 points, rendered at 2× (1080 × 1350, a 4:5 post).
     private var art: some View {
-        VStack(spacing: 18) {
-            D("“\(card.text)”")
-                .font(.accent(30))
-                .foregroundStyle(HS.peach).multilineTextAlignment(.center)
-            D("\(card.ref) · \(card.translation)").font(.hs(18, .semibold)).foregroundStyle(HS.gold)
-            if !card.attribution.isEmpty {
-                D(card.attribution).font(.hs(11)).foregroundStyle(HS.textMuted)
+        let ref = card.translation.isEmpty ? card.ref : "\(card.ref) · \(card.translation)"
+        let long = card.text.count
+        return ZStack {
+            NavyGlassBackground()
+            VStack(spacing: 10) {
+                NavyGlassVerseCard(header: card.label.isEmpty ? "" : tr(card.label).uppercased(), text: card.text, ref: ref,
+                                   verseSize: long > 260 ? 22 : long > 160 ? 26 : 30)
+                if !card.attribution.isEmpty {
+                    Text(card.attribution).font(.custom("Inter-Medium", size: 10)).foregroundStyle(NavyGlass.ink.opacity(0.55))
+                        .multilineTextAlignment(.center)
+                }
             }
-            D("HolySteps").font(.hs(14, .medium)).foregroundStyle(HS.textMuted)
+            .padding(44)
         }
-        .padding(48)
-        .frame(width: 1080 / 2, height: 1350 / 2)
-        .background(LinearGradient(colors: [HS.bgTop, HS.solidSurface, HS.bgBottom], startPoint: .top, endPoint: .bottom))
+        .frame(width: 540, height: 675)
+        .environment(\.colorScheme, .dark)
     }
 
     var body: some View {

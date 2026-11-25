@@ -46,6 +46,40 @@ targets:
         INFOPLIST_KEY_NSCameraUsageDescription: HolySteps uses the camera only during a calm check, to see your fingertip's color. No pictures are taken or saved.
         INFOPLIST_KEY_NSMotionUsageDescription: HolySteps counts the steps and pace of your walks.
         ENABLE_PREVIEWS: YES
+    dependencies:
+      - target: HolyStepsWidget
+        embed: true
+  HolyStepsWidget:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: Widget
+      - path: Sources/Shared
+      - path: Resources/fonts/PlayfairDisplay-Italic.ttf
+        buildPhase: resources
+      - path: Resources/fonts/Inter-SemiBold.ttf
+        buildPhase: resources
+      - path: Resources/fonts/Inter-Medium.ttf
+        buildPhase: resources
+    info:
+      path: Widget/Info.plist
+      properties:
+        CFBundleDisplayName: HolySteps
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.widgetkit-extension
+        UIAppFonts: [PlayfairDisplay-Italic.ttf, Inter-SemiBold.ttf, Inter-Medium.ttf]
+    dependencies:
+      - sdk: WidgetKit.framework
+      - sdk: SwiftUI.framework
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.holysteps.app.widget
+        DEVELOPMENT_TEAM: 4N2U2W77LM
+        CODE_SIGN_STYLE: Automatic
+        TARGETED_DEVICE_FAMILY: "1"
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_CFBundleDisplayName: HolySteps
+        SKIP_INSTALL: YES
   HolyStepsTests:
     type: bundle.unit-test
     platform: iOS

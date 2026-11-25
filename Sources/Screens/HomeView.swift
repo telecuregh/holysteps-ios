@@ -15,6 +15,8 @@ struct HomeView: View {
     @ObservedObject private var router = TabRouter.shared
     @State private var showSearch = false
     @State private var showVerseImage = false
+    @State private var showNotifications = false
+    @ObservedObject private var inbox = NotificationInbox.shared
     @State private var route: HomeRoute?
     @State private var playing: Sermon?
     @State private var showGoal = false
@@ -80,9 +82,11 @@ struct HomeView: View {
             }
             .sheet(isPresented: $showSearch) { AppSearchView() }
             .sheet(isPresented: $showVerseImage) { VerseImageView(card: verseCardData) }
+            .sheet(isPresented: $showNotifications) { NotificationsView() }
             .sheet(isPresented: $showGoal) { StepGoalSheet() }
             .fullScreenCover(item: $playing) { s in SermonPlayerView(sermon: s) }
             .task {
+                await inbox.refresh()
                 await steps.refresh()
                 week.refresh(store: store, stepsToday: steps.today)
             }
@@ -123,17 +127,15 @@ struct HomeView: View {
                     chipButton(ink: ink, fill: chip, edge: chipEdge, label: "Switch theme") { appearance.mode = next } content: {
                         T(next.emoji).font(.system(size: 14))
                     }
-                    Button { router.open(tab: 4) } label: {
-                        ZStack {
-                            Circle().fill(LinearGradient(colors: [Color(hex: 0xF1D7A8), HS.goldButton, Color(hex: 0xB98C52)], startPoint: .topLeading, endPoint: .bottomTrailing))
-                            if let c = store.name.first { D(String(c).uppercased()).font(.hs(14, .bold)).foregroundStyle(HS.onGold) }
-                            else { Image(systemName: "person.fill").font(.system(size: 14)).foregroundStyle(HS.onGold) }
-                        }
-                        .frame(width: 32, height: 32)
-                        .overlay(Circle().strokeBorder(chipEdge, lineWidth: 1))
+                    chipButton(ink: ink, fill: chip, edge: chipEdge, label: inbox.unseen > 0 ? "Notifications, new" : "Notifications") { showNotifications = true } content: {
+                        Image(systemName: "bell").font(.system(size: 15))
+                            .overlay(alignment: .topTrailing) {
+                                if inbox.unseen > 0 {
+                                    Circle().fill(Color(hex: 0xE5484D)).frame(width: 8, height: 8)
+                                        .overlay(Circle().strokeBorder(.white, lineWidth: 1)).offset(x: 3, y: -2)
+                                }
+                            }
                     }
-                    .buttonStyle(.plain)
-                    .accessibilityLabel(tr("Profile"))
                 }
                 .padding(.top, safeTop).padding(.leading, 20).padding(.trailing, 16)
                 Spacer()
@@ -281,7 +283,7 @@ struct HomeView: View {
 
     private var verseCardData: VerseCard {
         let v = AppContent.verseOfTheDay()
-        return VerseCard(text: v.shown, ref: tr(v.ref), translation: I18n.shared.spanish ? "RVES" : "KJV", attribution: "")
+        return VerseCard(text: v.shown, ref: tr(v.ref), translation: I18n.shared.spanish ? "RVES" : "KJV", attribution: "", label: "Today's verse")
     }
 
     private var verseCard: some View {

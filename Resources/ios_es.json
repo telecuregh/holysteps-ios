@@ -356,7 +356,7 @@
   "Read today ✓": "Leído hoy ✓",
   "Reading": "Leyendo",
   "Reading streak": "Racha de lectura",
-  "Recent": "Reciente",
+  "Recent": "Recientes",
   "References for": "Referencias de",
   "Remind me": "Recuerdame",
   "Remind me at": "Recordarme a las",
@@ -683,5 +683,16 @@
   "Check your connection, or open it in your browser.": "Revisa tu conexión o ábrelo en tu navegador.",
   "Try again": "Intentar de nuevo",
   "Open in browser": "Abrir en el navegador",
-  "Your trainer's video shows when you're back online.": "El video de tu entrenador se mostrará cuando vuelvas a tener conexión."
+  "Your trainer's video shows when you're back online.": "El video de tu entrenador se mostrará cuando vuelvas a tener conexión.",
+  "Today's verse": "Versículo de hoy",
+  "Notifications, new": "Notificaciones, nuevas",
+  "Notifications are off": "Las notificaciones están desactivadas",
+  "Turn them on to get your sermon, bedtime and recap reminders.": "Actívalas para recibir los recordatorios del sermón, de la hora de dormir y del resumen.",
+  "Open Settings": "Abrir Configuración",
+  "You're all caught up": "Estás al día",
+  "Reminders HolySteps sends you will show here.": "Aquí verás los recordatorios que HolySteps te envía.",
+  "Coming up": "Próximos",
+  "Clear": "Borrar",
+  "New": "Nuevo",
+  "Close": "Cerrar"
 }
