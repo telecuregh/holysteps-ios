@@ -174,8 +174,13 @@ final class SermonWeek: ObservableObject {
         heard = Set(d.stringArray(forKey: "sermonsHeard") ?? [])
     }
 
-    /// This week's sermon: the preacher's weekly rotation, the same one everyone with this sermon day hears.
+    /// This week's sermon: Joel's Through-the-Bible series, one book a week (Genesis first), for everyone. Falls back to the
+    /// narrated weekly rotation only if the series isn't loaded.
     func current(_ epochDay: Int = SermonWeekLogic.today()) -> Sermon? {
+        let books = SermonLibrary.books
+        if !books.isEmpty {
+            return books[min(books.count, max(1, SermonWeekLogic.booksReleased(epochDay, day, books.count))) - 1]
+        }
         let list = SermonLibrary.narratedWeekly
         guard !list.isEmpty else { return nil }
         return list[SermonWeekLogic.index(epochDay, day, list.count)]
