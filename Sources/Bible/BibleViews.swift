@@ -55,16 +55,7 @@ struct ListeningBar: View {
                 Button { l.cycleRepeat() } label: { pill("🔁 " + tr(l.repeatMode.label)) }
                     .accessibilityHint(tr("Changes between off, verse and chapter"))
                 Spacer()
-                Menu {
-                    ForEach(VoicePacks.narrators) { v in
-                        Button { l.narrator = v.id } label: { D((l.narrator == v.id ? "✓ " : "") + v.name + " · " + tr(v.description)) }
-                    }
-                    Button { l.narrator = VoicePacks.deviceVoice } label: {
-                        D((l.narrator == VoicePacks.deviceVoice ? "✓ " : "") + tr("Your phone's voice"))
-                    }
-                } label: {
-                    D("🎙 " + (l.reader.isEmpty ? tr("Your phone's voice") : l.reader)).font(.hs(11)).foregroundStyle(HS.textMuted)
-                }
+                D("🎙 " + (l.reader.isEmpty ? "Grace" : l.reader)).font(.hs(11)).foregroundStyle(HS.textMuted)
             }
         }
         .padding(.horizontal, 16).padding(.vertical, 10)

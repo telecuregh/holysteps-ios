@@ -174,11 +174,12 @@ actor VoicePacks {
     static func biblePackId(translation: String = "KJV", book: String, ch: Int) -> String {
         let slug = book.lowercased().replacingOccurrences(of: #"[^a-z0-9]+"#, with: "_", options: .regularExpression)
             .trimmingCharacters(in: CharacterSet(charactersIn: "_"))
-        return "\(translation == "RVES" ? "brves" : "bkjv")_\(slug)_\(ch)"
+        return "\(translation == "RVES" ? "brves" : "b" + translation.lowercased())_\(slug)_\(ch)"
     }
 
     /// Grace reads the Spanish Bible (es_heart); the English one in the narrator the user picked.
-    static func bibleVoice(narrator: String, translation: String) -> String { translation == "RVES" ? "es_heart" : narrator }
+    /// The English Bible is always read by Grace (af_heart), whatever narrator is chosen for prayers and sleep.
+    static func bibleVoice(narrator: String, translation: String) -> String { translation == "RVES" ? "es_heart" : "af_heart" }
 
     /// The KJV chapters the narrators recorded (Android's BibleAudio.RECORDED).
     static let recordedChapters: Set<String> = Set([
@@ -190,10 +191,11 @@ actor VoicePacks {
 
     /// Any KJV chapter may have a recording: the server's index decides (`ensure` returns nil when it doesn't), so
     /// chapters recorded later play in Grace's voice without an app update.
-    static func mayBeRecorded(translation: String) -> Bool { translation == "KJV" || translation == "RVES" }
+    static let englishBibles: Set<String> = ["KJV", "ASV", "BBE", "DRC", "WBT", "YLT"]
+    static func mayBeRecorded(translation: String) -> Bool { englishBibles.contains(translation) || translation == "RVES" }
 
     static func isRecorded(translation: String, book: String, ch: Int) -> Bool {
-        translation == "KJV" && recordedChapters.contains("\(book)|\(ch)")
+        englishBibles.contains(translation)
     }
 }
 

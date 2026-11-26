@@ -113,14 +113,20 @@ final class BibleListening: NSObject, ObservableObject, AVSpeechSynthesizerDeleg
     /// Loads the narrator's recording when this chapter has one, then starts reading.
     private func beginChapter(book: String, ch: Int, from: Int, gen: Int) async {
         pack = nil
-        if narrator != VoicePacks.deviceVoice && VoicePacks.mayBeRecorded(translation: translation) {
+        if VoicePacks.mayBeRecorded(translation: translation) {
             loading = true
             pack = await VoicePacks.shared.ensure(voice: VoicePacks.bibleVoice(narrator: narrator, translation: translation),
                                                   packId: VoicePacks.biblePackId(translation: translation, book: book, ch: ch))
         }
         guard gen == generation else { return }
-        let name = translation == "RVES" ? "Grace" : VoicePacks.narrators.first { $0.id == narrator }?.name
-        reader = pack != nil && name != nil ? name! : tr("Your phone's voice")
+        // Grace reads the whole Bible in English and Spanish; the phone's own voice is never used for it. If her
+        // recording can't be had (offline and not downloaded yet), say so instead of switching voices.
+        if pack == nil && VoicePacks.mayBeRecorded(translation: translation) {
+            error = tr("Grace's recording couldn't be loaded. Check your connection and try again.")
+            loading = false; playing = false
+            return
+        }
+        reader = pack != nil ? "Grace" : tr("Your phone's voice")
         startChapter(book: book, ch: ch, from: from)
     }
 
@@ -167,6 +173,9 @@ final class BibleListening: NSObject, ObservableObject, AVSpeechSynthesizerDeleg
                 guard gen == generation, active else { return }
                 clipPlaying = false
                 _ = ok
+                // The breath between verses (1.2 s at normal speed), as in the Android player.
+                try? await Task.sleep(nanoseconds: UInt64(1_200_000_000 / Double(max(0.5, speed))))
+                guard gen == generation, active, playing else { return }
                 finished(v)
             }
             return
