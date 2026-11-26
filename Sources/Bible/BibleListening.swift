@@ -121,8 +121,10 @@ final class BibleListening: NSObject, ObservableObject, AVSpeechSynthesizerDeleg
         guard gen == generation else { return }
         // Grace reads the whole Bible in English and Spanish; the phone's own voice is never used for it. If her
         // recording can't be had (offline and not downloaded yet), say so instead of switching voices.
-        if pack == nil && VoicePacks.mayBeRecorded(translation: translation) {
-            error = tr("Grace's recording couldn't be loaded. Check your connection and try again.")
+        if pack == nil {
+            error = tr(VoicePacks.mayBeRecorded(translation: translation)
+                       ? "Grace's recording couldn't be loaded. Check your connection and try again."
+                       : "Grace hasn't recorded this translation yet. Choose an English or Spanish Bible to hear her.")
             loading = false; playing = false
             return
         }
@@ -180,14 +182,8 @@ final class BibleListening: NSObject, ObservableObject, AVSpeechSynthesizerDeleg
             }
             return
         }
-        let u = AVSpeechUtterance(string: Spoken.verse(verses[v - 1]))
-        u.voice = voice()
-        u.rate = min(AVSpeechUtteranceMaximumSpeechRate, AVSpeechUtteranceDefaultSpeechRate * speed)
-        u.postUtteranceDelay = 0.25
-        current = u
-        playing = true
-        synth.speak(u)
-        updateNowPlaying()
+        // No recording of this verse: never the phone's voice.
+        stop()
     }
 
     func pause() {

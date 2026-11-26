@@ -86,16 +86,12 @@ final class WakeSpeaker: ObservableObject {
         try? AVAudioSession.sharedInstance().setActive(true)
         playing = true
         task = Task {
-            let voice = BibleListening.shared.narrator
-            let pack = I18n.shared.spanish ? nil : await VoicePacks.shared.ensure(voice: voice.isEmpty ? "af_heart" : voice, packId: "wake")
+            // Grace wakes you, in English or Spanish; the phone's own voice is never used.
+            let pack = await VoicePacks.shared.ensure(voice: I18n.shared.spanish ? "es_heart" : "af_heart", packId: "wake")
             for l in lines where !Task.isCancelled {
                 line = tr(l)
-                if let d = pack?.audio(for: l) { _ = await clip.play(d) }
+                if let d = (I18n.shared.spanish ? pack?.audio(for: tr(l)) : nil) ?? pack?.audio(for: l) { _ = await clip.play(d) }
                 else {
-                    let u = AVSpeechUtterance(string: Narration.spoken(tr(l)))
-                    u.voice = AVSpeechSynthesisVoice(language: I18n.shared.speechLanguage)
-                    u.rate = AVSpeechUtteranceDefaultSpeechRate * 0.92
-                    synth.speak(u)
                     let words = Double(l.split(separator: " ").count)
                     let secs: Double = min(14, words / 2.5 + 0.8)
                     try? await Task.sleep(nanoseconds: UInt64(secs * 1_000_000_000))

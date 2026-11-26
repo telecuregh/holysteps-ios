@@ -285,11 +285,8 @@ final class RoutineRunner: ObservableObject {
 
     private func say(_ text: String) async {
         if let data = pack?.audio(for: text) { _ = await clip.play(data); return }
-        let u = AVSpeechUtterance(string: Narration.spoken(tr(text)))
-        u.voice = AVSpeechSynthesisVoice(language: I18n.shared.speechLanguage)
-        u.rate = AVSpeechUtteranceDefaultSpeechRate * 0.95
-        synth.speak(u)
-        // Let the line finish (roughly) before the timer starts talking over it.
+        if await GraceVoice.say(text, pack: "coach_cues") { return }
+        // No recording of this line: stay quiet (never the phone's voice) and give the step a moment before the timer goes on.
         let words = Double(text.split(separator: " ").count)
         try? await Task.sleep(nanoseconds: UInt64(min(12, words / 2.6 + 0.6) * 1_000_000_000))
     }
