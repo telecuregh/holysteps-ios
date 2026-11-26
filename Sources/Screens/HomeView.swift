@@ -23,7 +23,7 @@ struct HomeView: View {
     @Environment(\.openURL) private var openURL
 
     enum HomeRoute: Hashable, Identifiable {
-        case sleep, recap, prayer, journal, quiz, calmCheck, walk, memory, bible(String?, Int?, Int?)
+        case sleep, recap, prayer, journal, quiz, calmCheck, walk, memory, season(String), bible(String?, Int?, Int?)
         var id: String { "\(self)" }
     }
 
@@ -41,6 +41,7 @@ struct HomeView: View {
                 VStack(alignment: .leading, spacing: 16) {
                     hero
                     nextUp.padding(.horizontal, 16)
+                    SeasonHomeCard { route = .season($0.id) }.padding(.horizontal, 16)
                     rings.padding(.horizontal, 16)
                     verseCard.padding(.horizontal, 16)
                     tiles.padding(.horizontal, 16)
@@ -65,6 +66,7 @@ struct HomeView: View {
                         case .calmCheck: CalmCheckView()
                         case .walk: WalkSetupView()
                         case .memory: VerseMemoryView()
+                        case .season(let id): if let w = SeasonWalks.all.first(where: { $0.id == id }) { SeasonWalkView(walk: w) }
                         case .bible(let b, let c, let v): BibleReaderView(startBook: b, startCh: c, startVerse: v)
                         }
                     }

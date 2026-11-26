@@ -194,6 +194,7 @@ struct WomensCycleView: View {
     // MARK: Insights
 
     @ViewBuilder private func insights(_ r: Rhythm) -> some View {
+        FirstCycleReportCard().padding(.horizontal, 20).padding(.top, 8)
         if let last = store.periodStarts.max(), let day = r.cycleDay {
             let pred = CycleLogic.predict(lastStart: last, length: store.cycleLength, periodLength: store.periodLength)
             SectionHeader(title: "Predictions").padding(.top, 8)
@@ -581,5 +582,68 @@ struct MensWellnessView: View {
         let today = cal.startOfDay(for: Date())
         let wd = cal.component(.weekday, from: today)   // Sunday 1 … Saturday 7; the week starts Monday
         return cal.date(byAdding: .day, value: -((wd + 5) % 7), to: today) ?? today
+    }
+}
+
+
+/// A small challenge for new trackers: log how you feel for 14 days and your first cycle report is ready. The 30-day
+/// summary to share with a doctor is free for everyone; every phase insight and the 90-day report come with the Cycle plan.
+private struct FirstCycleReportCard: View {
+    static let days = 14
+    @EnvironmentObject var store: AppStore
+    @ObservedObject private var log = CycleLog.shared
+    @ObservedObject private var account = AccountStore.shared
+    @State private var paywall = false
+
+    private var logged: Int { log.symptoms.filter { !$0.value.isEmpty }.count }
+
+    /// Plain text, built on this phone, shared only with the app the person picks.
+    private var summary: String {
+        var out = ["My cycle summary (last 30 days), from HolySteps"]
+        let df = DateFormatter(); df.dateStyle = .medium
+        if let last = store.periodStarts.max() { out.append("Last period start: " + df.string(from: last)) }
+        let lens = CycleLogic.cycleLengths(store.periodStarts)
+        if !lens.isEmpty { out.append("Average cycle length: \(lens.reduce(0, +) / lens.count) days (\(lens.count) cycles)") }
+        let cutoff = AppStore.dayKey(Calendar.current.date(byAdding: .day, value: -30, to: Date()) ?? Date())
+        var counts: [String: Int] = [:]
+        var days = 0
+        for (k, v) in log.symptoms where k >= cutoff && !v.isEmpty { days += 1; for s in v { counts[s, default: 0] += 1 } }
+        out.append("Days logged: \(days)")
+        let top = counts.sorted { $0.value > $1.value }.prefix(6).map { "\($0.key) (\($0.value) days)" }
+        if !top.isEmpty { out.append("Most logged: " + top.joined(separator: ", ")) }
+        out.append("Made with HolySteps. This is not a diagnosis.")
+        return out.joined(separator: "\n")
+    }
+
+    var body: some View {
+        let ready = logged >= Self.days
+        let hasPlan = account.canUse(.cycleInsights)
+        GlassCard(glow: Color(hex: 0xE57A9E)) {
+            VStack(alignment: .leading, spacing: 8) {
+                T("🌸 YOUR FIRST CYCLE REPORT").font(.hs(12, .bold)).foregroundStyle(HS.gold)
+                if !ready {
+                    D(tr("Log how you feel for \(Self.days) days")).font(.hs(17, .bold)).foregroundStyle(HS.text)
+                    D(tr("\(logged) of \(Self.days) days logged. When you get there, you can share a summary with your doctor and see which patterns show up in your cycle."))
+                        .font(.hs(13)).foregroundStyle(HS.textMuted).fixedSize(horizontal: false, vertical: true)
+                    HSProgressBar(progress: Double(logged) / Double(Self.days))
+                } else {
+                    T("Your first report is ready").font(.hs(17, .bold)).foregroundStyle(HS.text)
+                    D(tr("You logged \(logged) days. Share a summary with your doctor, made on your phone, shared only with the app you pick.") + (hasPlan ? "" : " " + tr("The Cycle plan adds every phase insight and a 90-day report.")))
+                        .font(.hs(13)).foregroundStyle(HS.textMuted).fixedSize(horizontal: false, vertical: true)
+                    ShareLink(item: summary) {
+                        T("Share my cycle summary").font(.hs(16, .semibold)).foregroundStyle(HS.onGold)
+                            .frame(maxWidth: .infinity).padding(.vertical, 14)
+                            .background(Capsule().fill(HS.goldButton))
+                    }
+                    if !hasPlan {
+                        Button { paywall = true } label: {
+                            T("See every pattern with the Cycle plan").font(.hs(13, .semibold)).foregroundStyle(HS.gold)
+                                .frame(maxWidth: .infinity).padding(.vertical, 8)
+                        }
+                    }
+                }
+            }
+        }
+        .sheet(isPresented: $paywall) { PlansView(feature: .cycleInsights) }
     }
 }
