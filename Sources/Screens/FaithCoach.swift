@@ -76,7 +76,7 @@ struct FaithCoachView: View {
     @State private var session: AnyObject?
     @State private var queriesLeft = FreeAiQuota.queriesLeft
 
-    @ObservedObject private var store = AppStore.shared
+    @EnvironmentObject private var store: AppStore
 
     private var starters: [String] {
         switch store.gender {
