@@ -8,7 +8,10 @@ import SwiftUI
 final class DuelModel: ObservableObject {
     enum Phase { case idle, searching, paired, playing, done }
     @Published var phase = Phase.idle
-    @Published var opponent = "", opponentRating = 0, opponentReady = false, iAmReady = false
+    @Published var opponent = ""
+    @Published var opponentRating = 0
+    @Published var opponentReady = false
+    @Published var iAmReady = false
     @Published var notice = ""
     @Published var duelId = ""
     @Published var duel: FSDoc?
