@@ -326,6 +326,8 @@ struct WomensCycleView: View {
             .padding(.horizontal, 20).padding(.top, 12)
         CoverCard(emoji: "🤰", title: "Pregnancy tools", subtitle: "Kick counter, contraction timer and appointments", tint: 0xF472B6) { PregnancyToolsView() }
             .padding(.horizontal, 20).padding(.top, 12)
+        CoverCard(emoji: "📥", title: "Bring your data", subtitle: "Move your period history from Flo, Clue or Apple Health", tint: 0xF472B6) { BringDataView().environmentObject(store) }
+            .padding(.horizontal, 20).padding(.top, 12)
         GlassCard {
             VStack(alignment: .leading, spacing: 12) {
                 T("🔒 Where your cycle data lives").font(.hs(15, .bold)).foregroundStyle(HS.text)
