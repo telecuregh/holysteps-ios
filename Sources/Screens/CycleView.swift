@@ -14,10 +14,12 @@ struct WomensCycleView: View {
     @EnvironmentObject var store: AppStore
     @ObservedObject private var log = CycleLog.shared
     @ObservedObject private var preg = PregnancyMode.shared
+    @ObservedObject private var loss = PregnancyLoss.shared
     @State private var tab = 0
     @State private var planTab = 0
     @State private var showLog = false
     @State private var confirmDelete = false
+    @State private var showPrivacyMore = false
 
     var body: some View {
         let rhythm = Rhythm(store: store)
@@ -45,7 +47,8 @@ struct WomensCycleView: View {
                 .ignoresSafeArea(edges: .top)
             }
             .toolbar(.hidden, for: .navigationBar)
-            .sheet(isPresented: $showLog) { LogPeriodSheet { store.logPeriodStart($0) } }
+            .sheet(isPresented: $showLog) { LogPeriodSheet { d in store.logPeriodStart(d); loss.periodLogged() } }
+            .sheet(isPresented: $showPrivacyMore) { CyclePrivacySheet() }
         }
     }
 
@@ -53,6 +56,19 @@ struct WomensCycleView: View {
 
     @ViewBuilder private func today(_ r: Rhythm) -> some View {
         Spacer().frame(height: 12)
+        // Privacy promise bar — always visible at the top
+        PrivacyPromiseBar { showPrivacyMore = true }
+            .padding(.horizontal, 20).padding(.bottom, 8)
+        // Pregnancy-loss healing card (when active and not hidden)
+        if loss.isActive && !loss.paused {
+            PregnancyLossCard().padding(.horizontal, 20).padding(.bottom, 8)
+        }
+        if loss.isActive && loss.paused {
+            GlassCard { Button("Return to healing space") { loss.resume() }
+                .font(.hs(13, .semibold)).foregroundStyle(Color(hex: 0xFDA4AF))
+            }
+            .padding(.horizontal, 20).padding(.bottom, 8)
+        }
         if !preg.on && UserDefaults.standard.string(forKey: "cycleGoal") == "PREGNANT" {
             PregnancySettings().padding(.horizontal, 20).padding(.bottom, 12)
         }
@@ -61,6 +77,24 @@ struct WomensCycleView: View {
             PregnancyCard().padding(.horizontal, 20)
             CoverCard(emoji: "🤰", title: "Pregnancy tools", subtitle: "Kick counter, contraction timer and appointments", tint: 0xF472B6) { PregnancyToolsView() }
                 .padding(.horizontal, 20).padding(.top, 12)
+        } else if loss.isActive {
+            GlassCard(glow: Color(hex: 0xFDA4AF), warm: true) {
+                VStack(spacing: 10) {
+                    Text("🕊️").font(.system(size: 40))
+                    if let since = loss.since {
+                        T(lossHeroSubtitle(since: since))
+                            .font(.hs(14, .medium)).foregroundStyle(HS.textSecondary)
+                            .multilineTextAlignment(.center)
+                    }
+                    Button { showLog = true } label: {
+                        T("Log period start").font(.hs(14, .bold)).foregroundStyle(HS.onGold)
+                            .padding(.horizontal, 20).padding(.vertical, 11)
+                            .background(RoundedRectangle(cornerRadius: 14).fill(HS.goldButton))
+                    }
+                }
+                .frame(maxWidth: .infinity)
+            }
+            .padding(.horizontal, 20)
         } else {
         GlassCard(glow: Color(hex: 0xE57A9E), warm: true) {
             VStack(spacing: 0) {
@@ -145,6 +179,7 @@ struct WomensCycleView: View {
             .padding(.horizontal, 20).padding(.top, 12)
         }
         if !preg.on {
+            PeriStageCard(starts: store.periodStarts).padding(.horizontal, 20).padding(.top, 12)
             BirthControlCard().padding(.horizontal, 20).padding(.top, 12)
             let ov = store.periodStarts.max().map { CycleLogic.predict(lastStart: $0, length: store.cycleLength, periodLength: store.periodLength).ovulation }
             FertilitySignsCard(predictedOvulation: ov).padding(.horizontal, 20).padding(.top, 12)
@@ -220,6 +255,10 @@ struct WomensCycleView: View {
                 predCard("Ovulation", prettyDate(pred.ovulation), 0xF59E0B)
             }
             .padding(.horizontal, 20)
+            // Confidence-aware prediction window
+            let isIrregular = CycleLogic.cycleLengths(store.periodStarts).suffix(6).map { Double($0) }.reduce(0, +) / max(1, Double(min(6, CycleLogic.cycleLengths(store.periodStarts).count))) != Double(store.cycleLength)
+            PredictionRangeCard(starts: store.periodStarts, cycleLength: store.cycleLength, predictedNext: pred.nextPeriod, isIrregular: isIrregular)
+                .padding(.horizontal, 20).padding(.top, 8)
             GlassCard {
                 VStack(alignment: .leading, spacing: 4) {
                     T("Fertile window").font(.hs(14, .semibold)).foregroundStyle(HS.text)
@@ -253,6 +292,9 @@ struct WomensCycleView: View {
             }
             .padding(.horizontal, 20).padding(.top, 12)
         }
+        // Cycle Q&A facts card
+        SectionHeader(title: "Cycle Q&A").padding(.top, 8)
+        CycleFactsCard().padding(.horizontal, 20)
         let recent = log.symptoms.sorted { $0.key > $1.key }.prefix(7)
         if !recent.isEmpty {
             SectionHeader(title: "Recent logs").padding(.top, 8)
@@ -334,6 +376,8 @@ struct WomensCycleView: View {
             .padding(.horizontal, 20).padding(.top, 12)
         CoverCard(emoji: "🪞", title: "Skin journal", subtitle: "A private photo a day, and how your skin follows your cycle", tint: 0xF472B6) { SkinJournalView().environmentObject(store) }
             .padding(.horizontal, 20).padding(.top, 12)
+        // Pregnancy-loss entry — quiet door, only shown when not already active
+        PregnancyLossEntry().padding(.horizontal, 20).padding(.top, 12)
         GlassCard {
             VStack(alignment: .leading, spacing: 12) {
                 T("🔒 Where your cycle data lives").font(.hs(15, .bold)).foregroundStyle(HS.text)
@@ -696,5 +740,48 @@ private struct FirstCycleReportCard: View {
             }
         }
         .sheet(isPresented: $paywall) { PlansView(feature: .cycleInsights) }
+    }
+}
+
+// MARK: - Cycle privacy detail sheet
+
+struct CyclePrivacySheet: View {
+    @Environment(\.dismiss) private var dismiss
+    var body: some View {
+        HSSheet(title: "Your data, your phone") {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 16) {
+                    privRow(icon: "lock.fill", title: "Stored only on this device",
+                            body: "Period dates, flow, symptoms and loss records never leave your phone. HolySteps doesn't upload them to any server.")
+                    privRow(icon: "hand.raised.fill", title: "Never sold, never used for ads",
+                            body: "Your cycle data is not monetized. It never reaches advertisers, data brokers, or analytics platforms.")
+                    privRow(icon: "person.2.slash", title: "Shared only when you choose",
+                            body: "Partner Coaching sends only a phase-level tip to your partner — never raw dates or symptoms. Cycle Circles share nothing automatically.")
+                    privRow(icon: "heart.fill", title: "Loss records are always private",
+                            body: "Pregnancy loss data is fully isolated. It is never sent to your partner, circle, or any AI feature — including the HolySteps coach.")
+                    privRow(icon: "brain", title: "AI never sees health data",
+                            body: "The HolySteps coach does not receive your period dates, symptoms, or loss history unless you explicitly paste them into chat.")
+                    Text("HolySteps is not a medical device. Talk to your doctor about heavy bleeding, severe pain, or missed periods.")
+                        .font(.hs(11))
+                        .foregroundStyle(HS.textSubtle)
+                }
+                .padding(20)
+            }
+        }
+        .presentationDetents([.large])
+    }
+
+    private func privRow(icon: String, title: String, body: String) -> some View {
+        HStack(alignment: .top, spacing: 14) {
+            Image(systemName: icon)
+                .font(.system(size: 16))
+                .foregroundStyle(HS.faith)
+                .frame(width: 24)
+                .padding(.top, 2)
+            VStack(alignment: .leading, spacing: 3) {
+                Text(title).font(.hs(14, .semibold)).foregroundStyle(HS.text)
+                Text(body).font(.hs(12)).foregroundStyle(HS.textMuted)
+            }
+        }
     }
 }

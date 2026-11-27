@@ -14,18 +14,20 @@ struct CommunityView: View {
     /// Shown inside Faith's Together tab, under Faith's own header, in its scroll and navigation.
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            SubTabs(tabs: ["Wall", "Circles", "Live", "Church"], selected: $tab)
+            SubTabs(tabs: ["Wall", "Activities", "Circles", "Live", "Church"], selected: $tab)
             Spacer().frame(height: 12)
             switch tab {
             case 0: prayerWall
-            case 1: circles
-            case 2: liveRooms
+            case 1: activities
+            case 2: circles
+            case 3: liveRooms
             default: church
             }
         }
     }
 
-    private var prayerWall: some View { PrayerWallView() }
+    private var prayerWall:  some View { PrayerWallView() }
+    private var activities:  some View { ActivityBoardView() }
 
     private var circles: some View {
         VStack(alignment: .leading, spacing: 10) {

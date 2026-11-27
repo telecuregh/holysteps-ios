@@ -25,6 +25,9 @@ struct ProfileView: View {
 
                         group("Plan and account") {
                             link("crown", "Your plan", tr(AccountStore.shared.planName), 0xD9B49F) { AccountView() }
+                            if let d = AccountStore.shared.doc, d.hasAdminGrant {
+                                AdminGrantBadge(expiry: d.adminGrantExpiry)
+                            }
                             link("trophy", "Rewards & Achievements", tr("\(Points.total.formatted()) pts"), 0xF59E0B) { RewardsView() }
                         }
                         group("Language") {
@@ -146,6 +149,31 @@ struct ProfileView: View {
                         selected: listening.narrator, note: "Applies to Bible listening.") { listening.narrator = $0 }
         case .sermon: SermonSettingsView()
         }
+    }
+}
+
+/// Shown in Profile › Plan and account when admin has granted full access.
+struct AdminGrantBadge: View {
+    let expiry: Date?
+    private var label: String {
+        if let e = expiry {
+            let fmt = DateFormatter(); fmt.dateStyle = .medium; fmt.timeStyle = .none
+            return "Full access · until \(fmt.string(from: e))"
+        }
+        return "Lifetime full access"
+    }
+    var body: some View {
+        HStack(spacing: 10) {
+            Text("🎁").font(.system(size: 18))
+            VStack(alignment: .leading, spacing: 2) {
+                T("Admin grant").font(.hs(12, .semibold)).foregroundStyle(HS.gold)
+                T(label).font(.hs(13)).foregroundStyle(HS.text)
+            }
+            Spacer()
+        }
+        .padding(14)
+        .background(RoundedRectangle(cornerRadius: 14).fill(HS.goldButton.opacity(0.12)))
+        .overlay(RoundedRectangle(cornerRadius: 14).strokeBorder(HS.gold.opacity(0.4), lineWidth: 1))
     }
 }
 

@@ -13,6 +13,8 @@ struct HomeView: View {
     @ObservedObject private var sermons = SermonWeek.shared
     @ObservedObject private var log = ActivityLog.shared
     @ObservedObject private var router = TabRouter.shared
+    @ObservedObject private var devState = DevotionalState.shared
+    @ObservedObject private var checkIns = CheckInStore.shared
     @State private var showSearch = false
     @State private var showVerseImage = false
     @State private var showNotifications = false
@@ -23,7 +25,7 @@ struct HomeView: View {
     @Environment(\.openURL) private var openURL
 
     enum HomeRoute: Hashable, Identifiable {
-        case sleep, recap, prayer, journal, quiz, calmCheck, walk, memory, season(String), bible(String?, Int?, Int?)
+        case sleep, recap, prayer, journal, quiz, calmCheck, walk, memory, devotional, sanctuary, faithCoach, circles, season(String), bible(String?, Int?, Int?)
         var id: String { "\(self)" }
     }
 
@@ -43,8 +45,10 @@ struct HomeView: View {
                     nextUp.padding(.horizontal, 16)
                     SeasonHomeCard { route = .season($0.id) }.padding(.horizontal, 16)
                     rings.padding(.horizontal, 16)
+                    dailyPlanCard.padding(.horizontal, 16)
                     verseCard.padding(.horizontal, 16)
                     tiles.padding(.horizontal, 16)
+                    quickAccess.padding(.horizontal, 16)
                     if week.dayNumber >= 7 || week.done.contains(7) { weekStrip.padding(.horizontal, 16) }
                     footer.padding(.horizontal, 16).padding(.bottom, 24)
                 }
@@ -66,6 +70,10 @@ struct HomeView: View {
                         case .calmCheck: CalmCheckView()
                         case .walk: WalkSetupView()
                         case .memory: VerseMemoryView()
+                        case .devotional: DevotionalView()
+                        case .sanctuary: AudioPrayerView()
+                        case .faithCoach: FaithCoachView()
+                        case .circles: CirclesView()
                         case .season(let id): if let w = SeasonWalks.all.first(where: { $0.id == id }) { SeasonWalkView(walk: w) }
                         case .bible(let b, let c, let v): BibleReaderView(startBook: b, startCh: c, startVerse: v)
                         }
@@ -253,6 +261,82 @@ struct HomeView: View {
         }
     }
 
+    // MARK: Daily Plan
+
+    private struct PlanRow: Identifiable {
+        let id: Int
+        let emoji: String; let title: String; let subtitle: String; let done: Bool
+        let action: () -> Void
+    }
+
+    private var dailyPlanCard: some View {
+        let prayDone  = store.prayerDoneToday.contains(true)
+        let devoDone  = devState.readToday
+        let walkDone  = steps.today >= store.stepGoal
+        let checkDone = checkIns.today != nil || store.journaledToday
+        let items: [PlanRow] = [
+            PlanRow(id: 0, emoji: "🙏", title: "Pray",
+                    subtitle: prayDone ? "Prayer logged" : "Start with a short prayer",
+                    done: prayDone, action: { router.open(tab: 1, faith: 0) }),
+            PlanRow(id: 1, emoji: "📖", title: "Devotional",
+                    subtitle: devoDone ? "Day \(max(1, devState.day - 1)) · done today" : "Day \(devState.day) of your plan",
+                    done: devoDone, action: { route = .devotional }),
+            PlanRow(id: 2, emoji: "👣", title: "Walk",
+                    subtitle: walkDone ? "Goal reached · \(steps.today.formatted()) steps" : "\(steps.today.formatted()) / \(store.stepGoal.formatted()) steps",
+                    done: walkDone, action: { router.open(tab: 2) }),
+            PlanRow(id: 3, emoji: male ? "⚡" : "🌸", title: "Check in",
+                    subtitle: checkDone ? "Logged — see your trends" : "10 seconds: mood, energy, peace",
+                    done: checkDone, action: { router.open(tab: 3) }),
+        ]
+        let doneCount = items.filter { $0.done }.count
+        let perfect   = doneCount == 4
+        return GlassCard {
+            VStack(spacing: 10) {
+                HStack(alignment: .center) {
+                    VStack(alignment: .leading, spacing: 2) {
+                        T(perfect ? "Perfect Day complete! 🌟" : "\(doneCount) of 4 complete")
+                            .font(.hs(15, .semibold)).foregroundStyle(perfect ? HS.gold : HS.text)
+                        T("Finish all 4 for a Perfect Day · +50 pts")
+                            .font(.hs(12)).foregroundStyle(HS.textMuted)
+                    }
+                    Spacer()
+                    ZStack {
+                        Circle().stroke(HS.gold.opacity(0.18), lineWidth: 6)
+                        Circle().trim(from: 0, to: CGFloat(doneCount) / 4)
+                            .stroke(HS.gold.opacity(0.8), style: StrokeStyle(lineWidth: 6, lineCap: .round))
+                            .rotationEffect(.degrees(-90))
+                        T("\(doneCount)/4").font(.hs(12, .semibold)).foregroundStyle(HS.text)
+                    }.frame(width: 48, height: 48)
+                }
+                ForEach(items) { item in
+                    Button(action: item.action) {
+                        HStack(spacing: 12) {
+                            ZStack {
+                                Circle().fill(item.done ? HS.body.opacity(0.18) : HS.overlay(0.06))
+                                Circle().strokeBorder(item.done ? HS.body.opacity(0.6) : HS.overlay(0.15), lineWidth: 1)
+                                T(item.done ? "✓" : item.emoji)
+                                    .font(item.done ? .hs(13, .bold) : .hs(12))
+                                    .foregroundStyle(item.done ? HS.body : HS.text)
+                            }.frame(width: 28, height: 28)
+                            VStack(alignment: .leading, spacing: 1) {
+                                T(item.title).font(.hs(14, .semibold)).foregroundStyle(HS.text)
+                                T(item.subtitle).font(.hs(11)).foregroundStyle(HS.textMuted)
+                            }
+                            Spacer()
+                            if !item.done {
+                                T("›").font(.hs(20)).foregroundStyle(HS.textMuted)
+                            }
+                        }
+                        .padding(.horizontal, 12).padding(.vertical, 10)
+                        .background(RoundedRectangle(cornerRadius: 14)
+                            .fill(item.done ? HS.body.opacity(0.08) : HS.overlay(0.04)))
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+        }
+    }
+
     // MARK: Verse
 
     private var verseCardData: VerseCard {
@@ -346,6 +430,42 @@ struct HomeView: View {
                     T(sub).font(.hs(12)).foregroundStyle(HS.textMuted).lineLimit(2).padding(.top, 2)
                 }
                 .frame(maxWidth: .infinity, minHeight: 110, alignment: .topLeading)
+            }
+        }
+    }
+
+    // MARK: Quick Access
+
+    private struct ShortcutItem: Identifiable {
+        let id: Int; let emoji: String; let label: String; let action: () -> Void
+    }
+
+    private var quickAccess: some View {
+        let items: [ShortcutItem] = [
+            ShortcutItem(id: 0, emoji: "💬", label: "Faith Chat",  action: { route = .faithCoach }),
+            ShortcutItem(id: 1, emoji: "🎧", label: "Sanctuary",   action: { route = .sanctuary }),
+            ShortcutItem(id: 2, emoji: "🚶", label: "Prayer Walk", action: { route = .walk }),
+            ShortcutItem(id: 3, emoji: "📋", label: "Prayer List", action: { route = .prayer }),
+            ShortcutItem(id: 4, emoji: "📔", label: "Journal",     action: { route = .journal }),
+            ShortcutItem(id: 5, emoji: "⭕", label: "Circles",     action: { route = .circles }),
+        ]
+        return GlassCard(padding: 14) {
+            VStack(alignment: .leading, spacing: 10) {
+                T("Quick Access").font(.hs(13, .semibold)).foregroundStyle(HS.textMuted)
+                LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 10), count: 3), spacing: 10) {
+                    ForEach(items) { item in
+                        Button(action: item.action) {
+                            VStack(spacing: 6) {
+                                ZStack {
+                                    RoundedRectangle(cornerRadius: 12).fill(HS.overlay(0.08))
+                                    T(item.emoji).font(.hs(22))
+                                }.frame(height: 48)
+                                T(item.label).font(.hs(11, .medium)).foregroundStyle(HS.text).lineLimit(1)
+                            }
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
             }
         }
     }
