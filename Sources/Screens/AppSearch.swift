@@ -41,6 +41,11 @@ struct AppFeature: Identifiable {
             AppFeature(title: "Walk through the Bible", symbol: "book", words: "walk bible chapter kilometer steps genesis revelation", target: .view { AnyView(BibleWalkView()) }),
             AppFeature(title: "How HolySteps works", symbol: "questionmark.circle", words: "help how works explain privacy features", target: .view { AnyView(HowItWorksView()) }),
             AppFeature(title: "Kids profiles", symbol: "figure.and.child.holdinghands", words: "kids children child son daughter bedtime family", target: .view { AnyView(KidsProfilesView()) }),
+            AppFeature(title: "Groups", symbol: "person.3", words: "group family small group church together prayer service", target: .view { AnyView(FaithGroupsView()) }),
+            AppFeature(title: "Reading together", symbol: "book", words: "reading plan friends together bible group", target: .view { AnyView(ReadingTogetherView()) }),
+            AppFeature(title: "Weekly league", symbol: "trophy", words: "league leaderboard steps compete rank", target: .view { AnyView(LeaguesView()) }),
+            AppFeature(title: "Scripture duels", symbol: "bolt", words: "duel verse game compete memory", target: .view { AnyView(DuelsView()) }),
+            AppFeature(title: "Safety circle", symbol: "shield", words: "safety sos emergency walk share location circle family", target: .view { AnyView(SafetyCircleView()) }),
             AppFeature(title: "Partner coaching", symbol: "heart.circle", words: "partner husband wife spouse coaching support tip invite code", target: .view { AnyView(PartnerCoachingView()) }),
             AppFeature(title: "Headache diary", symbol: "bolt.heart", words: "headache migraine diary", target: .view { AnyView(HeadacheView()) }),
         ]

@@ -62,6 +62,7 @@ struct ProfileView: View {
                         group("Community") {
                             link("person.3", "Family Relay", tr("Shared streak"), 0x56B892) { FamilyRelayView() }
                             link("figure.and.child.holdinghands", "Kids profiles", "", 0x60A5FA) { KidsProfilesView() }
+                            link("shield.lefthalf.filled", "Safety circle", "", 0x60A5FA) { SafetyCircleView() }
                         }
                         group("About") {
                             link("hand.raised", "Our promises to you", "", 0xD9B49F) { TrustView() }

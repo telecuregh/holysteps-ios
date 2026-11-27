@@ -41,6 +41,7 @@ enum FSValue: Equatable {
     var int: Int64 {
         switch self { case .int(let i): i; case .double(let d): Int64(d); default: 0 }
     }
+    var double: Double { switch self { case .double(let d): return d; case .int(let i): return Double(i); default: return 0 } }
     var bool: Bool { if case .bool(let b) = self { return b }; return false }
     var array: [FSValue] { if case .array(let a) = self { return a }; return [] }
     var map: [String: FSValue] { if case .map(let m) = self { return m }; return [:] }
