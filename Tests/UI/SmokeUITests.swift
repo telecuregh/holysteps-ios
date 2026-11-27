@@ -19,7 +19,7 @@ final class SmokeUITests: XCTestCase {
 
     private func launch(_ args: [String]) -> XCUIApplication {
         let app = XCUIApplication()
-        app.launchArguments = args + ["-uiTestReset", "-sermonAskedNotify", "YES"] + (args.contains("-onboarded") ? [] : ["-onboarded", "YES"])
+        app.launchArguments = args + ["-uiTestReset", "-sermonAskedNotify", "YES", "-legalAcceptedVersion", "2026-11-26.1"] + (args.contains("-onboarded") ? [] : ["-onboarded", "YES"])
         app.launch()
         return app
     }
@@ -76,7 +76,12 @@ final class SmokeUITests: XCTestCase {
         button(app, containing: "Your prayer garden").tap(); sleep(1)
         shot(app, "60-garden-empty")
         button(app, containing: "Plant a prayer").tap()
-        app.textFields.firstMatch.tap(); app.textFields.firstMatch.typeText("Healing for Mum")
+        let want = NSPredicate(format: "placeholderValue CONTAINS %@", "praying for")
+        let tf = app.textFields.matching(want).firstMatch, tv = app.textViews.matching(want).firstMatch
+        let field = tf.waitForExistence(timeout: 5) ? tf : tv
+        XCTAssertTrue(field.waitForExistence(timeout: 5)); sleep(1)
+        if field.isHittable { field.tap() } else { field.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap() }
+        field.typeText("Healing for Mum")
         button(app, containing: "Plant").tap(); sleep(1)
         shot(app, "61-garden-planted")
         XCTAssertTrue(app.staticTexts["A new seed is planted in your garden."].waitForExistence(timeout: 5))

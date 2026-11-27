@@ -286,9 +286,7 @@ final class WalkRecorder: NSObject, ObservableObject, CLLocationManagerDelegate 
         let line = walkCoachLine(cursor.1, band)
         if line != lastCue && (activeSec % 20 == 0 || cursor.2 == (cursor.1?.seconds ?? -1) - 1) {
             lastCue = line
-            let u = AVSpeechUtterance(string: tr(line))
-            u.voice = AVSpeechSynthesisVoice(language: I18n.shared.speechLanguage)
-            synth.speak(u)
+            Task { await GraceVoice.say(line, pack: "coach_cues") }
         }
     }
 

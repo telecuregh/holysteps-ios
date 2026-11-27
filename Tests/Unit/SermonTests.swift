@@ -3,7 +3,7 @@ import XCTest
 
 final class SermonTests: XCTestCase {
     func testLibraryLoads() {
-        XCTAssertEqual(SermonLibrary.all.count, 181)
+        XCTAssertEqual(SermonLibrary.all.count, 185)
         XCTAssertEqual(SermonLibrary.books.count, 66)
         XCTAssertEqual(SermonLibrary.seasons.count, 22)
         XCTAssertEqual(SermonLibrary.narratedWeekly.count, 69)
@@ -48,8 +48,8 @@ final class DevotionalTests: XCTestCase {
 
 final class MusicTests: XCTestCase {
     func testEverySongIsBundled() {
-        XCTAssertEqual(WorshipMusic.all.count, 37)
-        XCTAssertEqual(Set(WorshipMusic.all.map(\.id)).count, 37)
+        XCTAssertEqual(WorshipMusic.all.count, 51)
+        XCTAssertEqual(Set(WorshipMusic.all.map(\.id)).count, 51)
         for t in WorshipMusic.all { XCTAssertNotNil(t.url, "\(t.id).m4a missing from the bundle") }
     }
 

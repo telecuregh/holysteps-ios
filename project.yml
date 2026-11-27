@@ -6,7 +6,7 @@ options:
 settings:
   base:
     SWIFT_VERSION: "5.0"
-    MARKETING_VERSION: "1.2.0"
+    MARKETING_VERSION: "1.3.0"
     CURRENT_PROJECT_VERSION: "2"
 packages:
   LiveKit:
@@ -42,16 +42,20 @@ targets:
         CODE_SIGN_STYLE: Automatic
         TARGETED_DEVICE_FAMILY: "1"
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        # The discreet "Notes" home-screen icon the Cycle privacy settings can switch to.
+        ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES: AppIconNotes
+        ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS: YES
         GENERATE_INFOPLIST_FILE: YES
         INFOPLIST_KEY_CFBundleDisplayName: HolySteps
+        INFOPLIST_KEY_NSFaceIDUsageDescription: HolySteps uses Face ID only to unlock your Cycle tab when you turn on the Cycle lock.
         INFOPLIST_KEY_UILaunchScreen_Generation: YES
         INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES
         INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone: UIInterfaceOrientationPortrait
-        INFOPLIST_KEY_NSHealthShareUsageDescription: HolySteps reads your steps and sleep to show your daily progress and your weekly recap. It stays on your phone.
+        INFOPLIST_KEY_NSHealthShareUsageDescription: HolySteps reads your steps and sleep to show your daily progress and your weekly recap, and, only when you tap to bring them in, your period history and waking temperatures for the Cycle tab. It stays on your phone.
         INFOPLIST_KEY_NSHealthUpdateUsageDescription: With your OK, HolySteps saves the moods you log after prayer to Apple Health as State of Mind, and your prayer walks as workouts.
         INFOPLIST_KEY_ITSAppUsesNonExemptEncryption: NO
-        INFOPLIST_KEY_NSLocationWhenInUseUsageDescription: HolySteps draws your walk on the map and measures how far you went. Your routes stay on your phone.
-        INFOPLIST_KEY_NSCameraUsageDescription: HolySteps uses the camera only during a calm check, to see your fingertip's color, and in the Form Coach, to count your reps. Nothing is recorded or saved.
+        INFOPLIST_KEY_NSLocationWhenInUseUsageDescription: HolySteps draws your walk on the map and measures how far you went. Your routes stay on your phone unless you share a walk with your safety circle or send an SOS.
+        INFOPLIST_KEY_NSCameraUsageDescription: HolySteps uses the camera during a calm check, to see your fingertip's color, and in the Form Coach, to count your reps; neither is recorded. In the skin journal it takes the daily photo you choose to keep, which stays only on this iPhone.
         INFOPLIST_KEY_NSMicrophoneUsageDescription: HolySteps uses the microphone only when you unmute yourself in a live room.
         INFOPLIST_KEY_NSMotionUsageDescription: HolySteps counts the steps and pace of your walks.
         INFOPLIST_KEY_NSSupportsLiveActivities: YES

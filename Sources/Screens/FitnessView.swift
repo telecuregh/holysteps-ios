@@ -281,6 +281,20 @@ struct FitnessView: View {
             }
         }
         .buttonStyle(.plain).padding(.horizontal, 20)
+        NavigationLink { BibleWalkView() } label: {
+            GlassCard {
+                HStack(spacing: 12) {
+                    IconBadge(symbol: "book.fill", size: 36, tint: 0xD9B49F)
+                    VStack(alignment: .leading, spacing: 2) {
+                        T("Walk through the Bible").font(.hs(15, .semibold)).foregroundStyle(HS.text)
+                        T("Every kilometer opens the next chapter, Genesis to Revelation").font(.hs(12)).foregroundStyle(HS.textMuted)
+                    }
+                    Spacer()
+                    Image(systemName: "chevron.right").font(.system(size: 13)).foregroundStyle(HS.textMuted)
+                }
+            }
+        }
+        .buttonStyle(.plain).padding(.horizontal, 20)
     }
 
     private func minutesText(_ steps: Int) -> String {

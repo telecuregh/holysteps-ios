@@ -4,7 +4,7 @@ import SwiftUI
 struct CycleView: View {
     @EnvironmentObject var store: AppStore
     var body: some View {
-        if store.gender == "male" { MensWellnessView() } else { WomensCycleView() }
+        if store.gender == "male" { MensWellnessView() } else { CycleLockGate { WomensCycleView() } }
     }
 }
 
@@ -13,6 +13,7 @@ private func prettyDate(_ d: Date) -> String { d.formatted(.dateTime.month(.abbr
 struct WomensCycleView: View {
     @EnvironmentObject var store: AppStore
     @ObservedObject private var log = CycleLog.shared
+    @ObservedObject private var preg = PregnancyMode.shared
     @State private var tab = 0
     @State private var planTab = 0
     @State private var showLog = false
@@ -52,6 +53,15 @@ struct WomensCycleView: View {
 
     @ViewBuilder private func today(_ r: Rhythm) -> some View {
         Spacer().frame(height: 12)
+        if !preg.on && UserDefaults.standard.string(forKey: "cycleGoal") == "PREGNANT" {
+            PregnancySettings().padding(.horizontal, 20).padding(.bottom, 12)
+        }
+        if preg.on {
+            // Pregnancy: there is no cycle to predict, so the week replaces the cycle ring.
+            PregnancyCard().padding(.horizontal, 20)
+            CoverCard(emoji: "🤰", title: "Pregnancy tools", subtitle: "Kick counter, contraction timer and appointments", tint: 0xF472B6) { PregnancyToolsView() }
+                .padding(.horizontal, 20).padding(.top, 12)
+        } else {
         GlassCard(glow: Color(hex: 0xE57A9E), warm: true) {
             VStack(spacing: 0) {
                 if let day = r.cycleDay, let phase = r.phase, let last = store.periodStarts.max() {
@@ -88,8 +98,9 @@ struct WomensCycleView: View {
             .frame(maxWidth: .infinity)
         }
         .padding(.horizontal, 20)
+        }
 
-        if r.phase == .menstrual {
+        if r.phase == .menstrual && !preg.on {
             SectionHeader(title: "Flow today").padding(.top, 8)
             GlassCard {
                 VStack(alignment: .leading, spacing: 14) {
@@ -98,6 +109,7 @@ struct WomensCycleView: View {
                 }
             }
             .padding(.horizontal, 20)
+            PeriodProductsCard(periodDay: r.cycleDay ?? 1).padding(.horizontal, 20).padding(.top, 12)
         }
 
         SectionHeader(title: "How do you feel today?").padding(.top, 8)
@@ -131,6 +143,11 @@ struct WomensCycleView: View {
                 }
             }
             .padding(.horizontal, 20).padding(.top, 12)
+        }
+        if !preg.on {
+            BirthControlCard().padding(.horizontal, 20).padding(.top, 12)
+            let ov = store.periodStarts.max().map { CycleLogic.predict(lastStart: $0, length: store.cycleLength, periodLength: store.periodLength).ovulation }
+            FertilitySignsCard(predictedOvulation: ov).padding(.horizontal, 20).padding(.top, 12)
         }
     }
 
@@ -207,7 +224,7 @@ struct WomensCycleView: View {
                 VStack(alignment: .leading, spacing: 4) {
                     T("Fertile window").font(.hs(14, .semibold)).foregroundStyle(HS.text)
                     D("\(prettyDate(pred.fertileStart)) – \(prettyDate(pred.fertileEnd))").font(.hs(13)).foregroundStyle(HS.textMuted)
-                    T("Predictions are estimates, not birth control.").font(.hs(11)).foregroundStyle(HS.textSubtle)
+                    T("Estimates only, and not a method of birth control: no day is safe. HolySteps can't tell you which days are. Talk with a doctor, or learn natural family planning from a certified instructor.").font(.hs(11)).foregroundStyle(HS.textSubtle)
                 }
             }
             .padding(.horizontal, 20).padding(.top, 12)
@@ -291,16 +308,41 @@ struct WomensCycleView: View {
     // MARK: More
 
     @ViewBuilder private var more: some View {
-        ShareWithHusbandCard().padding(.horizontal, 20).padding(.top, 16)
+        PregnancySettings().padding(.horizontal, 20).padding(.top, 16)
+        ShareWithHusbandCard().padding(.horizontal, 20).padding(.top, 12)
         BodyEnergyEntryCard().padding(.horizontal, 20).padding(.top, 12)
         NewParentsEntryCard().padding(.horizontal, 20).padding(.top, 12)
         CoverCard(emoji: "🤕", title: "Headache diary", subtitle: "Log headaches and see what goes with yours") { HeadacheView() }
+            .padding(.horizontal, 20).padding(.top, 12)
+        CoverCard(emoji: "❤️", title: "Body basics", subtitle: "Water, health numbers, habits and medicine reminders", tint: 0xF472B6) { BodyBasicsView().environmentObject(store) }
+            .padding(.horizontal, 20).padding(.top, 12)
+        CoverCard(emoji: "🩺", title: "Checkups & self-checks", subtitle: "Screenings and vaccines for your age, and monthly self-checks", tint: 0xF472B6) { CheckupsView(women: true) }
+            .padding(.horizontal, 20).padding(.top, 12)
+        CoverCard(emoji: "🧠", title: "Mood check-in", subtitle: "A private 1-minute check, with 988 one tap away", tint: 0xA78BFA) { MoodCheckView() }
+            .padding(.horizontal, 20).padding(.top, 12)
+        CoverCard(emoji: "🌸", title: "Mood and tests", subtitle: "A daily mood scale and a pregnancy-test log", tint: 0xF472B6) { CycleMoodTestsView() }
+            .padding(.horizontal, 20).padding(.top, 12)
+        CoverCard(emoji: "📈", title: "Symptom severity", subtitle: "For PMS, PMDD, PCOS or endometriosis: rate pain and mood daily", tint: 0xF472B6) { SeverityView().environmentObject(store) }
+            .padding(.horizontal, 20).padding(.top, 12)
+        CoverCard(emoji: "🤰", title: "Pregnancy tools", subtitle: "Kick counter, contraction timer and appointments", tint: 0xF472B6) { PregnancyToolsView() }
+            .padding(.horizontal, 20).padding(.top, 12)
+        CoverCard(emoji: "📥", title: "Bring your data", subtitle: "Move your period history from Flo, Clue or Apple Health", tint: 0xF472B6) { BringDataView().environmentObject(store) }
+            .padding(.horizontal, 20).padding(.top, 12)
+        CoverCard(emoji: "💞", title: "Partner coaching", subtitle: "Your husband gets a daily tip on how to support you, never your data", tint: 0xF472B6) { PartnerCoachingView().environmentObject(store) }
+            .padding(.horizontal, 20).padding(.top, 12)
+        CoverCard(emoji: "🌸", title: "Cycle Circles", subtitle: "Small private support circles, up to 12 women, by invitation", tint: 0xF472B6) { CycleCirclesView().environmentObject(store) }
+            .padding(.horizontal, 20).padding(.top, 12)
+        CoverCard(emoji: "🪞", title: "Skin journal", subtitle: "A private photo a day, and how your skin follows your cycle", tint: 0xF472B6) { SkinJournalView().environmentObject(store) }
             .padding(.horizontal, 20).padding(.top, 12)
         GlassCard {
             VStack(alignment: .leading, spacing: 12) {
                 T("🔒 Where your cycle data lives").font(.hs(15, .bold)).foregroundStyle(HS.text)
                 privacyLine("On this phone only", "Your period dates, flow and symptoms are kept on this phone. HolySteps doesn't upload them.")
                 privacyLine("Shared only if you choose", "Nothing about your cycle is shared with anyone.")
+                CycleLockSettings()
+                HealthImportButton()
+                CycleExportButton()
+                DoctorSummaryButton()
                 Button(role: .destructive) { confirmDelete = true } label: { T("Delete my cycle data").font(.hs(13)).foregroundStyle(Color(hex: 0xFCA5A5)) }
                 T("HolySteps is not a medical device. Talk to a doctor about heavy bleeding, severe pain, or missed periods.")
                     .font(.hs(11)).foregroundStyle(HS.textSubtle)
@@ -308,7 +350,9 @@ struct WomensCycleView: View {
         }
         .padding(.horizontal, 20).padding(.top, 16)
         .alert(tr("Delete your cycle data?"), isPresented: $confirmDelete) {
-            Button(tr("Delete"), role: .destructive) { store.periodStarts = []; store.cycleLength = 28; log.erase() }
+            Button(tr("Delete"), role: .destructive) { store.periodStarts = []; store.cycleLength = 28; log.erase()
+                CycleMoodTests.shared.erase(); SeverityLog.shared.erase(); PregTools.shared.erase()
+                FertilitySigns.shared.erase(); PeriodProducts.shared.erase(); BirthControl.shared.erase(); PregnancyMode.shared.end() }
             Button(tr("Cancel"), role: .cancel) {}
         } message: { T("This removes every period date, flow and symptom log from this phone. It can't be undone.") }
     }
@@ -419,6 +463,12 @@ struct MensWellnessView: View {
                         .padding(.top, 40).padding(.horizontal, 20).padding(.bottom, 12)
                         SubTabs(tabs: ["Today", "Plan"], selected: $tab).padding(.bottom, 16)
                         if tab == 0 { today(phase, color) } else { plan(phase, color) }
+                        CoverCard(emoji: "❤️", title: "Body basics", subtitle: "Water, health numbers, habits and medicine reminders", tint: 0x8B5CF6) { BodyBasicsView().environmentObject(store) }
+                            .padding(.horizontal, 20).padding(.top, 16)
+                        CoverCard(emoji: "🛡️", title: "Checkups & self-checks", subtitle: "What's due for your age, vaccines and monthly self-checks", tint: 0x8B5CF6) { CheckupsView(women: false) }
+                            .padding(.horizontal, 20).padding(.top, 16)
+                        CoverCard(emoji: "🧠", title: "Mood check-in", subtitle: "A private 1-minute check, with 988 one tap away", tint: 0xA78BFA) { MoodCheckView() }
+                            .padding(.horizontal, 20).padding(.top, 12)
                         Spacer().frame(height: 100)
                     }
                 }
@@ -541,6 +591,7 @@ struct MensWellnessView: View {
             BodyEnergyEntryCard().padding(.top, 10)
             CoverCard(emoji: "💞", title: "Support her cycle", subtitle: "Your partner's phase and how to love her well this week", tint: 0xF472B6) { SupportHerCycleView() }
             CoverCard(emoji: "🤕", title: "Headache diary", subtitle: "Log headaches and see what goes with yours") { HeadacheView() }
+            CoverCard(emoji: "💌", title: "Partner coaching", subtitle: "Enter her code to get her daily tip on how to support her", tint: 0xF472B6) { PartnerCoachingView().environmentObject(store) }
             NewParentsEntryCard(title: "New dad, or a baby on the way?", subtitle: "Postpartum depression in moms and dads, how to care for her, and for yourself")
             HStack(spacing: 12) {
                 stat("👟", "Steps", steps.today.formatted(), color)

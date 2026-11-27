@@ -11,6 +11,8 @@ struct HolyStepsApp: App {
     @Environment(\.scenePhase) private var phase
     /// Someone who already used the app before setup existed (a name saved) skips it.
     @AppStorage("onboarded") private var onboarded = UserDefaults.standard.object(forKey: "name") != nil
+    /// The Terms and Privacy Policy version accepted on this phone (see Legal); a new version asks again.
+    @AppStorage("legalAcceptedVersion") private var legalAccepted = ""
 
     init() {
         // UI tests start each run from a fresh install's data (the arguments themselves live in their own domain).
@@ -24,16 +26,17 @@ struct HolyStepsApp: App {
     var body: some Scene {
         WindowGroup {
             Group {
-                if onboarded { RootTabView() }
+                if legalAccepted != Legal.version { ConsentGateView { legalAccepted = Legal.version } }
+                else if onboarded { RootTabView() }
                 else { OnboardingView { withAnimation { onboarded = true } } }
             }
                 .environmentObject(store)
                 .environmentObject(i18n)
                 .environmentObject(appearance)
                 .preferredColorScheme(appearance.mode.isLight ? .light : .dark)
-                .task { await AccountStore.shared.start() }
+                .task { await AccountStore.shared.start(); await Legal.syncIfNeeded() }
                 .fullScreenCover(isPresented: $notifications.ringing) { WakeRingView { notifications.ringing = false }.environmentObject(i18n) }
-                .onChange(of: phase) { _, p in if p != .active { shareWithWidgets() } }
+                .onChange(of: phase) { _, p in if p != .active { shareWithWidgets() }; if p == .background { Backup.maybeAuto() } }
         }
     }
 

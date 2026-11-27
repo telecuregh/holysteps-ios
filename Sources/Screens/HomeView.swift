@@ -383,7 +383,7 @@ struct HomeView: View {
 }
 
 /// Reads a verse aloud in the app's language: Grace's Kokoro recording when the app ships one for it
-/// (Resources/verses, made by tools/gen_verses.py), otherwise the phone's own voice.
+/// (Resources/verses, made by tools/gen_verses.py), never the phone's own voice.
 @MainActor
 final class VerseSpeaker {
     static let shared = VerseSpeaker()
@@ -401,10 +401,7 @@ final class VerseSpeaker {
             p.play()
             return
         }
-        let u = AVSpeechUtterance(string: Narration.spoken(text))
-        u.voice = AVSpeechSynthesisVoice(language: I18n.shared.speechLanguage)
-        u.rate = AVSpeechUtteranceDefaultSpeechRate * 0.92
-        synth.speak(u)
+        // No recording of this verse: nothing is spoken (the phone's own voice is never used).
     }
 }
 

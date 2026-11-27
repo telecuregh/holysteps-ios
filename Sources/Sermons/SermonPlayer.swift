@@ -260,14 +260,9 @@ final class SermonPlayer: NSObject, ObservableObject, AVSpeechSynthesizerDelegat
     }
 
     private func speak(_ text: String) async {
-        let u = AVSpeechUtterance(string: Narration.spoken(text))
-        u.voice = AVSpeechSynthesisVoice(language: I18n.shared.speechLanguage)
-        u.rate = AVSpeechUtteranceDefaultSpeechRate * 0.92
-        u.postUtteranceDelay = 0.35
-        await withCheckedContinuation { (c: CheckedContinuation<Void, Never>) in
-            speaking = c
-            synth.speak(u)
-        }
+        // A line with no recording is never read by the phone's voice: the caption stays up for a calm reading pace.
+        let words = Double(text.split(separator: " ").count)
+        try? await Task.sleep(nanoseconds: UInt64(min(14, words / 2.6 + 0.8) * 1_000_000_000))
     }
 
     private func finishSpeaking() {
