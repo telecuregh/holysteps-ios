@@ -602,7 +602,7 @@ enum DoctorSummary {
             func draw(_ s: String, size: CGFloat, bold: Bool = false, gap: CGFloat = 6) {
                 let font = bold ? UIFont.boldSystemFont(ofSize: size) : UIFont.systemFont(ofSize: size)
                 let attr: [NSAttributedString.Key: Any] = [.font: font, .foregroundColor: UIColor.black]
-                let rect = (s as NSString).boundingRect(with: CGSize(width: 504, height: .greatestFiniteMagnitude), options: .usesLineFragmentOrigin, attributes: attr, context: nil)
+                let rect = (s as NSString).boundingRect(with: CGSize(width: 504, height: CGFloat.greatestFiniteMagnitude), options: .usesLineFragmentOrigin, attributes: attr, context: nil)
                 if y + rect.height > 740 { ctx.beginPage(); y = 54 }
                 (s as NSString).draw(with: CGRect(x: 54, y: y, width: 504, height: rect.height), options: .usesLineFragmentOrigin, attributes: attr, context: nil)
                 y += rect.height + gap

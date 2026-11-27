@@ -53,6 +53,9 @@ struct WomensCycleView: View {
 
     @ViewBuilder private func today(_ r: Rhythm) -> some View {
         Spacer().frame(height: 12)
+        if !preg.on && UserDefaults.standard.string(forKey: "cycleGoal") == "PREGNANT" {
+            PregnancySettings().padding(.horizontal, 20).padding(.bottom, 12)
+        }
         if preg.on {
             // Pregnancy: there is no cycle to predict, so the week replaces the cycle ring.
             PregnancyCard().padding(.horizontal, 20)
@@ -311,6 +314,10 @@ struct WomensCycleView: View {
         NewParentsEntryCard().padding(.horizontal, 20).padding(.top, 12)
         CoverCard(emoji: "🤕", title: "Headache diary", subtitle: "Log headaches and see what goes with yours") { HeadacheView() }
             .padding(.horizontal, 20).padding(.top, 12)
+        CoverCard(emoji: "🩺", title: "Checkups & self-checks", subtitle: "Screenings and vaccines for your age, and monthly self-checks", tint: 0xF472B6) { CheckupsView(women: true) }
+            .padding(.horizontal, 20).padding(.top, 12)
+        CoverCard(emoji: "🧠", title: "Mood check-in", subtitle: "A private 1-minute check, with 988 one tap away", tint: 0xA78BFA) { MoodCheckView() }
+            .padding(.horizontal, 20).padding(.top, 12)
         CoverCard(emoji: "🌸", title: "Mood and tests", subtitle: "A daily mood scale and a pregnancy-test log", tint: 0xF472B6) { CycleMoodTestsView() }
             .padding(.horizontal, 20).padding(.top, 12)
         CoverCard(emoji: "📈", title: "Symptom severity", subtitle: "For PMS, PMDD, PCOS or endometriosis: rate pain and mood daily", tint: 0xF472B6) { SeverityView().environmentObject(store) }
@@ -445,6 +452,10 @@ struct MensWellnessView: View {
                         .padding(.top, 40).padding(.horizontal, 20).padding(.bottom, 12)
                         SubTabs(tabs: ["Today", "Plan"], selected: $tab).padding(.bottom, 16)
                         if tab == 0 { today(phase, color) } else { plan(phase, color) }
+                        CoverCard(emoji: "🛡️", title: "Checkups & self-checks", subtitle: "What's due for your age, vaccines and monthly self-checks", tint: 0x8B5CF6) { CheckupsView(women: false) }
+                            .padding(.horizontal, 20).padding(.top, 16)
+                        CoverCard(emoji: "🧠", title: "Mood check-in", subtitle: "A private 1-minute check, with 988 one tap away", tint: 0xA78BFA) { MoodCheckView() }
+                            .padding(.horizontal, 20).padding(.top, 12)
                         Spacer().frame(height: 100)
                     }
                 }
