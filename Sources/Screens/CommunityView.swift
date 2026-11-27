@@ -51,7 +51,7 @@ struct TogetherLinks: View {
             row("⚔️", "Scripture duels", "Fill in the missing words against someone") { DuelsView() }
         }.padding(.horizontal, 20)
     }
-    private func row<D: View>(_ e: String, _ t: String, _ sub: String, @ViewBuilder _ dest: @escaping () -> D) -> some View {
+    private func row<Dest: View>(_ e: String, _ t: String, _ sub: String, @ViewBuilder _ dest: @escaping () -> Dest) -> some View {
         NavigationLink { dest() } label: {
             HStack(spacing: 10) {
                 D(e).font(.system(size: 22))
