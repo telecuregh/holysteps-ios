@@ -6,7 +6,7 @@ import PhotosUI
 /// which notes come with which part of the cycle. It describes what she logged; it never judges or diagnoses skin.
 enum SkinJournal {
     static let tags = ["Clear", "Breakout", "Dry", "Oily", "Red or irritated", "Glowing", "Tired"]
-    static let max = 400
+    static let maxEntries = 400
     struct Entry: Codable, Equatable, Identifiable { let date: String; var tags: [String]; var cycleDay: Int?; var id: String { date } }
 
     enum Stretch: String {
@@ -55,7 +55,7 @@ final class SkinStore: ObservableObject {
         let small = UIGraphicsImageRenderer(size: size).image { _ in image.draw(in: CGRect(origin: .zero, size: size)) }
         guard let jpg = small.jpegData(compressionQuality: 0.8) else { return }
         try? jpg.write(to: photoURL(d), options: [.atomic, .completeFileProtection])
-        entries = Array((entries.filter { $0.date != d } + [.init(date: d, tags: tags, cycleDay: cycleDay)]).sorted { $0.date < $1.date }.suffix(SkinJournal.max))
+        entries = Array((entries.filter { $0.date != d } + [.init(date: d, tags: tags, cycleDay: cycleDay)]).sorted { $0.date < $1.date }.suffix(SkinJournal.maxEntries))
         save()
     }
     func setTags(_ tags: [String]) {
