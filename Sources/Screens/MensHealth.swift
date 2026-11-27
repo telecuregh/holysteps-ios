@@ -181,7 +181,7 @@ struct MensVitalsLogView: View {
                             VStack(alignment: .leading, spacing: 4) {
                                 T(e.date).font(.hs(11)).foregroundStyle(HS.textMuted)
                                 if !e.bp.isEmpty { T("BP: \(e.bp)").font(.hs(13)).foregroundStyle(HS.text) }
-                                if !e.chol.isEmpty { T("Cholesterol: \(e.chol)").font(.hs(13)).foregroundStyle(HS.text) }
+                                if !e.cholesterol.isEmpty { T("Cholesterol: \(e.cholesterol)").font(.hs(13)).foregroundStyle(HS.text) }
                                 if !e.a1c.isEmpty { T("A1c: \(e.a1c)").font(.hs(13)).foregroundStyle(HS.text) }
                                 if !e.nextCheck.isEmpty { T("Next check: \(e.nextCheck)").font(.hs(12)).foregroundStyle(HS.textMuted) }
                             }
@@ -366,7 +366,7 @@ struct MensGriefView: View {
                             ForEach(["\"The Lord is close to the brokenhearted.\" — Psalm 34:18",
                                      "\"He heals the brokenhearted and binds up their wounds.\" — Psalm 147:3",
                                      "\"Jesus wept.\" — John 11:35"], id: \.self) {
-                                T($0).font(.hs(13, .italic)).foregroundStyle(HS.text)
+                                T($0).italic().font(.hs(13)).foregroundStyle(HS.text)
                             }
                         }
                         .padding(14).background(RoundedRectangle(cornerRadius: 14).fill(HS.faith.opacity(0.08)))
@@ -574,7 +574,7 @@ struct MensBrotherhoodView: View {
                     }
                     if store.faithMode {
                         T("\"As iron sharpens iron, so one person sharpens another.\" — Proverbs 27:17")
-                            .font(.hs(14, .italic)).foregroundStyle(HS.faith)
+                            .italic().font(.hs(14)).foregroundStyle(HS.faith)
                             .padding(14).frame(maxWidth: .infinity)
                             .background(RoundedRectangle(cornerRadius: 14).fill(HS.faith.opacity(0.08)))
                     }
@@ -617,7 +617,7 @@ struct MensPurposeView: View {
                     }
                     if store.faithMode {
                         T("\"For we are God's handiwork, created in Christ Jesus to do good works, which God prepared in advance for us to do.\" — Ephesians 2:10")
-                            .font(.hs(13, .italic)).foregroundStyle(HS.faith)
+                            .italic().font(.hs(13)).foregroundStyle(HS.faith)
                             .padding(14).background(RoundedRectangle(cornerRadius: 14).fill(HS.faith.opacity(0.08)))
                     }
                 }
@@ -820,7 +820,7 @@ struct MensAccountabilityView: View {
                         }
                     }
                     .padding(16).background(RoundedRectangle(cornerRadius: 16).fill(HS.faith.opacity(0.08)))
-                    T("\"As iron sharpens iron, so one person sharpens another.\" — Proverbs 27:17").font(.hs(13, .italic)).foregroundStyle(HS.faith)
+                    T("\"As iron sharpens iron, so one person sharpens another.\" — Proverbs 27:17").italic().font(.hs(13)).foregroundStyle(HS.faith)
                     ShareLink(item: questions.enumerated().map { "\($0.offset + 1). \($0.element)" }.joined(separator: "\n"),
                               subject: Text("Accountability questions")) {
                         T("Share questions with your partner").font(.hs(15, .semibold)).foregroundStyle(HS.onGold)
@@ -929,7 +929,7 @@ struct MensBiblicalIdentityView: View {
                     VStack(alignment: .leading, spacing: 20) {
                         let p = prompts[index]
                         T(p.0.uppercased()).font(.hs(11, .semibold)).foregroundStyle(HS.textMuted).tracking(0.8)
-                        T(p.1).font(.hs(14, .italic)).foregroundStyle(HS.faith)
+                        T(p.1).italic().font(.hs(14)).foregroundStyle(HS.faith)
                         T(p.2).font(.hs(16)).foregroundStyle(HS.text).lineSpacing(4)
                     }
                     .padding(24)

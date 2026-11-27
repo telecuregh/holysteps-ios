@@ -288,7 +288,7 @@ private struct AudioSessionCard: View {
         case "Morning": return HS.gold
         case "Evening": return Color(hex: 0x8B5CF6)
         case "Sleep": return Color(hex: 0x3B82F6)
-        default: return HS.error
+        default: return HS.cycle
         }
     }
     private var catEmoji: String {

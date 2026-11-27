@@ -108,7 +108,7 @@ struct FaithCoachView: View {
                         T("Unlimited faith guidance").font(.hs(12)).foregroundStyle(HS.gold)
                     } else {
                         T("\(queriesLeft) free question\(queriesLeft == 1 ? "" : "s") remaining today")
-                            .font(.hs(12)).foregroundStyle(queriesLeft > 0 ? HS.textMuted : HS.error)
+                            .font(.hs(12)).foregroundStyle(queriesLeft > 0 ? HS.textMuted : HS.cycle)
                     }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
