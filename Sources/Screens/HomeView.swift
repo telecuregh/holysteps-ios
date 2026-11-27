@@ -25,7 +25,7 @@ struct HomeView: View {
     @Environment(\.openURL) private var openURL
 
     enum HomeRoute: Hashable, Identifiable {
-        case sleep, recap, prayer, journal, quiz, calmCheck, walk, memory, devotional, season(String), bible(String?, Int?, Int?)
+        case sleep, recap, prayer, journal, quiz, calmCheck, walk, memory, devotional, sanctuary, faithCoach, circles, season(String), bible(String?, Int?, Int?)
         var id: String { "\(self)" }
     }
 
@@ -48,6 +48,7 @@ struct HomeView: View {
                     dailyPlanCard.padding(.horizontal, 16)
                     verseCard.padding(.horizontal, 16)
                     tiles.padding(.horizontal, 16)
+                    quickAccess.padding(.horizontal, 16)
                     if week.dayNumber >= 7 || week.done.contains(7) { weekStrip.padding(.horizontal, 16) }
                     footer.padding(.horizontal, 16).padding(.bottom, 24)
                 }
@@ -70,6 +71,9 @@ struct HomeView: View {
                         case .walk: WalkSetupView()
                         case .memory: VerseMemoryView()
                         case .devotional: DevotionalView()
+                        case .sanctuary: AudioPrayerView()
+                        case .faithCoach: FaithCoachView()
+                        case .circles: CirclesView()
                         case .season(let id): if let w = SeasonWalks.all.first(where: { $0.id == id }) { SeasonWalkView(walk: w) }
                         case .bible(let b, let c, let v): BibleReaderView(startBook: b, startCh: c, startVerse: v)
                         }
@@ -426,6 +430,42 @@ struct HomeView: View {
                     T(sub).font(.hs(12)).foregroundStyle(HS.textMuted).lineLimit(2).padding(.top, 2)
                 }
                 .frame(maxWidth: .infinity, minHeight: 110, alignment: .topLeading)
+            }
+        }
+    }
+
+    // MARK: Quick Access
+
+    private struct ShortcutItem: Identifiable {
+        let id: Int; let emoji: String; let label: String; let action: () -> Void
+    }
+
+    private var quickAccess: some View {
+        let items: [ShortcutItem] = [
+            ShortcutItem(id: 0, emoji: "💬", label: "Faith Chat",  action: { route = .faithCoach }),
+            ShortcutItem(id: 1, emoji: "🎧", label: "Sanctuary",   action: { route = .sanctuary }),
+            ShortcutItem(id: 2, emoji: "🚶", label: "Prayer Walk", action: { route = .walk }),
+            ShortcutItem(id: 3, emoji: "📋", label: "Prayer List", action: { route = .prayer }),
+            ShortcutItem(id: 4, emoji: "📔", label: "Journal",     action: { route = .journal }),
+            ShortcutItem(id: 5, emoji: "⭕", label: "Circles",     action: { route = .circles }),
+        ]
+        return GlassCard(padding: 14) {
+            VStack(alignment: .leading, spacing: 10) {
+                T("Quick Access").font(.hs(13, .semibold)).foregroundStyle(HS.textMuted)
+                LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 10), count: 3), spacing: 10) {
+                    ForEach(items) { item in
+                        Button(action: item.action) {
+                            VStack(spacing: 6) {
+                                ZStack {
+                                    RoundedRectangle(cornerRadius: 12).fill(HS.overlay(0.08))
+                                    T(item.emoji).font(.hs(22))
+                                }.frame(height: 48)
+                                T(item.label).font(.hs(11, .medium)).foregroundStyle(HS.text).lineLimit(1)
+                            }
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
             }
         }
     }
