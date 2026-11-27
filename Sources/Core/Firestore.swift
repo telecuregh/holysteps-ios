@@ -59,6 +59,8 @@ enum FSWrite {
     /// Change only the named fields (the document must exist), with optional counter steps.
     case update(String, [String: FSValue], increments: [String: Int64] = [:], unions: [String: [FSValue]] = [:])
     case delete(String)
+    /// Create a new document whose named fields get the server's time (a Timestamp, for rules that compare with request.time).
+    case createStamped(String, [String: FSValue], serverTime: [String])
 }
 
 enum FSError: Error { case notSignedIn, denied, failed(Int) }
@@ -141,6 +143,9 @@ enum Firestore {
                 return x
             case .delete(let p):
                 return ["delete": "\(b)/\(p)"]
+            case .createStamped(let p, let f, let st):
+                return ["update": ["name": "\(b)/\(p)", "fields": f.mapValues(\.json)], "currentDocument": ["exists": false],
+                        "updateTransforms": st.map { ["fieldPath": $0, "setToServerValue": "REQUEST_TIME"] }]
             }
         }
         _ = try await call("https://firestore.googleapis.com/v1/\(b):commit", method: "POST", body: ["writes": w])

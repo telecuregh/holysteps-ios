@@ -330,6 +330,8 @@ struct WomensCycleView: View {
             .padding(.horizontal, 20).padding(.top, 12)
         CoverCard(emoji: "💞", title: "Partner coaching", subtitle: "Your husband gets a daily tip on how to support you, never your data", tint: 0xF472B6) { PartnerCoachingView().environmentObject(store) }
             .padding(.horizontal, 20).padding(.top, 12)
+        CoverCard(emoji: "🌸", title: "Cycle Circles", subtitle: "Small private support circles, up to 12 women, by invitation", tint: 0xF472B6) { CycleCirclesView().environmentObject(store) }
+            .padding(.horizontal, 20).padding(.top, 12)
         GlassCard {
             VStack(alignment: .leading, spacing: 12) {
                 T("🔒 Where your cycle data lives").font(.hs(15, .bold)).foregroundStyle(HS.text)

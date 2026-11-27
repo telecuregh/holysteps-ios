@@ -43,6 +43,7 @@ struct AppFeature: Identifiable {
         ]
         if gender != "male" {
             list += [
+                AppFeature(title: "Cycle Circles", symbol: "person.3", words: "circle support group endometriosis pcos ttc community women", target: .view { AnyView(CycleCirclesView()) }),
                 AppFeature(title: "Bring your data", symbol: "square.and.arrow.down", words: "import flo clue transfer move period history", target: .view { AnyView(CycleLockGate { BringDataView() }) }),
                 AppFeature(title: "Mood and tests", symbol: "face.smiling", words: "mood pregnancy test period", target: .view { AnyView(CycleLockGate { CycleMoodTestsView() }) }),
                 AppFeature(title: "Symptom severity", symbol: "chart.line.uptrend.xyaxis", words: "pms pmdd pcos endometriosis pain severity period", target: .view { AnyView(CycleLockGate { SeverityView() }) }),
