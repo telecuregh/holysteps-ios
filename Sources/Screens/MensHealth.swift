@@ -442,7 +442,7 @@ struct MensIntegrityJournalView: View {
     }
 }
 
-// MARK: - Marriage check-in
+// MARK: - Partners check-in
 
 private let marriageKey = "mens_marriage_v1"
 private struct MarriageCheckIn: Codable { var date: String; var areas: [String: Int]; var note: String }
@@ -459,10 +459,10 @@ struct MensMarriageCheckInView: View {
     }()
 
     var body: some View {
-        HSSheet(title: "Marriage check-in") {
+        HSSheet(title: "Partners check-in") {
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
-                    T("Rate your marriage this week in each area (1 = needs work, 5 = thriving).").font(.hs(13)).foregroundStyle(HS.textMuted)
+                    T("Rate your relationship with your partner this week in each area (1 = needs work, 5 = thriving).").font(.hs(13)).foregroundStyle(HS.textMuted)
                     ForEach(areas, id: \.self) { area in
                         VStack(alignment: .leading, spacing: 6) {
                             HStack { T(area).font(.hs(14, .semibold)).foregroundStyle(HS.text); Spacer(); T("\(ratings[area] ?? 0)/5").font(.hs(13, .bold)).foregroundStyle(HS.faith) }
@@ -968,5 +968,662 @@ private struct HSField: View {
             .padding(12)
             .background(RoundedRectangle(cornerRadius: 12).fill(HS.overlay(0.05)))
             .overlay(RoundedRectangle(cornerRadius: 12).strokeBorder(HS.overlay(0.1), lineWidth: 1))
+    }
+}
+
+// MARK: - Men's Mental Health Hub
+
+struct MensMindSession: Identifiable {
+    let id: String
+    let title: String
+    let category: String          // Depression | Anger | Grief | Anxiety | Burnout | Recovery
+    let durationSeconds: Int
+    let blurb: String
+    let script: String
+
+    /// How long Grace's reading actually runs.
+    var durationLabel: String { MindStories.minutesLabel(script) }
+}
+
+let mensMindSessions: [MensMindSession] = [
+    MensMindSession(
+        id: "men_silent_depression",
+        title: "When Men Don't Talk",
+        category: "Depression",
+        durationSeconds: 480,
+        blurb: "Depression looks different in men — and most miss it.",
+        script: """
+Nobody told you that depression could look like irritability. Like working late every night. Like picking fights about nothing. Like numb.
+
+Men don't always cry. Men don't always say "I'm not okay." Instead we push harder, drink more, go quiet, or explode at the wrong person. And the whole time, we're drowning — and everyone around us thinks we're fine.
+
+If you've felt that flatness lately — the kind where nothing feels good, where you go through the motions but nothing lands — that's not weakness. That's a sign something needs attention.
+
+Take a breath. You are not broken. You are human.
+
+Here is what is true: strength is not the absence of pain. Strength is admitting that something hurts and deciding to deal with it.
+
+You don't have to perform okay. Not here.
+
+Say it, even quietly: I am not okay — and I am going to do something about it.
+
+That is the bravest sentence a man can say.
+
+You are not alone in this. Men carry enormous weight in silence. But silence does not heal — it just postpones.
+
+What would it look like to tell one person the truth? Not the whole story. Just: "I've been struggling." That one sentence changes everything.
+
+You deserve to come back to yourself. Not for anyone else. For you.
+
+Breathe.
+"""
+    ),
+    MensMindSession(
+        id: "men_anger_messenger",
+        title: "Anger Is the Messenger",
+        category: "Anger",
+        durationSeconds: 420,
+        blurb: "Anger isn't the problem — it's the signal. Learn to read it.",
+        script: """
+Before you dismiss what you're feeling as just anger — stop. Anger is rarely the first emotion. It almost always covers something softer: fear, hurt, embarrassment, rejection, grief.
+
+When you snapped at someone today — what was underneath that? Were you afraid you weren't enough? Were you humiliated somewhere and couldn't say it? Were you exhausted from holding everything together?
+
+Anger is a messenger. It says: something matters to me and it was threatened. The problem isn't the anger. The problem is when we stop at anger and never ask what it's protecting.
+
+Take a slow breath.
+
+Think of the last time you got really angry. Not the story of what happened — but what you felt a second before the anger arrived. What was that feeling? Name it.
+
+That feeling is the real thing. That is what needs healing, not suppression.
+
+Anger itself isn't wrong. It's one of the oldest, most human feelings there is. Good men feel it. Strong men feel it. You are allowed to feel this.
+
+But you are also capable of something more than reacting. The anger is allowed. What you do with it is what matters.
+
+What does your anger today need you to do? Not act out — but do. Have a hard conversation? Set a limit? Ask for something? Admit something hurt?
+
+That is the work. That is the courage anger is asking of you.
+
+Breathe.
+"""
+    ),
+    MensMindSession(
+        id: "men_provision_weight",
+        title: "The Weight of Provision",
+        category: "Burnout",
+        durationSeconds: 540,
+        blurb: "Carrying the financial pressure — when it's too heavy to carry alone.",
+        script: """
+If you feel the weight right now — the mortgage, the bills, the job pressure, the fear that you're one bad month from disaster — this session is for you.
+
+The burden of provision is real. Men carry it in ways that don't get named. You can't not think about money. It follows you into bed, into time with your kids, into the moment you should be resting. It just sits there.
+
+And the worst part? You can't tell anyone, because if you say it out loud, it feels like failure.
+
+Take a breath. This weight is real. And you have been carrying it.
+
+There is a kind of exhaustion that is not laziness — it is what happens when a man has held too much for too long without relief, without acknowledgment, without anyone asking if he's okay.
+
+Are you okay?
+
+You don't have to fix everything tonight. You cannot fix everything tonight. And the lie that your value as a man is tied to your financial output — that lie is killing men. It is not the truth.
+
+You don't have to carry all of it by yourself. Financial fear is real. Provider pressure is real. And the people who love you can see how hard you are working, even when you can't.
+
+What is one practical thing you can do this week — not to fix it all, but to take one weight off? A conversation? A budget review? One decision you've been avoiding?
+
+Just one. You don't have to carry it all at once.
+
+You are more than what you earn. You are needed as a person, not just a paycheck.
+
+Rest your mind for a moment. And breathe.
+"""
+    ),
+    MensMindSession(
+        id: "men_purpose_dark",
+        title: "When Purpose Goes Dark",
+        category: "Depression",
+        durationSeconds: 500,
+        blurb: "Job loss, identity crisis, a season with no direction. You're not done.",
+        script: """
+If you've lost your job, or feel stuck in one that's killing your soul, or if you're in a season where nothing you built seems to be working anymore — this is a hard place to be.
+
+Men build their identity around what they do. And when what you do disappears — or stops mattering — the question that follows is devastating: Who am I now?
+
+Breathe. That question is not a death sentence. It is an invitation.
+
+Every man who has done something meaningful has had a season like this — a wilderness. A stretch where nothing made sense, where the last thing seemed to collapse, where the ground under their purpose gave way.
+
+That season does not mean you are finished. It may mean you are being prepared.
+
+The work you did mattered. The skills you have are real. The fact that a chapter closed does not close the whole story.
+
+What do you know how to do that someone else desperately needs? Not the job title — the actual skill. The patience. The problem-solving. The strength. The wisdom.
+
+Those things did not leave with the last role.
+
+Take a breath. Where you are right now is not where you will end.
+
+There is work ahead of you. There is purpose ahead of you. The season of dark is not the last season.
+
+What is one small step available to you today — not to have it all figured out, but to move? One conversation. One application. One person to call.
+
+Just one. And breathe.
+"""
+    ),
+    MensMindSession(
+        id: "men_grief_action",
+        title: "Grief Like a Man",
+        category: "Grief",
+        durationSeconds: 460,
+        blurb: "Men grieve through action and silence — and that's okay. Here's how to move through it.",
+        script: """
+If you've lost someone — a parent, a friend, a partner, a child, a version of your life that you expected — this is for you.
+
+Men grieve differently. We don't always cry in public. We get quiet. We get busy. We fix things, or we go numb, or we throw ourselves into work. And people around us sometimes think we're fine — because we look like we're functioning.
+
+But grief has its own clock. And it doesn't care whether you've cried or not.
+
+Breathe slowly.
+
+Is there something you're carrying that you haven't put a word to? A loss that never got named, never got space? A person you miss, a dream that died, a relationship that ended, a version of yourself you had to let go?
+
+You are allowed to grieve that. Even if it was a long time ago. Even if other people seem fine. Even if you're a man who doesn't cry.
+
+Grief belongs to men too. That includes the kind of grief that shows up as silence and withdrawal and hard work.
+
+It still counts.
+
+You don't have to perform grief a certain way. But you do need to let it move through you, not around you.
+
+Is there something you want to say — to yourself, or to that person — that you've never said? Say it now. Even silently.
+
+Grief that gets words begins to heal. It takes time. But it moves.
+
+You are allowed to miss what you lost.
+
+Breathe.
+"""
+    ),
+    MensMindSession(
+        id: "men_loneliness",
+        title: "The Loneliness Nobody Sees",
+        category: "Anxiety",
+        durationSeconds: 420,
+        blurb: "Men's friendships drop off after 30. You're not the only one.",
+        script: """
+Here's something most men won't say out loud: I am lonely.
+
+Not in a dramatic way. Just in the quiet way where you realize the last time you talked to someone about how you actually were was a long time ago. Where your conversations are logistics — schedules, work, what's for dinner — and nothing real gets said.
+
+Men's close friendships drop dramatically after 30. By 40, most men have one or two people they would call in a crisis — if that. And the ones who have no one? They usually don't know how to begin to fix it, so they just keep moving.
+
+Take a breath.
+
+Loneliness is not a character flaw. It is a hunger. And hunger exists because the thing you're hungry for is real and you need it.
+
+You need people who know you. Men who will push back on you, hold you accountable, laugh with you, show up for you. That is not weakness — it is how human beings are built. Men sharpen each other.
+
+Is there one man in your life — a brother, an old friend, a colleague — who you've lost track of? One person who might also be carrying something alone?
+
+What would happen if you reached out this week? Not a group text — a real message. "Hey, I've been thinking about you. How are you actually doing?"
+
+That message might be the one he needed more than you know.
+
+You were not made to do this alone.
+
+Breathe.
+"""
+    ),
+    MensMindSession(
+        id: "men_anxiety_still",
+        title: "Enough for Today",
+        category: "Anxiety",
+        durationSeconds: 380,
+        blurb: "When your mind won't stop — a 6-minute reset.",
+        script: """
+Your mind is running.
+
+The list. The decisions. The things you said. The things unsaid. The meeting tomorrow. The thing you forgot. The person you let down. The version of yourself you haven't become yet.
+
+Stop.
+
+Breathe in slowly — four counts. Hold — four. Out — four.
+
+Again.
+
+You cannot solve everything tonight. You were not designed to. The human brain was not built for the volume of decisions, threats, and information modern life throws at it. Your anxiety is not a malfunction — it is a system running past its limit.
+
+Take one more breath.
+
+Right now, what is actually required of you? Not next week. Not tomorrow. Right now, in this moment, what is the one thing that is actually yours to do?
+
+Just that. Nothing else is required of you right now.
+
+Name exactly what you're afraid of. Out loud, or on paper. Fear gets smaller when it has a name and a shape instead of a fog.
+
+You don't have to solve it. You have to set it down.
+
+Say the name of what you're most anxious about right now. And then say: I'm setting this down. I'll pick it up tomorrow if I need to. But tonight — tonight, I am letting it go.
+
+Breathe.
+
+You did enough today.
+"""
+    ),
+    MensMindSession(
+        id: "men_recovery",
+        title: "After the Storm",
+        category: "Recovery",
+        durationSeconds: 500,
+        blurb: "Depression recovery — what it looks like to slowly come back.",
+        script: """
+If you've been through a hard season — real darkness, real low — and you're starting to come up for air, this session is for you.
+
+Recovery doesn't feel like what you expected. You thought you'd feel relief. Instead you feel tired, cautious, unsure if you trust the light yet. You've been down before, and coming back up is its own kind of hard.
+
+Take a slow breath.
+
+You are still here. That is not a small thing. The nights you didn't think you'd make it, the mornings that felt impossible, the days you got through without anyone knowing how close it was — you made it through those.
+
+What you've been through has not wasted you. Even the darkest season leaves something — an understanding, a compassion, a depth that people who've never been there don't have.
+
+Healing doesn't mean it's like nothing happened. It means coming back. Return. Wholeness. Something put back that was taken.
+
+You are coming back.
+
+What is one thing that feels a little more possible now than it did six months ago? One relationship, one moment, one morning? Even small counts.
+
+Recovery happens in days, not declarations. One morning that isn't terrible. One laugh that felt real. One conversation that reminded you who you are.
+
+You are on your way back. Keep going.
+
+Breathe. And believe it — even just a little.
+"""
+    ),
+]
+
+struct MensMindView: View {
+    @ObservedObject private var account = AccountStore.shared
+    /// The session Grace is reading now (played through the sermon player, like the stories).
+    @State private var listen: Sermon?
+    @State private var played: Set<String> = {
+        Set(UserDefaults.standard.stringArray(forKey: "mensMindPlayed") ?? [])
+    }()
+    @State private var selectedCat = "All"
+    @State private var showPaywall = false
+
+    /// First two sessions of the master list are always free.
+    private func isLocked(_ s: MensMindSession) -> Bool {
+        guard let i = mensMindSessions.firstIndex(where: { $0.id == s.id }) else { return false }
+        return i >= 2 && !account.canUse(.mensMindAudio)
+    }
+
+    private let cats = ["All", "Depression", "Anger", "Grief", "Anxiety", "Burnout", "Recovery"]
+    private var filtered: [MensMindSession] {
+        selectedCat == "All" ? mensMindSessions : mensMindSessions.filter { $0.category == selectedCat }
+    }
+    private let catColors: [String: Color] = [
+        "Depression": Color(hex: 0x8B5CF6),
+        "Anger":      Color(hex: 0xF43F5E),
+        "Grief":      Color(hex: 0x64748B),
+        "Anxiety":    Color(hex: 0x0EA5E9),
+        "Burnout":    Color(hex: 0xF59E0B),
+        "Recovery":   Color(hex: 0x10B981),
+    ]
+    private let catEmoji: [String: String] = [
+        "Depression": "😔", "Anger": "🔥", "Grief": "🕊️",
+        "Anxiety": "🌊", "Burnout": "⚡", "Recovery": "🌱",
+    ]
+
+    var body: some View {
+        ZStack {
+            HSBackground()
+            listBody
+        }
+        .toolbar(.hidden, for: .navigationBar)
+        .hsBackButton()
+        .fullScreenCover(item: $listen) { s in SermonPlayerView(sermon: s) }
+        .sheet(isPresented: $showPaywall) { PlansView(feature: .mensMindAudio) }
+    }
+
+    private func play(_ s: MensMindSession) {
+        if !played.contains(s.id) { EngagementStore.shared.recordAudioPlay() }
+        played.insert(s.id)
+        UserDefaults.standard.set(Array(played), forKey: "mensMindPlayed")
+        listen = MindStories.session(id: s.id, title: s.title, subtitle: s.blurb, script: s.script, hub: "men")
+    }
+
+    private var listBody: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 0) {
+                // Header
+                VStack(alignment: .leading, spacing: 6) {
+                    HStack(spacing: 8) {
+                        T("🧠").font(.system(size: 28))
+                        T("Men's Mental Health").font(.hs(26, .bold)).foregroundStyle(HS.text)
+                    }
+                    T("Spoken guidance for depression, anger, grief, burnout, and recovery.\nBuilt for how men actually experience these things.")
+                        .font(.hs(13)).foregroundStyle(HS.textMuted).fixedSize(horizontal: false, vertical: true)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, 20).padding(.top, 58).padding(.bottom, 8)
+
+                // Stats bar
+                HStack(spacing: 20) {
+                    VStack(spacing: 2) {
+                        T("\(played.count)").font(.hs(22, .bold)).foregroundStyle(Color(hex: 0x8B5CF6))
+                        T("listened").font(.hs(11)).foregroundStyle(HS.textMuted)
+                    }
+                    Rectangle().frame(width: 1, height: 32).foregroundStyle(HS.overlay(0.1))
+                    VStack(spacing: 2) {
+                        T("\(mensMindSessions.count)").font(.hs(22, .bold)).foregroundStyle(HS.text)
+                        T("sessions").font(.hs(11)).foregroundStyle(HS.textMuted)
+                    }
+                    Spacer()
+                    T("Private · On-device").font(.hs(11)).foregroundStyle(HS.textMuted)
+                        .padding(.horizontal, 10).padding(.vertical, 5)
+                        .background(Capsule().fill(HS.overlay(0.07)))
+                }
+                .padding(.horizontal, 20).padding(.vertical, 12)
+
+                // Category chips
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 8) {
+                        ForEach(cats, id: \.self) { cat in
+                            Button(cat) { selectedCat = cat }
+                                .font(.hs(13, .medium))
+                                .foregroundStyle(selectedCat == cat ? .white : HS.textMuted)
+                                .padding(.horizontal, 14).padding(.vertical, 7)
+                                .background(Capsule().fill(
+                                    selectedCat == cat
+                                        ? (catColors[cat] ?? Color(hex: 0x8B5CF6))
+                                        : HS.cardFill
+                                ))
+                        }
+                    }
+                    .padding(.horizontal, 20)
+                }
+                .padding(.bottom, 16)
+
+                MindTalksEntryCard(hub: "men", tint: Color(hex: 0x8B5CF6))
+
+                // Session list: everyday guidance, no faith content (the Bible stories sit below).
+                VStack(alignment: .leading, spacing: 2) {
+                    T("Everyday sessions, read by Grace").font(.hs(15, .semibold)).foregroundStyle(HS.text)
+                    T("Practical guidance with no faith content.").font(.hs(12)).foregroundStyle(HS.textMuted)
+                }
+                .padding(.horizontal, 20).padding(.bottom, 10)
+
+                // Session list
+                VStack(spacing: 10) {
+                    ForEach(Array(filtered.enumerated()), id: \.element.id) { idx, session in
+                        MensMindCard(
+                            session: session,
+                            isPlayed: played.contains(session.id),
+                            catColor: catColors[session.category] ?? Color(hex: 0x8B5CF6),
+                            catEmoji: catEmoji[session.category] ?? "🎧",
+                            isFeatured: idx == 0 && selectedCat == "All",
+                            isLocked: isLocked(session),
+                            onTap: { if isLocked(session) { showPaywall = true } else { play(session) } }
+                        )
+                    }
+                }
+                .padding(.horizontal, 20).padding(.bottom, 24)
+
+                MindStoriesSection(hub: "men", selectedCat: selectedCat, tint: Color(hex: 0x8B5CF6), catEmoji: catEmoji)
+
+                // Separator
+                Rectangle().frame(height: 1).foregroundStyle(HS.overlay(0.08))
+                    .padding(.horizontal, 20).padding(.vertical, 8)
+
+                // Tools section
+                VStack(alignment: .leading, spacing: 10) {
+                    T("Assessment Tools").font(.hs(15, .semibold)).foregroundStyle(HS.text)
+                        .padding(.horizontal, 20)
+                    T("Track how you're doing over time.")
+                        .font(.hs(12)).foregroundStyle(HS.textMuted)
+                        .padding(.horizontal, 20)
+
+                    NavigationLink(destination: MensDepressionCheckView()) {
+                        MensMindToolRow(emoji: "📋", title: "Depression check", sub: "PHQ-9 phrased for how men experience it", color: Color(hex: 0x8B5CF6))
+                    }
+                    NavigationLink(destination: MensAngerJournalView()) {
+                        MensMindToolRow(emoji: "📔", title: "Anger journal", sub: "Log triggers privately. Find what's underneath.", color: Color(hex: 0xF43F5E))
+                    }
+                    NavigationLink(destination: MensGriefView()) {
+                        MensMindToolRow(emoji: "🕊️", title: "Grief support", sub: "Men process loss through action and silence.", color: Color(hex: 0x64748B))
+                    }
+                    if account.runningPlans.contains(.faith) {
+                        NavigationLink(destination: MensIntegrityJournalView()) {
+                            MensMindToolRow(emoji: "🔒", title: "Integrity journal", sub: "Private, encrypted. Struggles, scripture, milestones.", color: Color(hex: 0xA78BFA))
+                        }
+                    }
+                }
+                .padding(.bottom, 100)
+            }
+        }
+    }
+}
+
+// MARK: - Featured / regular card
+
+private struct MensMindCard: View {
+    let session: MensMindSession
+    let isPlayed: Bool
+    let catColor: Color
+    let catEmoji: String
+    let isFeatured: Bool
+    var isLocked: Bool = false
+    var isFreeTag: Bool { mensMindSessions.prefix(2).contains { $0.id == session.id } }
+    let onTap: () -> Void
+
+    var body: some View {
+        Button(action: onTap) {
+            if isFeatured {
+                // Hero card
+                ZStack(alignment: .bottomLeading) {
+                    RoundedRectangle(cornerRadius: 18).fill(
+                        LinearGradient(colors: [catColor.opacity(0.9), catColor.opacity(0.4)],
+                                       startPoint: .topLeading, endPoint: .bottomTrailing)
+                    )
+                    VStack(alignment: .leading, spacing: 8) {
+                        HStack {
+                            T("Featured").font(.hs(11, .semibold)).foregroundStyle(.white.opacity(0.85))
+                                .padding(.horizontal, 10).padding(.vertical, 4)
+                                .background(Capsule().fill(.white.opacity(0.2)))
+                            Spacer()
+                            if isPlayed {
+                                Image(systemName: "checkmark.circle.fill").foregroundStyle(.white).font(.system(size: 18))
+                            }
+                        }
+                        Spacer()
+                        T(catEmoji).font(.system(size: 40))
+                        T(session.title).font(.hs(22, .bold)).foregroundStyle(.white)
+                        T(session.blurb).font(.hs(13)).foregroundStyle(.white.opacity(0.85))
+                        HStack(spacing: 10) {
+                            Label(session.durationLabel, systemImage: "headphones")
+                                .font(.hs(12, .medium)).foregroundStyle(.white.opacity(0.9))
+                            T("·").foregroundStyle(.white.opacity(0.5))
+                            T(session.category).font(.hs(12)).foregroundStyle(.white.opacity(0.85))
+                            Spacer()
+                            Image(systemName: isLocked ? "lock.circle.fill" : "play.circle.fill").font(.system(size: 32)).foregroundStyle(.white)
+                        }
+                    }
+                    .padding(18)
+                }
+                .frame(height: 220)
+            } else {
+                // Regular row card
+                HStack(spacing: 14) {
+                    T(catEmoji).font(.system(size: 26))
+                        .frame(width: 48, height: 48)
+                        .background(Circle().fill(catColor.opacity(0.15)))
+                    VStack(alignment: .leading, spacing: 4) {
+                        HStack {
+                            T(session.title).font(.hs(15, .semibold)).foregroundStyle(HS.text)
+                            Spacer()
+                            if isPlayed {
+                                Image(systemName: "checkmark.circle.fill").foregroundStyle(catColor).font(.system(size: 15))
+                            }
+                        }
+                        T(session.blurb).font(.hs(12)).foregroundStyle(HS.textMuted).lineLimit(2)
+                        HStack(spacing: 8) {
+                            Label(session.durationLabel, systemImage: "headphones")
+                                .font(.hs(11)).foregroundStyle(HS.textMuted)
+                            T(session.category).font(.hs(11, .medium)).foregroundStyle(catColor)
+                                .padding(.horizontal, 8).padding(.vertical, 2)
+                                .background(Capsule().fill(catColor.opacity(0.12)))
+                            if isLocked {
+                                T("Wellness plan").font(.hs(11, .medium)).foregroundStyle(HS.textMuted)
+                            } else if !isPlayed && isFreeTag {
+                                T("Free").font(.hs(11, .semibold)).foregroundStyle(Color(hex: 0x10B981))
+                            }
+                        }
+                    }
+                    Image(systemName: isLocked ? "lock.fill" : "play.circle").font(.system(size: isLocked ? 18 : 24)).foregroundStyle(isLocked ? HS.textMuted : catColor)
+                }
+                .padding(14)
+                .background(RoundedRectangle(cornerRadius: 14).fill(HS.cardFill))
+            }
+        }
+        .buttonStyle(.plain)
+    }
+}
+
+// MARK: - Tool row
+
+private struct MensMindToolRow: View {
+    let emoji: String; let title: String; let sub: String; let color: Color
+    var body: some View {
+        HStack(spacing: 14) {
+            T(emoji).font(.system(size: 22))
+                .frame(width: 42, height: 42)
+                .background(RoundedRectangle(cornerRadius: 10).fill(color.opacity(0.13)))
+            VStack(alignment: .leading, spacing: 2) {
+                T(title).font(.hs(14, .semibold)).foregroundStyle(HS.text)
+                T(sub).font(.hs(12)).foregroundStyle(HS.textMuted)
+            }
+            Spacer()
+            Image(systemName: "chevron.right").font(.system(size: 13, weight: .medium)).foregroundStyle(HS.textMuted)
+        }
+        .padding(.horizontal, 16).padding(.vertical, 11)
+        .background(RoundedRectangle(cornerRadius: 13).fill(HS.cardFill))
+        .padding(.horizontal, 20)
+    }
+}
+
+// MARK: - Player (reuses AudioPrayerView's AudioPlayerView pattern)
+
+private struct MensMindPlayerView: View {
+    let session: MensMindSession
+    let isPlayed: Bool
+    let onComplete: () -> Void
+    let onClose: () -> Void
+
+    @State private var progress: Double = 0
+    @State private var playing = false
+    @State private var elapsed = 0
+    @State private var timer: Timer?
+    @State private var marked = false
+
+    var body: some View {
+        ZStack {
+            HSBackground()
+            VStack(spacing: 0) {
+                // Nav bar
+                HStack {
+                    Button(action: { timer?.invalidate(); onClose() }) {
+                        Image(systemName: "xmark").font(.system(size: 17, weight: .medium))
+                            .foregroundStyle(HS.text).padding(10)
+                            .background(Circle().fill(HS.cardFill))
+                    }
+                    Spacer()
+                    T(session.category).font(.hs(13, .medium)).foregroundStyle(HS.textMuted)
+                        .padding(.horizontal, 12).padding(.vertical, 5)
+                        .background(Capsule().fill(HS.cardFill))
+                }
+                .padding(.horizontal, 20).padding(.top, 54)
+
+                ScrollView {
+                    VStack(spacing: 24) {
+                        // Large emoji
+                        T("🧠").font(.system(size: 72))
+                            .padding(.top, 24)
+
+                        VStack(spacing: 6) {
+                            T(session.title).font(.hs(24, .bold)).foregroundStyle(HS.text).multilineTextAlignment(.center)
+                            T(session.durationLabel).font(.hs(13)).foregroundStyle(HS.textMuted)
+                        }
+
+                        // Progress bar
+                        VStack(spacing: 8) {
+                            GeometryReader { geo in
+                                ZStack(alignment: .leading) {
+                                    RoundedRectangle(cornerRadius: 4).fill(HS.overlay(0.1)).frame(height: 6)
+                                    RoundedRectangle(cornerRadius: 4).fill(Color(hex: 0x8B5CF6))
+                                        .frame(width: geo.size.width * progress, height: 6)
+                                }
+                            }
+                            .frame(height: 6)
+                            HStack {
+                                T(timeLabel(elapsed)).font(.hs(11)).foregroundStyle(HS.textMuted)
+                                Spacer()
+                                T(session.durationLabel).font(.hs(11)).foregroundStyle(HS.textMuted)
+                            }
+                        }
+                        .padding(.horizontal, 20)
+
+                        // Play / pause
+                        Button(action: togglePlay) {
+                            Image(systemName: playing ? "pause.circle.fill" : "play.circle.fill")
+                                .font(.system(size: 72))
+                                .foregroundStyle(Color(hex: 0x8B5CF6))
+                        }
+
+                        if isPlayed || marked {
+                            Label("Session complete", systemImage: "checkmark.circle.fill")
+                                .font(.hs(13, .medium)).foregroundStyle(Color(hex: 0x10B981))
+                        }
+
+                        // Script text
+                        VStack(alignment: .leading, spacing: 0) {
+                            T("Session transcript").font(.hs(13, .semibold)).foregroundStyle(HS.textMuted)
+                                .padding(.bottom, 10)
+                            T(session.script).font(.hs(14)).foregroundStyle(HS.text)
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
+                        .padding(16)
+                        .background(RoundedRectangle(cornerRadius: 14).fill(HS.cardFill))
+                        .padding(.horizontal, 20)
+
+                        Spacer().frame(height: 60)
+                    }
+                }
+            }
+        }
+        .onDisappear { timer?.invalidate() }
+    }
+
+    private func timeLabel(_ s: Int) -> String {
+        "\(s / 60):\(String(format: "%02d", s % 60))"
+    }
+
+    private func togglePlay() {
+        playing.toggle()
+        if playing {
+            timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
+                guard elapsed < session.durationSeconds else {
+                    timer?.invalidate(); playing = false
+                    if !marked { marked = true; onComplete() }
+                    return
+                }
+                elapsed += 1
+                progress = Double(elapsed) / Double(session.durationSeconds)
+            }
+        } else {
+            timer?.invalidate()
+        }
     }
 }

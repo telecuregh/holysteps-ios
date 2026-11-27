@@ -170,7 +170,11 @@ final class CycleMoodTests: ObservableObject {
         mood = UserDefaults.standard.dictionary(forKey: "cycleMood") as? [String: Int] ?? [:]
         tests = UserDefaults.standard.array(forKey: "pregnancyTests") as? [[String]] ?? []
     }
-    func setMood(_ v: Int) { mood[AppStore.dayKey()] = v; ActivityLog.shared.add(.tracker) }
+    func setMood(_ v: Int) {
+        let firstToday = mood[AppStore.dayKey()] == nil
+        mood[AppStore.dayKey()] = v; ActivityLog.shared.add(.tracker)
+        if firstToday { Task { @MainActor in EngagementStore.shared.recordMoodCheck() } }
+    }
     func addTest(_ r: String) { tests.append([AppStore.dayKey(), r]) }
     func undoTest() { if !tests.isEmpty { tests.removeLast() } }
     func erase() { mood = [:]; tests = [] }

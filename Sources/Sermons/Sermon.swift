@@ -6,7 +6,7 @@ import SwiftUI
 /// by tools/sermons2json.py). Scripts use the same light markup as Android's Audio Sanctuary: blank-line separated
 /// paragraphs, "[PAUSE 6 SECONDS]" for silence, any other bracketed line is a stage direction and is skipped.
 struct Sermon: Identifiable, Decodable, Hashable {
-    enum Group: String, Decodable { case weekly, facing, books, seasons, sleep }
+    enum Group: String, Decodable { case weekly, facing, books, seasons, sleep, mind }
 
     let id: String
     let group: Group
@@ -19,7 +19,7 @@ struct Sermon: Identifiable, Decodable, Hashable {
     let script: String
     /// The narrator's voice pack (sleep audio is read by Grace, af_heart); nil means the preacher.
     var voice: String? = nil
-    /// Sleep library only: "story", "kids" or "night".
+    /// Sleep library: "story", "kids" or "night". Mental health stories: "men" or "women".
     var kind: String? = nil
 
     static func == (a: Sermon, b: Sermon) -> Bool { a.id == b.id }

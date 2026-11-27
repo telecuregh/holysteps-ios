@@ -130,8 +130,10 @@ final class AppStore: ObservableObject {
     func logPeriodStart(_ date: Date) {
         let day = Calendar.current.startOfDay(for: date)
         var starts = periodStarts.map { Calendar.current.startOfDay(for: $0) }
-        if !starts.contains(day) { starts.append(day) }
+        let isNew = !starts.contains(day)
+        if isNew { starts.append(day) }
         starts = Array(Set(starts)).sorted().suffix(24)
+        if isNew { Task { @MainActor in EngagementStore.shared.recordPeriodLog() } }
         periodStarts = starts
         cycleLength = CycleLogic.predictedLength(starts, fallback: cycleLength)
         ActivityLog.shared.add(.tracker)

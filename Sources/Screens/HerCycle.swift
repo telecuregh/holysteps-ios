@@ -137,7 +137,7 @@ struct SupportHerCycleView: View {
             HSBackground()
             ScrollView {
                 VStack(alignment: .leading, spacing: 12) {
-                    T("💞 MARRIAGE").font(.hs(12, .bold)).foregroundStyle(HS.readable(0xF472B6))
+                    T("💞 PARTNERS").font(.hs(12, .bold)).foregroundStyle(HS.readable(0xF472B6))
                     T("Support her cycle").font(.hs(24)).foregroundStyle(HS.text)
                     T("When your partner shares her code, you'll see where she is in her cycle and simple ways to love her well. It stays on your phone.").font(.hs(13)).foregroundStyle(HS.textSecondary)
                     if let s = share, s.untilEpoch >= today {

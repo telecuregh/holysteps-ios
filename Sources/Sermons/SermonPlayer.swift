@@ -55,7 +55,7 @@ final class SermonPlayer: NSObject, ObservableObject, AVSpeechSynthesizerDelegat
         stopPlayback()
         sermon = s
         // Listening counts the moment it starts (a sleep story is meant to be fallen asleep to).
-        ActivityLog.shared.add(s.group == .sleep ? (s.kind == "night" ? .prayerAudio : .sleepStory) : .sermon)
+        ActivityLog.shared.add(s.group == .sleep ? (s.kind == "night" ? .prayerAudio : .sleepStory) : s.group == .mind ? .sleepStory : .sermon)
         segments = s.segments
         captions = segments.map { if case .speech(let t) = $0 { return tr(t) } else { return "" } }
         index = max(0, min(start, max(0, segments.count - 1)))
@@ -65,7 +65,7 @@ final class SermonPlayer: NSObject, ObservableObject, AVSpeechSynthesizerDelegat
         loading = true
         activateSession()
         task = Task { await run(s) }
-        LiveActivities.start(.sermon, title: tr(s.group == .sleep ? "Sleep" : "Sermon"), liveState(s))
+        LiveActivities.start(.sermon, title: tr(s.group == .sleep ? "Sleep" : s.group == .mind ? "Story" : "Sermon"), liveState(s))
     }
 
     /// The Lock Screen card: the sermon's title and how far along it is.
@@ -210,7 +210,7 @@ final class SermonPlayer: NSObject, ObservableObject, AVSpeechSynthesizerDelegat
         finished = true
         LiveActivities.end()
         playing = false
-        if s.group != .sleep { SermonWeek.shared.markHeard(s.id) }
+        if s.group != .sleep && s.group != .mind { SermonWeek.shared.markHeard(s.id) }
         updateNowPlaying()
         return true
     }
@@ -255,7 +255,7 @@ final class SermonPlayer: NSObject, ObservableObject, AVSpeechSynthesizerDelegat
         finished = true
         LiveActivities.end()
         playing = false
-        if s.group != .sleep { SermonWeek.shared.markHeard(s.id) }
+        if s.group != .sleep && s.group != .mind { SermonWeek.shared.markHeard(s.id) }
         updateNowPlaying()
     }
 
