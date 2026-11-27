@@ -116,16 +116,21 @@ struct RootTabView: View {
                             .foregroundStyle(on ? Color(hex: 0x1F1B16) : HS.textMuted)
                             .frame(height: 56)
                         } else {
-                            ZStack {
-                                if on {
-                                    Circle().fill(RadialGradient(colors: [Color(hex: 0x9D7FEA).opacity(0.45), .clear], center: .center, startRadius: 0, endRadius: 28))
-                                        .frame(width: 56, height: 56)
-                                    Rectangle().fill(HS.goldButton.opacity(0.8)).frame(width: 56 * 0.7, height: 1.5).offset(y: -28 - 12 + 0.75)
+                            VStack(spacing: 3) {
+                                ZStack {
+                                    if on {
+                                        Circle().fill(RadialGradient(colors: [Color(hex: 0x9D7FEA).opacity(0.45), .clear], center: .center, startRadius: 0, endRadius: 28))
+                                            .frame(width: 48, height: 48)
+                                        Rectangle().fill(HS.goldButton.opacity(0.8)).frame(width: 48 * 0.7, height: 1.5).offset(y: -24 - 10 + 0.75)
+                                    }
+                                    icon(t.symbol, size: 22)
+                                        .foregroundStyle(on ? (light ? Color(hex: 0xC79A5E) : HS.peach) : HS.textMuted)
                                 }
-                                icon(t.symbol, size: 24)
+                                .frame(width: 48, height: 36)
+                                T(t.label).font(.hs(10, on ? .semibold : .medium)).lineLimit(1)
                                     .foregroundStyle(on ? (light ? Color(hex: 0xC79A5E) : HS.peach) : HS.textMuted)
                             }
-                            .frame(width: 56, height: 56)
+                            .frame(height: 56)
                         }
                     }
                     .frame(maxWidth: .infinity)
