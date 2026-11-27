@@ -314,6 +314,8 @@ struct WomensCycleView: View {
         NewParentsEntryCard().padding(.horizontal, 20).padding(.top, 12)
         CoverCard(emoji: "🤕", title: "Headache diary", subtitle: "Log headaches and see what goes with yours") { HeadacheView() }
             .padding(.horizontal, 20).padding(.top, 12)
+        CoverCard(emoji: "❤️", title: "Body basics", subtitle: "Water, health numbers, habits and medicine reminders", tint: 0xF472B6) { BodyBasicsView().environmentObject(store) }
+            .padding(.horizontal, 20).padding(.top, 12)
         CoverCard(emoji: "🩺", title: "Checkups & self-checks", subtitle: "Screenings and vaccines for your age, and monthly self-checks", tint: 0xF472B6) { CheckupsView(women: true) }
             .padding(.horizontal, 20).padding(.top, 12)
         CoverCard(emoji: "🧠", title: "Mood check-in", subtitle: "A private 1-minute check, with 988 one tap away", tint: 0xA78BFA) { MoodCheckView() }
@@ -330,6 +332,7 @@ struct WomensCycleView: View {
                 privacyLine("On this phone only", "Your period dates, flow and symptoms are kept on this phone. HolySteps doesn't upload them.")
                 privacyLine("Shared only if you choose", "Nothing about your cycle is shared with anyone.")
                 CycleLockSettings()
+                HealthImportButton()
                 CycleExportButton()
                 DoctorSummaryButton()
                 Button(role: .destructive) { confirmDelete = true } label: { T("Delete my cycle data").font(.hs(13)).foregroundStyle(Color(hex: 0xFCA5A5)) }
@@ -452,6 +455,8 @@ struct MensWellnessView: View {
                         .padding(.top, 40).padding(.horizontal, 20).padding(.bottom, 12)
                         SubTabs(tabs: ["Today", "Plan"], selected: $tab).padding(.bottom, 16)
                         if tab == 0 { today(phase, color) } else { plan(phase, color) }
+                        CoverCard(emoji: "❤️", title: "Body basics", subtitle: "Water, health numbers, habits and medicine reminders", tint: 0x8B5CF6) { BodyBasicsView().environmentObject(store) }
+                            .padding(.horizontal, 20).padding(.top, 16)
                         CoverCard(emoji: "🛡️", title: "Checkups & self-checks", subtitle: "What's due for your age, vaccines and monthly self-checks", tint: 0x8B5CF6) { CheckupsView(women: false) }
                             .padding(.horizontal, 20).padding(.top, 16)
                         CoverCard(emoji: "🧠", title: "Mood check-in", subtitle: "A private 1-minute check, with 988 one tap away", tint: 0xA78BFA) { MoodCheckView() }
