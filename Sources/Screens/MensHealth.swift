@@ -339,6 +339,7 @@ struct MensAngerJournalView: View {
 struct MensGriefView: View {
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject var store: AppStore
+    @ObservedObject private var account = AccountStore.shared
     private let stages = [
         ("1. Feel it", "Men are often told grief is weakness. It is not. The body carries what the mind refuses."),
         ("2. Name it", "Name what you lost — the person, the relationship, the future you expected, the version of yourself you were with them."),
@@ -360,7 +361,7 @@ struct MensGriefView: View {
                         .padding(14).frame(maxWidth: .infinity, alignment: .leading)
                         .background(RoundedRectangle(cornerRadius: 14).fill(HS.overlay(0.04)))
                     }
-                    if store.faithMode {
+                    if account.runningPlans.contains(.faith) {
                         VStack(alignment: .leading, spacing: 8) {
                             T("Scripture for grief").font(.hs(14, .bold)).foregroundStyle(HS.faith)
                             ForEach(["\"The Lord is close to the brokenhearted.\" — Psalm 34:18",
@@ -511,6 +512,7 @@ struct MensMarriageCheckInView: View {
 struct MensFatherhoodView: View {
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject var store: AppStore
+    @ObservedObject private var account = AccountStore.shared
 
     private let stages: [(String, String, [String])] = [
         ("👶", "0–12 months", ["Hold your baby skin-to-skin. It literally lowers their cortisol.", "Talk to them constantly — narrate your day. Brain wiring depends on it.", "Take one overnight shift per week so your partner can sleep.", "Learn one soothing technique: the 5 S's (swaddle, side, shush, swing, suck)."]),
@@ -550,6 +552,7 @@ struct MensFatherhoodView: View {
 struct MensBrotherhoodView: View {
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject var store: AppStore
+    @ObservedObject private var account = AccountStore.shared
     private let tips = [
         ("🤜", "Start with one man", "You don't need a group. One honest friendship with another man is enough to change your life."),
         ("📅", "Make it regular", "Coffee, a walk, a call — same time, every week. Irregular meetings die."),
@@ -572,7 +575,7 @@ struct MensBrotherhoodView: View {
                             }
                         }
                     }
-                    if store.faithMode {
+                    if account.runningPlans.contains(.faith) {
                         T("\"As iron sharpens iron, so one person sharpens another.\" — Proverbs 27:17")
                             .italic().font(.hs(14)).foregroundStyle(HS.faith)
                             .padding(14).frame(maxWidth: .infinity)
@@ -590,6 +593,7 @@ struct MensBrotherhoodView: View {
 struct MensPurposeView: View {
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject var store: AppStore
+    @ObservedObject private var account = AccountStore.shared
     private let questions = [
         "What would I do if money were not a factor?",
         "What do people consistently come to me for?",
@@ -615,7 +619,7 @@ struct MensPurposeView: View {
                                 .background(RoundedRectangle(cornerRadius: 10).fill(HS.overlay(0.05)))
                         }
                     }
-                    if store.faithMode {
+                    if account.runningPlans.contains(.faith) {
                         T("\"For we are God's handiwork, created in Christ Jesus to do good works, which God prepared in advance for us to do.\" — Ephesians 2:10")
                             .italic().font(.hs(13)).foregroundStyle(HS.faith)
                             .padding(14).background(RoundedRectangle(cornerRadius: 14).fill(HS.faith.opacity(0.08)))
@@ -803,6 +807,7 @@ struct MensEDHeartView: View {
 struct MensAccountabilityView: View {
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject var store: AppStore
+    @ObservedObject private var account = AccountStore.shared
     private let questions = ["How is my walk with God this week?", "Have I been honest in my relationships?", "Is there any sin I need to confess?", "Am I caring for my body and my mind?", "What do I need prayer for?"]
 
     var body: some View {

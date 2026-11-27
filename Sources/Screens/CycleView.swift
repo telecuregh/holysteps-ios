@@ -539,7 +539,7 @@ struct MensWellnessView: View {
                             .padding(.horizontal, 20).padding(.top, 8)
                         CoverCard(emoji: "🕊️", title: "Grief support", subtitle: "Men process loss through action and silence, not tears. Find your path.", tint: 0x8B5CF6) { MensGriefView() }
                             .padding(.horizontal, 20).padding(.top, 8)
-                        if store.faithMode {
+                        if account.runningPlans.contains(.faith) {
                             CoverCard(emoji: "🔒", title: "Pornography recovery", subtitle: "Private, encrypted. Accountability tracking, scripture support, milestones.", tint: 0xA78BFA) { MensIntegrityJournalView() }
                                 .padding(.horizontal, 20).padding(.top, 8)
                         }
@@ -571,7 +571,7 @@ struct MensWellnessView: View {
                             .padding(.horizontal, 20).padding(.top, 8)
 
                         // ── FAITH-SPECIFIC ─────────────────────────────────
-                        if store.faithMode {
+                        if account.runningPlans.contains(.faith) {
                             MensTabSectionHeader(emoji: "✝️", title: "Faith & Integrity", subtitle: "Built for men of faith. No other app touches this.")
                                 .padding(.top, 24)
                             CoverCard(emoji: "🤝", title: "Accountability partner", subtitle: "Weekly spiritual check-in with another man. Iron sharpens iron.", tint: 0x10B981) { MensAccountabilityView() }
