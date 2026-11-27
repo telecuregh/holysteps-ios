@@ -513,6 +513,77 @@ struct MensWellnessView: View {
                             .padding(.horizontal, 20).padding(.top, 16)
                         CoverCard(emoji: "🧠", title: "Mood check-in", subtitle: "A private 1-minute check, with 988 one tap away", tint: 0xA78BFA) { MoodCheckView() }
                             .padding(.horizontal, 20).padding(.top, 12)
+
+                        // ── HEALTH SCREENINGS ──────────────────────────────
+                        MensTabSectionHeader(emoji: "🩺", title: "Health Screenings", subtitle: "Most men skip these. Your age-based checklist.")
+                            .padding(.top, 24)
+                        CoverCard(emoji: "🏴", title: "Testicular self-exam", subtitle: "Monthly reminder. Most common cancer in men 15–35. 2 minutes.", tint: 0x10B981) { MensScreeningDetailView(item: "testicular") }
+                            .padding(.horizontal, 20).padding(.top, 8)
+                        CoverCard(emoji: "🔬", title: "PSA + Prostate", subtitle: "Start at 40 (Black men) or 50. Log your last test and when to recheck.", tint: 0x10B981) { MensScreeningDetailView(item: "psa") }
+                            .padding(.horizontal, 20).padding(.top, 8)
+                        CoverCard(emoji: "🩻", title: "Colorectal screening", subtitle: "Colonoscopy at 45. Earlier if family history. Catches cancer before symptoms.", tint: 0x10B981) { MensScreeningDetailView(item: "colorectal") }
+                            .padding(.horizontal, 20).padding(.top, 8)
+                        CoverCard(emoji: "☀️", title: "Skin mole check", subtitle: "Annual. ABCDE: Asymmetry, Border, Color, Diameter, Evolving.", tint: 0xF59E0B) { MensScreeningDetailView(item: "skin") }
+                            .padding(.horizontal, 20).padding(.top, 8)
+                        CoverCard(emoji: "🩸", title: "BP · Cholesterol · A1c", subtitle: "Log your numbers and when to recheck. Heart disease is the #1 killer of men.", tint: 0xF43F5E) { MensVitalsLogView() }
+                            .padding(.horizontal, 20).padding(.top, 8)
+                        CoverCard(emoji: "⚡", title: "Testosterone awareness", subtitle: "Symptoms of low T and when to test. Best tested in the morning.", tint: 0xF59E0B) { MensScreeningDetailView(item: "testosterone") }
+                            .padding(.horizontal, 20).padding(.top, 8)
+
+                        // ── MENTAL HEALTH ──────────────────────────────────
+                        MensTabSectionHeader(emoji: "🧠", title: "Mental Health", subtitle: "6 million men get depression yearly. Most never say it.")
+                            .padding(.top, 24)
+                        CoverCard(emoji: "😔", title: "Depression check", subtitle: "Men show depression as anger and risk-taking. PHQ-9 built for men.", tint: 0x8B5CF6) { MensDepressionCheckView() }
+                            .padding(.horizontal, 20).padding(.top, 8)
+                        CoverCard(emoji: "🔥", title: "Anger journal", subtitle: "Log triggers privately. Anger is often depression in disguise.", tint: 0xF43F5E) { MensAngerJournalView() }
+                            .padding(.horizontal, 20).padding(.top, 8)
+                        CoverCard(emoji: "🕊️", title: "Grief support", subtitle: "Men process loss through action and silence, not tears. Find your path.", tint: 0x8B5CF6) { MensGriefView() }
+                            .padding(.horizontal, 20).padding(.top, 8)
+                        if store.faithMode {
+                            CoverCard(emoji: "🔒", title: "Pornography recovery", subtitle: "Private, encrypted. Accountability tracking, scripture support, milestones.", tint: 0xA78BFA) { MensIntegrityJournalView() }
+                                .padding(.horizontal, 20).padding(.top, 8)
+                        }
+
+                        // ── RELATIONSHIPS & IDENTITY ───────────────────────
+                        MensTabSectionHeader(emoji: "🤝", title: "Relationships & Identity", subtitle: "Who you are when no one is watching.")
+                            .padding(.top, 24)
+                        CoverCard(emoji: "💍", title: "Marriage check-in", subtitle: "Weekly prompt across 5 areas: connection, conflict, intimacy, teamwork, fun.", tint: 0xF472B6) { MensMarriageCheckInView() }
+                            .padding(.horizontal, 20).padding(.top, 8)
+                        CoverCard(emoji: "👨‍👦", title: "Fatherhood coaching", subtitle: "What your kid needs from you at their exact age and stage.", tint: 0xF59E0B) { MensFatherhoodView() }
+                            .padding(.horizontal, 20).padding(.top, 8)
+                        CoverCard(emoji: "🤜", title: "Brotherhood", subtitle: "Men's friendships drop after 30. Build your 2–3 close connections.", tint: 0x10B981) { MensBrotherhoodView() }
+                            .padding(.horizontal, 20).padding(.top, 8)
+                        CoverCard(emoji: "🧭", title: "Purpose & calling", subtitle: "Identity audit for career transitions, job loss, or a season of waiting.", tint: 0x8B5CF6) { MensPurposeView() }
+                            .padding(.horizontal, 20).padding(.top, 8)
+
+                        // ── PHYSICAL SPECIFICS ─────────────────────────────
+                        MensTabSectionHeader(emoji: "💪", title: "Physical Health", subtitle: "Things apps never tell men about their own bodies.")
+                            .padding(.top, 24)
+                        CoverCard(emoji: "🌡️", title: "Fertility health", subtitle: "Sperm quality and the lifestyle factors you can actually control.", tint: 0x10B981) { MensFertilityView() }
+                            .padding(.horizontal, 20).padding(.top, 8)
+                        CoverCard(emoji: "😴", title: "Sleep apnea risk", subtitle: "Men are 2–3x more likely. Log snoring, gasping, fatigue. Know your risk.", tint: 0x8B5CF6) { MensSleepApneaView() }
+                            .padding(.horizontal, 20).padding(.top, 8)
+                        CoverCard(emoji: "🦴", title: "Back pain & posture", subtitle: "#1 reason men miss work. Daily posture check and stretch reminders.", tint: 0xF59E0B) { MensBackPainView() }
+                            .padding(.horizontal, 20).padding(.top, 8)
+                        CoverCard(emoji: "👂", title: "Hearing protection", subtitle: "Men lose hearing earlier from noise. Reminders and check schedule.", tint: 0xF59E0B) { MensScreeningDetailView(item: "hearing") }
+                            .padding(.horizontal, 20).padding(.top, 8)
+                        CoverCard(emoji: "❤️", title: "ED as a heart warning", subtitle: "Often the first sign of cardiovascular disease — 3–5 years before an event.", tint: 0xF43F5E) { MensEDHeartView() }
+                            .padding(.horizontal, 20).padding(.top, 8)
+
+                        // ── FAITH-SPECIFIC ─────────────────────────────────
+                        if store.faithMode {
+                            MensTabSectionHeader(emoji: "✝️", title: "Faith & Integrity", subtitle: "Built for men of faith. No other app touches this.")
+                                .padding(.top, 24)
+                            CoverCard(emoji: "🤝", title: "Accountability partner", subtitle: "Weekly spiritual check-in with another man. Iron sharpens iron.", tint: 0x10B981) { MensAccountabilityView() }
+                                .padding(.horizontal, 20).padding(.top, 8)
+                            CoverCard(emoji: "⏳", title: "Fasting tracker", subtitle: "Track fast type, purpose, and duration. Tied to your weekly rhythm.", tint: 0x8B5CF6) { MensFastingView() }
+                                .padding(.horizontal, 20).padding(.top, 8)
+                            CoverCard(emoji: "🔐", title: "Sexual integrity journal", subtitle: "Private and encrypted. Struggles, victories, prayer, progress.", tint: 0xA78BFA) { MensIntegrityJournalView() }
+                                .padding(.horizontal, 20).padding(.top, 8)
+                            CoverCard(emoji: "📖", title: "Biblical identity", subtitle: "Who am I in Christ — especially in hard seasons. Daily prompt.", tint: 0xF59E0B) { MensBiblicalIdentityView() }
+                                .padding(.horizontal, 20).padding(.top, 8)
+                        }
+
                         Spacer().frame(height: 100)
                     }
                 }
