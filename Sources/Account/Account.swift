@@ -69,11 +69,11 @@ enum Plan: String, CaseIterable, Identifiable {
         case .fitness: ["Adaptive Coach that learns your week", "Camera Form Coach for your reps", "Guided walk plans, with month and year statistics",
                         "Walk check: a coaching note on every walk", "Commitment challenges, backed by your card if you like", "Sleep and heart insights from your ring or watch",
                         "Calm check, sleep sounds and breathing insights: what calms you most and how your nights compare", "A safety circle of up to 10 people"]
-        case .cycle: ["Every cycle phase insight", "Skin journal patterns through your cycle", "Cycle report to share with your doctor", "Partner coaching",
+        case .cycle: ["The full Women's Mental Health audio library: anxiety, PMS/PMDD, postpartum, grief, burnout, self-worth", "Every cycle phase insight", "Skin journal patterns through your cycle", "Cycle report to share with your doctor", "Partner coaching",
                       "Life and Health Trends with 90-day charts", "Weekly whole-person report: what really helps you",
                       "The baby tracker: feeds, sleep, diapers, growth charts, milestones and white noise",
                       "Body & energy: a daily log for menopause, arthritis, thyroid or chronic pain"]
-        case .wellness: ["Your whole men's health plan: every move, meal and mindset idea, each day", "Partner coaching: deeper guidance to support your partner through every phase",
+        case .wellness: ["The full Men's Mental Health audio library: depression, anger, grief, anxiety, burnout, recovery", "Your whole men's health plan: every move, meal and mindset idea, each day", "Partner coaching: deeper guidance to support your partner through every phase",
                          "Life and Health Trends with 90-day charts", "Weekly whole-person report: what really helps you",
                          "Calm check, sleep sounds and breathing insights: what calms you most and how your nights compare",
                          "The baby tracker: feeds, sleep, diapers, growth charts, milestones and white noise",
@@ -92,11 +92,13 @@ enum Feature: String {
     case cycleInsights, partnerCoaching, trends, mensHealth, aiUnlimited, liveRooms, habitTemplates
     case babyTracker, bodyEnergy, hymns, bibleNotes, journalHistory, createGroup, church
     case freedomShield, faithCoach, spiritStress
+    case mensMindAudio, womenMindAudio
 
     var minTier: Int {
         switch self {
         case .bibleJourneys, .versesPremium, .devotionalPlans, .prayerWalkMap, .wearableInsights, .mensHealth,
-             .babyTracker, .bodyEnergy, .hymns, .bibleNotes, .journalHistory, .createGroup, .faithCoach, .spiritStress: 1
+             .babyTracker, .bodyEnergy, .hymns, .bibleNotes, .journalHistory, .createGroup, .faithCoach, .spiritStress,
+             .mensMindAudio, .womenMindAudio: 1
         case .aiUnlimited, .liveRooms: 2
         case .sanctuaryFull, .bibleAudio: 3
         case .adaptiveCoach, .formCoach, .walkPlus: 4
@@ -107,6 +109,8 @@ enum Feature: String {
     }
     var plans: Set<Plan> {
         switch self {
+        case .mensMindAudio: [.wellness]
+        case .womenMindAudio: [.cycle]
         case .spiritStress: [.faith, .wellness]
         case .bibleJourneys, .versesPremium, .sanctuaryFull, .bibleAudio, .devotionalPlans, .familyRelay, .prayerWalkMap, .hymns, .bibleNotes, .faithCoach: [.faith]
         case .adaptiveCoach, .formCoach, .walkPlus, .walkAiCheck, .realStakes: [.fitness]
@@ -153,6 +157,8 @@ enum Feature: String {
         case .freedomShield: "Freedom Shield, real app and website blocking\nwith a partner's code, comes with Complete."
         case .spiritStress: "See how prayer days compare for stress and mood\nwith the Faith or Wellness plan."
         case .faithCoach: "Your private faith coach on this iPhone\nis part of the Faith plan."
+        case .mensMindAudio: "The full Men's Mental Health audio library\ncomes with the Wellness plan.\nTwo sessions stay free — always."
+        case .womenMindAudio: "The full Women's Mental Health audio library\ncomes with the Cycle plan.\nTwo sessions stay free — always."
         }
     }
     /// Which plan the paywall points at (null = Complete).
@@ -164,6 +170,8 @@ enum Feature: String {
         case .cycleInsights, .partnerCoaching: .cycle
         case .mensHealth: .wellness
         case .wearableInsights, .trends, .babyTracker, .bodyEnergy: nil
+        case .mensMindAudio: .wellness
+        case .womenMindAudio: .cycle
         default: nil
         }
     }

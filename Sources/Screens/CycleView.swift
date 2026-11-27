@@ -20,6 +20,18 @@ struct WomensCycleView: View {
     @State private var showLog = false
     @State private var confirmDelete = false
     @State private var showPrivacyMore = false
+    @ObservedObject private var eng = EngagementStore.shared
+    @State private var showAllTools = false
+
+    // Progressive disclosure: cards appear as the user engages. Existing history counts,
+    // a symptom-focused goal shows Severity at once, and every hidden card stays one tap away.
+    private var periodCount: Int { max(eng.periodLogCount, store.periodStarts.count) }
+    private var symptomGoal: Bool { ["SYMPTOMS"].contains(UserDefaults.standard.string(forKey: "cycleGoal") ?? "") }
+    private var showSeverity: Bool { showAllTools || symptomGoal || periodCount >= 3 }
+    private var showPartner: Bool  { showAllTools || periodCount >= 7 }
+    private var showCircles: Bool  { showAllTools || eng.moodCheckCount >= 5 }
+    private var showSkin: Bool     { showAllTools || periodCount >= 10 }
+    private var hiddenToolCount: Int { [showSeverity, showPartner, showCircles, showSkin].filter { !$0 }.count }
 
     var body: some View {
         let rhythm = Rhythm(store: store)
@@ -360,22 +372,49 @@ struct WomensCycleView: View {
             .padding(.horizontal, 20).padding(.top, 12)
         CoverCard(emoji: "🩺", title: "Checkups & self-checks", subtitle: "Screenings and vaccines for your age, and monthly self-checks", tint: 0xF472B6) { CheckupsView(women: true) }
             .padding(.horizontal, 20).padding(.top, 12)
+        CoverCard(emoji: "💜", title: "Women's Mental Health", subtitle: "Audio guidance for anxiety, PMS/PMDD, postpartum, grief, burnout and self-worth. Private. On-device.", tint: 0xF472B6) { WomenMindView() }
+            .padding(.horizontal, 20).padding(.top, 12)
         CoverCard(emoji: "🧠", title: "Mood check-in", subtitle: "A private 1-minute check, with 988 one tap away", tint: 0xA78BFA) { MoodCheckView() }
             .padding(.horizontal, 20).padding(.top, 12)
         CoverCard(emoji: "🌸", title: "Mood and tests", subtitle: "A daily mood scale and a pregnancy-test log", tint: 0xF472B6) { CycleMoodTestsView() }
             .padding(.horizontal, 20).padding(.top, 12)
-        CoverCard(emoji: "📈", title: "Symptom severity", subtitle: "For PMS, PMDD, PCOS or endometriosis: rate pain and mood daily", tint: 0xF472B6) { SeverityView().environmentObject(store) }
-            .padding(.horizontal, 20).padding(.top, 12)
+        if showSeverity {
+            CoverCard(emoji: "📈", title: "Symptom severity", subtitle: "For PMS, PMDD, PCOS or endometriosis: rate pain and mood daily", tint: 0xF472B6) { SeverityView().environmentObject(store) }
+                .padding(.horizontal, 20).padding(.top, 12)
+        }
         CoverCard(emoji: "🤰", title: "Pregnancy tools", subtitle: "Kick counter, contraction timer and appointments", tint: 0xF472B6) { PregnancyToolsView() }
             .padding(.horizontal, 20).padding(.top, 12)
         CoverCard(emoji: "📥", title: "Bring your data", subtitle: "Move your period history from Flo, Clue or Apple Health", tint: 0xF472B6) { BringDataView().environmentObject(store) }
             .padding(.horizontal, 20).padding(.top, 12)
-        CoverCard(emoji: "💞", title: "Partner coaching", subtitle: "Your husband gets a daily tip on how to support you, never your data", tint: 0xF472B6) { PartnerCoachingView().environmentObject(store) }
+        if showPartner {
+            CoverCard(emoji: "💞", title: "Partner coaching", subtitle: "Your partner gets a daily tip on how to support you, never your data", tint: 0xF472B6) { PartnerCoachingView().environmentObject(store) }
+                .padding(.horizontal, 20).padding(.top, 12)
+        }
+        if showCircles {
+            CoverCard(emoji: "🌸", title: "Cycle Circles", subtitle: "Small private support circles, up to 12 women, by invitation", tint: 0xF472B6) { CycleCirclesView().environmentObject(store) }
+                .padding(.horizontal, 20).padding(.top, 12)
+        }
+        if showSkin {
+            CoverCard(emoji: "🪞", title: "Skin journal", subtitle: "A private photo a day, and how your skin follows your cycle", tint: 0xF472B6) { SkinJournalView().environmentObject(store) }
+                .padding(.horizontal, 20).padding(.top, 12)
+        }
+        if hiddenToolCount > 0 {
+            Button { withAnimation { showAllTools = true } } label: {
+                HStack(spacing: 12) {
+                    T("✨").font(.system(size: 20))
+                    VStack(alignment: .leading, spacing: 2) {
+                        T("\(hiddenToolCount) more tools").font(.hs(14, .semibold)).foregroundStyle(HS.text)
+                        T("They appear here as you log. Tap to see them now.").font(.hs(12)).foregroundStyle(HS.textMuted)
+                    }
+                    Spacer()
+                    Image(systemName: "chevron.down").foregroundStyle(HS.textMuted)
+                }
+                .padding(14)
+                .background(RoundedRectangle(cornerRadius: 14).fill(HS.cardFill))
+            }
+            .buttonStyle(.plain)
             .padding(.horizontal, 20).padding(.top, 12)
-        CoverCard(emoji: "🌸", title: "Cycle Circles", subtitle: "Small private support circles, up to 12 women, by invitation", tint: 0xF472B6) { CycleCirclesView().environmentObject(store) }
-            .padding(.horizontal, 20).padding(.top, 12)
-        CoverCard(emoji: "🪞", title: "Skin journal", subtitle: "A private photo a day, and how your skin follows your cycle", tint: 0xF472B6) { SkinJournalView().environmentObject(store) }
-            .padding(.horizontal, 20).padding(.top, 12)
+        }
         // Pregnancy-loss entry — quiet door, only shown when not already active
         PregnancyLossEntry().padding(.horizontal, 20).padding(.top, 12)
         GlassCard {
@@ -533,21 +572,13 @@ struct MensWellnessView: View {
                         // ── MENTAL HEALTH ──────────────────────────────────
                         MensTabSectionHeader(emoji: "🧠", title: "Mental Health", subtitle: "6 million men get depression yearly. Most never say it.")
                             .padding(.top, 24)
-                        CoverCard(emoji: "😔", title: "Depression check", subtitle: "Men show depression as anger and risk-taking. PHQ-9 built for men.", tint: 0x8B5CF6) { MensDepressionCheckView() }
+                        CoverCard(emoji: "🧠", title: "Men's Mental Health", subtitle: "Audio sessions for depression, anger, grief, burnout, anxiety and recovery. Private. On-device.", tint: 0x8B5CF6) { MensMindView() }
                             .padding(.horizontal, 20).padding(.top, 8)
-                        CoverCard(emoji: "🔥", title: "Anger journal", subtitle: "Log triggers privately. Anger is often depression in disguise.", tint: 0xF43F5E) { MensAngerJournalView() }
-                            .padding(.horizontal, 20).padding(.top, 8)
-                        CoverCard(emoji: "🕊️", title: "Grief support", subtitle: "Men process loss through action and silence, not tears. Find your path.", tint: 0x8B5CF6) { MensGriefView() }
-                            .padding(.horizontal, 20).padding(.top, 8)
-                        if account.runningPlans.contains(.faith) {
-                            CoverCard(emoji: "🔒", title: "Pornography recovery", subtitle: "Private, encrypted. Accountability tracking, scripture support, milestones.", tint: 0xA78BFA) { MensIntegrityJournalView() }
-                                .padding(.horizontal, 20).padding(.top, 8)
-                        }
 
                         // ── RELATIONSHIPS & IDENTITY ───────────────────────
                         MensTabSectionHeader(emoji: "🤝", title: "Relationships & Identity", subtitle: "Who you are when no one is watching.")
                             .padding(.top, 24)
-                        CoverCard(emoji: "💍", title: "Marriage check-in", subtitle: "Weekly prompt across 5 areas: connection, conflict, intimacy, teamwork, fun.", tint: 0xF472B6) { MensMarriageCheckInView() }
+                        CoverCard(emoji: "💍", title: "Partners check-in", subtitle: "Weekly prompt across 5 areas: connection, conflict, intimacy, teamwork, fun.", tint: 0xF472B6) { MensMarriageCheckInView() }
                             .padding(.horizontal, 20).padding(.top, 8)
                         CoverCard(emoji: "👨‍👦", title: "Fatherhood coaching", subtitle: "What your kid needs from you at their exact age and stage.", tint: 0xF59E0B) { MensFatherhoodView() }
                             .padding(.horizontal, 20).padding(.top, 8)

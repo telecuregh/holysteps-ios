@@ -110,7 +110,10 @@ final class CheckupStore: ObservableObject {
         return Calendar.current.isDate(Date(timeIntervalSince1970: t), equalTo: Date(), toGranularity: .month)
     }
     func markSelfCheck(_ id: String) { selfChecks[id] = Date().timeIntervalSince1970 }
-    func saveMood(_ s: Int) { moods = Array((moods + [[Date().timeIntervalSince1970, Double(s)]]).suffix(52)) }
+    func saveMood(_ s: Int) {
+        moods = Array((moods + [[Date().timeIntervalSince1970, Double(s)]]).suffix(52))
+        Task { @MainActor in EngagementStore.shared.recordMoodCheck() }
+    }
 }
 
 private func dial(_ s: String) { if let u = URL(string: s) { UIApplication.shared.open(u) } }

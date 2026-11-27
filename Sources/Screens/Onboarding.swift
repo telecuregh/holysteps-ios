@@ -77,11 +77,12 @@ struct OnboardingView: View {
     @EnvironmentObject var store: AppStore
     let onDone: () -> Void
 
-    enum Step: CaseIterable { case welcome, gender, name, lifeStage, periodStart, cycleDetails, cycleGoal, faith, tradition, activity, goals, reminder, ready }
+    enum Step: CaseIterable { case welcome, persona, gender, name, lifeStage, periodStart, cycleDetails, cycleGoal, faith, tradition, activity, goals, reminder, ready }
 
     @State private var step = Step.welcome
     @State private var forward = true
     @State private var gender: String?
+    @State private var persona: EngagementStore.Persona?
     @State private var name = ""
     @State private var lifeStage: String?
     @State private var lastPeriod: Date?
@@ -144,6 +145,14 @@ struct OnboardingView: View {
     @ViewBuilder private var content: some View {
         switch step {
         case .welcome: welcome
+        case .persona:
+            Scaffold(title: "What brings you\nhere?", subtitle: "We'll open the app where it helps you most. Everything else is one tap away.",
+                     enabled: persona != nil, next: next) {
+                personaCard(.cycle, "🌸", "Cycle & women's health", "Periods, fertility, pregnancy, and how you feel through every phase.")
+                personaCard(.mensHealth, "💚", "Men's health", "Screenings, fitness, and mental health built for men.")
+                personaCard(.faith, "🕊️", "Faith & prayer", "Daily devotionals, scripture, sermons, and prayer.")
+                personaCard(.fitness, "👣", "Fitness & steps", "Walking goals, workouts, and faith on the move.")
+            }
         case .gender:
             Scaffold(title: "Who are you?", subtitle: "We'll personalize your devotionals, wellness tracking, and prayer content just for you.",
                      enabled: gender != nil, next: next) {
@@ -361,6 +370,8 @@ struct OnboardingView: View {
         ud.set(regularity, forKey: "cycleRegularity")
         ud.set(goals, forKey: "goals")
         ud.set(reminder, forKey: "reminderTime")
+        EngagementStore.setPersona(persona ?? .unset)
+        TabRouter.shared.tab = EngagementStore.openingTabIndex
         ud.set(true, forKey: "onboarded")
         let r = reminder
         Task { await Profile.scheduleDaily(r) }
@@ -368,6 +379,14 @@ struct OnboardingView: View {
     }
 
     // MARK: Pieces
+
+    private func personaCard(_ p: EngagementStore.Persona, _ emoji: String, _ title: String, _ desc: String) -> some View {
+        option(emoji, title, desc, persona == p) {
+            persona = p
+            // The choice implies who they are; pre-select it on the next step (they can still change it).
+            if p == .cycle { gender = "female" } else if p == .mensHealth { gender = "male" }
+        }
+    }
 
     private func genderCard(_ key: String, _ emoji: String, _ title: String, _ desc: String, _ hex: UInt32) -> some View {
         let sel = gender == key
