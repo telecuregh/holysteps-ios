@@ -175,6 +175,7 @@ struct AccountDoc: Equatable {
     var redeemedLicenseCode = ""
     var subscriptionTier = 0
     var premiumExpiresAt: Int64 = 0, playExpiresAt: Int64 = 0
+    var adminGrantedUntil: Int64 = 0   // 0 = lifetime; >0 = ms timestamp when admin grant expires
     var faithEndsAt: Int64 = 0, fitnessEndsAt: Int64 = 0, cycleEndsAt: Int64 = 0, wellnessEndsAt: Int64 = 0
     var trialUsedAt: Int64 = 0
     var banned = false
@@ -185,11 +186,19 @@ struct AccountDoc: Equatable {
     /// WebStore.runningTier: the older tier this account uses now (license, grant or older Play subscription), or 0.
     func runningTier(now: Int64) -> Int {
         let tier = (1...7).contains(subscriptionTier) ? subscriptionTier : 7
-        let lifetime = isPremium && adminGrantedPremium && premiumExpiresAt == 0
+        // Admin grant: lifetime (adminGrantedUntil == 0) or timed (adminGrantedUntil > now)
+        let adminGrant = isPremium && adminGrantedPremium && (adminGrantedUntil == 0 || adminGrantedUntil > now)
         let term = isPremium && !redeemedLicenseCode.isEmpty && premiumExpiresAt > now
-        if lifetime || term { return tier }
+        if adminGrant || term { return tier }
         if isPremium && !adminGrantedPremium && playExpiresAt > now { return tier }
         return 0
+    }
+    /// True when this account has an active admin grant.
+    var hasAdminGrant: Bool { isPremium && adminGrantedPremium }
+    /// The admin grant expiry date, or nil for lifetime.
+    var adminGrantExpiry: Date? {
+        guard adminGrantedUntil > 0 else { return nil }
+        return Date(timeIntervalSince1970: TimeInterval(adminGrantedUntil) / 1000)
     }
     func running(now: Int64) -> Set<Plan> { Set(Plan.allCases.filter { endsAt($0) > now }) }
 }
@@ -321,6 +330,7 @@ final class AccountStore: ObservableObject {
         func str(_ k: String) -> String { f[k]?["stringValue"] as? String ?? "" }
         doc = AccountDoc(isPremium: bool("isPremium"), adminGrantedPremium: bool("adminGrantedPremium"), redeemedLicenseCode: str("redeemedLicenseCode"),
                          subscriptionTier: Int(int("subscriptionTier")), premiumExpiresAt: int("premiumExpiresAt"), playExpiresAt: int("playExpiresAt"),
+                         adminGrantedUntil: int("adminGrantedUntil"),
                          faithEndsAt: int("faithEndsAt"), fitnessEndsAt: int("fitnessEndsAt"), cycleEndsAt: int("cycleEndsAt"),
                          wellnessEndsAt: int("wellnessEndsAt"), trialUsedAt: int("trialUsedAt"), banned: bool("banned"))
         scheduleEndingNotice()
