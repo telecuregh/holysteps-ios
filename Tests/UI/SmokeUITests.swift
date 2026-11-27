@@ -76,7 +76,10 @@ final class SmokeUITests: XCTestCase {
         button(app, containing: "Your prayer garden").tap(); sleep(1)
         shot(app, "60-garden-empty")
         button(app, containing: "Plant a prayer").tap()
-        app.textFields.firstMatch.tap(); app.textFields.firstMatch.typeText("Healing for Mum")
+        let field = app.textFields.firstMatch
+        XCTAssertTrue(field.waitForExistence(timeout: 5)); sleep(1)
+        if field.isHittable { field.tap() } else { field.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap() }
+        field.typeText("Healing for Mum")
         button(app, containing: "Plant").tap(); sleep(1)
         shot(app, "61-garden-planted")
         XCTAssertTrue(app.staticTexts["A new seed is planted in your garden."].waitForExistence(timeout: 5))
