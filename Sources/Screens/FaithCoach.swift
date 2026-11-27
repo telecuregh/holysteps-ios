@@ -208,7 +208,7 @@ struct FaithCoachView: View {
             let key  = Bundle.main.infoDictionary?["GeminiApiKey"]  as? String, !key.isEmpty,
             let base = Bundle.main.infoDictionary?["GeminiBaseUrl"] as? String, !base.isEmpty
         else {
-            return tr("Faith guidance will be available soon. Meanwhile: "Be careful for nothing; but in every thing by prayer and supplication with thanksgiving let your requests be made known unto God." — Phil 4:6")
+            return tr("Faith guidance will be available soon. Meanwhile: \"Be careful for nothing; but in every thing by prayer and supplication with thanksgiving let your requests be made known unto God.\" — Phil 4:6")
         }
         let normalizedBase = base.hasSuffix("/") ? base : "\(base)/"
         guard let url = URL(string: "\(normalizedBase)chat/completions") else {

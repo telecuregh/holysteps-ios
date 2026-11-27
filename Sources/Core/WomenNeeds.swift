@@ -165,7 +165,7 @@ final class PregnancyLoss: ObservableObject {
     static let grief         = "Grief after a loss is real and can come in waves — sadness, anger, numbness — sometimes together. All of that is normal."
     static let support       = "Talking to your doctor, a counselor, or a trusted friend can help. The National Alliance for Eating Disorders helpline is at 1-866-662-1235. For crisis support: 988 Lifeline."
     static let tryingAgain   = "Most doctors suggest waiting one full menstrual cycle before trying again, but the right timing is a personal decision to make with your doctor."
-    static let prayer        = ""The Lord is close to the brokenhearted and saves those who are crushed in spirit." — Psalm 34:18 (KJV)"
+    static let prayer        = "\"The Lord is close to the brokenhearted and saves those who are crushed in spirit.\" — Psalm 34:18 (KJV)"
     static let source        = "Sources: ACOG Practice Bulletin 150; Mayo Clinic pregnancy loss recovery guidelines."
 }
 
