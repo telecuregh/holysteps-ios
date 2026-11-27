@@ -15,7 +15,7 @@ enum Legal {
     /// Writes the acceptance to the account once it has a signed-in identity. Safe to call often.
     static func syncIfNeeded() async {
         guard accepted, UserDefaults.standard.string(forKey: syncedKey) != version,
-              let uid = AccountStore.shared.uid else { return }
+              let uid = await AccountStore.shared.uid else { return }
         let app = (Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "").prefix(24)
         do {
             try await Firestore.commit([.set("consents/\(uid)", [
