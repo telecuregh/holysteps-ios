@@ -73,10 +73,11 @@ struct ProfileView: View {
                             GlassCard {
                                 VStack(alignment: .leading, spacing: 6) {
                                     T("Privacy").font(.hs(14, .semibold)).foregroundStyle(HS.text)
-                                    T("Your prayers, journal, cycle dates, Bible highlights and notes are stored only on this iPhone.")
+                                    T("Your prayers, journal, cycle dates, Bible highlights and notes are stored only on this iPhone, unless you turn on the encrypted backup, which only your recovery code can open.")
                                         .font(.hs(13)).foregroundStyle(HS.textSecondary)
                                 }
                             }
+                            link("lock.shield", "Encrypted backup", Backup.code == nil ? tr("Off") : tr("On"), 0x56B892) { BackupView() }
                             Button(role: .destructive) { confirmErase = true } label: {
                                 T("Erase all my data on this phone").font(.hs(14, .semibold)).foregroundStyle(Color(hex: 0xFCA5A5))
                                     .frame(maxWidth: .infinity).padding(.vertical, 12)

@@ -36,7 +36,7 @@ struct HolyStepsApp: App {
                 .preferredColorScheme(appearance.mode.isLight ? .light : .dark)
                 .task { await AccountStore.shared.start(); await Legal.syncIfNeeded() }
                 .fullScreenCover(isPresented: $notifications.ringing) { WakeRingView { notifications.ringing = false }.environmentObject(i18n) }
-                .onChange(of: phase) { _, p in if p != .active { shareWithWidgets() } }
+                .onChange(of: phase) { _, p in if p != .active { shareWithWidgets() }; if p == .background { Backup.maybeAuto() } }
         }
     }
 
