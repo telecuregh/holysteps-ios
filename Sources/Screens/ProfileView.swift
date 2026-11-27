@@ -64,6 +64,7 @@ struct ProfileView: View {
                         }
                         group("About") {
                             link("hand.raised", "Our promises to you", "", 0xD9B49F) { TrustView() }
+                            link("questionmark.circle", "How HolySteps works", "", 0xD9B49F) { HowItWorksView() }
                             item("doc.text", "Terms of Service", "", 0x9F948B) { openURL(URL(string: AppLinks.site + "/terms")!) }
                             item("lock", "Privacy Policy", "", 0x9F948B) { openURL(URL(string: AppLinks.site + "/privacy")!) }
                         }
