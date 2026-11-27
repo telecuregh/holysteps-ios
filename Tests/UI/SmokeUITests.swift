@@ -76,7 +76,9 @@ final class SmokeUITests: XCTestCase {
         button(app, containing: "Your prayer garden").tap(); sleep(1)
         shot(app, "60-garden-empty")
         button(app, containing: "Plant a prayer").tap()
-        let field = app.textFields.firstMatch
+        let want = NSPredicate(format: "placeholderValue CONTAINS %@", "praying for")
+        let tf = app.textFields.matching(want).firstMatch, tv = app.textViews.matching(want).firstMatch
+        let field = tf.waitForExistence(timeout: 5) ? tf : tv
         XCTAssertTrue(field.waitForExistence(timeout: 5)); sleep(1)
         if field.isHittable { field.tap() } else { field.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap() }
         field.typeText("Healing for Mum")
