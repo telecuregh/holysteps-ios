@@ -40,6 +40,7 @@ struct AppFeature: Identifiable {
             AppFeature(title: "Mood check-in", symbol: "brain.head.profile", words: "mood depression anxiety check phq feeling", target: .view { AnyView(MoodCheckView()) }),
             AppFeature(title: "Walk through the Bible", symbol: "book", words: "walk bible chapter kilometer steps genesis revelation", target: .view { AnyView(BibleWalkView()) }),
             AppFeature(title: "How HolySteps works", symbol: "questionmark.circle", words: "help how works explain privacy features", target: .view { AnyView(HowItWorksView()) }),
+            AppFeature(title: "Kids profiles", symbol: "figure.and.child.holdinghands", words: "kids children child son daughter bedtime family", target: .view { AnyView(KidsProfilesView()) }),
             AppFeature(title: "Partner coaching", symbol: "heart.circle", words: "partner husband wife spouse coaching support tip invite code", target: .view { AnyView(PartnerCoachingView()) }),
             AppFeature(title: "Headache diary", symbol: "bolt.heart", words: "headache migraine diary", target: .view { AnyView(HeadacheView()) }),
         ]
