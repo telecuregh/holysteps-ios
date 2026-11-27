@@ -4,7 +4,7 @@ import SwiftUI
 struct CycleView: View {
     @EnvironmentObject var store: AppStore
     var body: some View {
-        if store.gender == "male" { MensWellnessView() } else { WomensCycleView() }
+        if store.gender == "male" { MensWellnessView() } else { CycleLockGate { WomensCycleView() } }
     }
 }
 
@@ -296,11 +296,19 @@ struct WomensCycleView: View {
         NewParentsEntryCard().padding(.horizontal, 20).padding(.top, 12)
         CoverCard(emoji: "🤕", title: "Headache diary", subtitle: "Log headaches and see what goes with yours") { HeadacheView() }
             .padding(.horizontal, 20).padding(.top, 12)
+        CoverCard(emoji: "🌸", title: "Mood and tests", subtitle: "A daily mood scale and a pregnancy-test log", tint: 0xF472B6) { CycleMoodTestsView() }
+            .padding(.horizontal, 20).padding(.top, 12)
+        CoverCard(emoji: "📈", title: "Symptom severity", subtitle: "For PMS, PMDD, PCOS or endometriosis: rate pain and mood daily", tint: 0xF472B6) { SeverityView().environmentObject(store) }
+            .padding(.horizontal, 20).padding(.top, 12)
+        CoverCard(emoji: "🤰", title: "Pregnancy tools", subtitle: "Kick counter, contraction timer and appointments", tint: 0xF472B6) { PregnancyToolsView() }
+            .padding(.horizontal, 20).padding(.top, 12)
         GlassCard {
             VStack(alignment: .leading, spacing: 12) {
                 T("🔒 Where your cycle data lives").font(.hs(15, .bold)).foregroundStyle(HS.text)
                 privacyLine("On this phone only", "Your period dates, flow and symptoms are kept on this phone. HolySteps doesn't upload them.")
                 privacyLine("Shared only if you choose", "Nothing about your cycle is shared with anyone.")
+                CycleLockSettings()
+                CycleExportButton()
                 Button(role: .destructive) { confirmDelete = true } label: { T("Delete my cycle data").font(.hs(13)).foregroundStyle(Color(hex: 0xFCA5A5)) }
                 T("HolySteps is not a medical device. Talk to a doctor about heavy bleeding, severe pain, or missed periods.")
                     .font(.hs(11)).foregroundStyle(HS.textSubtle)
@@ -308,7 +316,8 @@ struct WomensCycleView: View {
         }
         .padding(.horizontal, 20).padding(.top, 16)
         .alert(tr("Delete your cycle data?"), isPresented: $confirmDelete) {
-            Button(tr("Delete"), role: .destructive) { store.periodStarts = []; store.cycleLength = 28; log.erase() }
+            Button(tr("Delete"), role: .destructive) { store.periodStarts = []; store.cycleLength = 28; log.erase()
+                CycleMoodTests.shared.erase(); SeverityLog.shared.erase(); PregTools.shared.erase() }
             Button(tr("Cancel"), role: .cancel) {}
         } message: { T("This removes every period date, flow and symptom log from this phone. It can't be undone.") }
     }
