@@ -56,7 +56,7 @@ final class AppStore: ObservableObject {
     var stepGoal: Int { let g = UserDefaults.standard.integer(forKey: "stepGoal"); return g > 0 ? g : 8000 }
     var journaledToday: Bool { journal.contains { Calendar.current.isDateInToday($0.created) } }
     /// True when the user has an active Faith plan subscription.
-    var faithMode: Bool { (AccountStore.shared.doc?.endsAt(.faith) ?? 0) > Int64(Date().timeIntervalSince1970 * 1000) }
+    var faithMode: Bool { AccountStore.shared.runningPlans.contains(.faith) }
 
     var prayerDoneToday: [Bool] { prayerLog[AppStore.dayKey()] ?? [false, false, false, false] }
     var prayerDays: Set<String> { Set(prayerLog.filter { $0.value.contains(true) }.keys) }
