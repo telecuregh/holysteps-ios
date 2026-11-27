@@ -239,6 +239,7 @@ struct FaithView: View {
                      destination: AnyView(SleepView())),
         ])
         ToolSection(title: "Audio", items: [
+            ToolItem(symbol: "waveform.and.mic", color: HS.faith, title: "Guided Prayer", sub: "Morning, evening, sleep and crisis sessions", destination: AnyView(AudioPrayerView())),
             ToolItem(symbol: "music.note", color: HS.peach, title: "Hymns", sub: "Sung hymns and country gospel", destination: AnyView(MusicView(tab: 1))),
             ToolItem(symbol: "music.note", color: HS.peach, title: "Gospel songs", sub: "Songs on Bible passages, and your own music", destination: AnyView(MusicView(tab: 0))),
         ])

@@ -76,7 +76,24 @@ struct FaithCoachView: View {
     @State private var session: AnyObject?
     @State private var queriesLeft = FreeAiQuota.queriesLeft
 
-    private let starters = ["I'm anxious about tomorrow", "How do I forgive someone?", "I feel far from God", "Help me pray for my family"]
+    @ObservedObject private var store = AppStore.shared
+
+    private var starters: [String] {
+        switch store.gender {
+        case "female":
+            return ["How can I deepen my prayer life?",
+                    "What does the Bible say about strength for women?",
+                    "I'm feeling overwhelmed — help me find peace in scripture"]
+        case "male":
+            return ["How can I be a man of God?",
+                    "What does the Bible say about purpose and strength?",
+                    "I'm struggling with discipline — what does scripture say?"]
+        default:
+            return ["How can I deepen my prayer life?",
+                    "What does the Bible say about strength?",
+                    "Help me find peace in scripture"]
+        }
+    }
 
     private var isPaid: Bool { account.hasAnyPlan }
 
@@ -100,7 +117,10 @@ struct FaithCoachView: View {
                 ScrollViewReader { proxy in
                     ScrollView {
                         VStack(alignment: .leading, spacing: 12) {
-                            T("Private. It runs on this iPhone, and nothing you type leaves it.").font(.hs(13)).foregroundStyle(HS.textMuted)
+                            T(FaithCoach.available
+                                ? "Private. Your questions are answered on this iPhone."
+                                : "Your questions are answered by a secure AI and are not shared with others.")
+                                .font(.hs(13)).foregroundStyle(HS.textMuted)
                             if messages.isEmpty {
                                 ForEach(starters, id: \.self) { s in
                                     Button { send(tr(s)) } label: {
