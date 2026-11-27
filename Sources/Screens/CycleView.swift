@@ -328,6 +328,8 @@ struct WomensCycleView: View {
             .padding(.horizontal, 20).padding(.top, 12)
         CoverCard(emoji: "📥", title: "Bring your data", subtitle: "Move your period history from Flo, Clue or Apple Health", tint: 0xF472B6) { BringDataView().environmentObject(store) }
             .padding(.horizontal, 20).padding(.top, 12)
+        CoverCard(emoji: "💞", title: "Partner coaching", subtitle: "Your husband gets a daily tip on how to support you, never your data", tint: 0xF472B6) { PartnerCoachingView().environmentObject(store) }
+            .padding(.horizontal, 20).padding(.top, 12)
         GlassCard {
             VStack(alignment: .leading, spacing: 12) {
                 T("🔒 Where your cycle data lives").font(.hs(15, .bold)).foregroundStyle(HS.text)
@@ -585,6 +587,7 @@ struct MensWellnessView: View {
             BodyEnergyEntryCard().padding(.top, 10)
             CoverCard(emoji: "💞", title: "Support her cycle", subtitle: "Your partner's phase and how to love her well this week", tint: 0xF472B6) { SupportHerCycleView() }
             CoverCard(emoji: "🤕", title: "Headache diary", subtitle: "Log headaches and see what goes with yours") { HeadacheView() }
+            CoverCard(emoji: "💌", title: "Partner coaching", subtitle: "Enter her code to get her daily tip on how to support her", tint: 0xF472B6) { PartnerCoachingView().environmentObject(store) }
             NewParentsEntryCard(title: "New dad, or a baby on the way?", subtitle: "Postpartum depression in moms and dads, how to care for her, and for yourself")
             HStack(spacing: 12) {
                 stat("👟", "Steps", steps.today.formatted(), color)

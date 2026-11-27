@@ -35,7 +35,20 @@ struct AppFeature: Identifiable {
             AppFeature(title: "Profile and settings", symbol: "person", words: "profile settings name language spanish theme appearance dark light pearl erase",
                        target: .tab(4, faith: nil)),
             AppFeature(title: "Crisis help (988)", symbol: "phone", words: "crisis help 988 suicide emergency safety", target: .tab(1, faith: 3)),
+            AppFeature(title: "Body basics", symbol: "heart", words: "water blood pressure weight glucose habits medicine pill reminder", target: .view { AnyView(BodyBasicsView()) }),
+            AppFeature(title: "Checkups & self-checks", symbol: "stethoscope", words: "checkup screening vaccine doctor exam self-check", target: .view { AnyView(CheckupsView(women: gender != "male")) }),
+            AppFeature(title: "Mood check-in", symbol: "brain.head.profile", words: "mood depression anxiety check phq feeling", target: .view { AnyView(MoodCheckView()) }),
+            AppFeature(title: "Partner coaching", symbol: "heart.circle", words: "partner husband wife spouse coaching support tip invite code", target: .view { AnyView(PartnerCoachingView()) }),
+            AppFeature(title: "Headache diary", symbol: "bolt.heart", words: "headache migraine diary", target: .view { AnyView(HeadacheView()) }),
         ]
+        if gender != "male" {
+            list += [
+                AppFeature(title: "Bring your data", symbol: "square.and.arrow.down", words: "import flo clue transfer move period history", target: .view { AnyView(CycleLockGate { BringDataView() }) }),
+                AppFeature(title: "Mood and tests", symbol: "face.smiling", words: "mood pregnancy test period", target: .view { AnyView(CycleLockGate { CycleMoodTestsView() }) }),
+                AppFeature(title: "Symptom severity", symbol: "chart.line.uptrend.xyaxis", words: "pms pmdd pcos endometriosis pain severity period", target: .view { AnyView(CycleLockGate { SeverityView() }) }),
+                AppFeature(title: "Pregnancy tools", symbol: "figure.and.child.holdinghands", words: "pregnancy kick counter contraction timer appointment", target: .view { AnyView(CycleLockGate { PregnancyToolsView() }) }),
+            ]
+        }
         if gender == "male" { list.removeAll { $0.words.contains("period") } }
         return list
     }
