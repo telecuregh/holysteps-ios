@@ -27,6 +27,8 @@ targets:
         UIBackgroundModes: [audio, location]
         HSScreenTimeEnabled: false
         HSJournalingEnabled: true
+        GeminiApiKey: $(GEMINI_API_KEY)
+        GeminiBaseUrl: $(GEMINI_BASE_URL)
         UIAppFonts: [PlayfairDisplay-Italic.ttf, Inter-Regular.ttf, Inter-Medium.ttf, Inter-SemiBold.ttf, Inter-Bold.ttf, Fraunces-Medium.ttf, Fraunces-SemiBold.ttf]
         UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait]
     entitlements:

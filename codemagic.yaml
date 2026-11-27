@@ -7,6 +7,11 @@ workflows:
     max_build_duration: 60
     environment:
       xcode: latest
+      vars:
+        # Public Gemini OpenAI-compatible base URL (same as Android uses)
+        GEMINI_BASE_URL: "https://generativelanguage.googleapis.com/v1beta/openai/"
+      groups:
+        - holysteps_secrets   # set GEMINI_API_KEY in Codemagic → Environment variables
     triggering:
       events: [push]
       branch_patterns:
@@ -19,7 +24,8 @@ workflows:
         script: |
           set -o pipefail
           xcodebuild -project HolySteps.xcodeproj -scheme HolySteps -configuration Debug \
-            -destination 'generic/platform=iOS Simulator' -derivedDataPath build CODE_SIGNING_ALLOWED=NO build \
+            -destination 'generic/platform=iOS Simulator' -derivedDataPath build CODE_SIGNING_ALLOWED=NO \
+            GEMINI_API_KEY="${GEMINI_API_KEY:-}" GEMINI_BASE_URL="${GEMINI_BASE_URL}" build \
             | tee build.log | grep -E "error:|BUILD (SUCCEEDED|FAILED)" || true
           grep -q "BUILD SUCCEEDED" build.log
       - name: Run tests and take screenshots
@@ -48,6 +54,10 @@ workflows:
       ios_signing:
         distribution_type: app_store
         bundle_identifier: com.holysteps.app
+      vars:
+        GEMINI_BASE_URL: "https://generativelanguage.googleapis.com/v1beta/openai/"
+      groups:
+        - holysteps_secrets   # contains GEMINI_API_KEY
     scripts:
       - name: Generate the Xcode project
         script: brew install xcodegen && xcodegen generate
@@ -56,7 +66,7 @@ workflows:
       - name: Build the app
         script: |
           xcode-project build-ipa --project HolySteps.xcodeproj --scheme HolySteps \
-            --archive-xcargs "CURRENT_PROJECT_VERSION=$PROJECT_BUILD_NUMBER"
+            --archive-xcargs "CURRENT_PROJECT_VERSION=$PROJECT_BUILD_NUMBER GEMINI_API_KEY=$GEMINI_API_KEY GEMINI_BASE_URL=$GEMINI_BASE_URL"
     artifacts:
       - build/ios/ipa/*.ipa
     publishing:
