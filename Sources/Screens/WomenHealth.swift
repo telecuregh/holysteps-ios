@@ -19,7 +19,7 @@ enum WomenReminders {
             guard ok else { return }
             let n = UNMutableNotificationContent()
             n.title = tr("HolySteps reminder")
-            n.body = tr("Tap to see your Cycle tab.")
+            n.body = tr("Tap to see your Women tab.")
             n.sound = .default
             n.threadIdentifier = "cycle"
             n.userInfo = ["route": "cycle"]

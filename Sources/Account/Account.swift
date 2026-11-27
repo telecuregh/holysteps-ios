@@ -48,7 +48,7 @@ enum Keychain {
 enum Plan: String, CaseIterable, Identifiable {
     case faith, fitness, cycle, wellness
     var id: String { rawValue }
-    var name: String { ["faith": "Faith", "fitness": "Fitness", "cycle": "Cycle", "wellness": "Wellness"][rawValue]! }
+    var name: String { ["faith": "Faith", "fitness": "Fitness", "cycle": "Women", "wellness": "Men"][rawValue]! }
     var emoji: String { ["faith": "🕊️", "fitness": "👣", "cycle": "🌸", "wellness": "💚"][rawValue]! }
     var tagline: String {
         switch self {

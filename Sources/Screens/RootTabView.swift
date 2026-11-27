@@ -14,7 +14,7 @@ struct RootTabView: View {
 
     private var tabs: [(label: String, symbol: String)] {
         [("Home", "house.fill"), ("Faith", "cross"), ("Fitness", "figure.run"),
-         (store.gender == "male" ? "Wellness" : "Cycle", store.gender == "male" ? "dumbbell" : "arrow.triangle.2.circlepath"),
+         (store.gender == "male" ? "Men" : "Women", store.gender == "male" ? "dumbbell" : "arrow.triangle.2.circlepath"),
          ("Profile", "person")]
     }
 

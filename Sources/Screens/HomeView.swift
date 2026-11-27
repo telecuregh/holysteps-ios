@@ -399,7 +399,7 @@ struct HomeView: View {
     // MARK: Tiles
 
     private var tiles: some View {
-        let cycleTitle = male ? "Wellness" : "Cycle"
+        let cycleTitle = male ? "Men" : "Women"
         return VStack(spacing: 14) {
             HStack(spacing: 14) {
                 tile("Faith", "Pray, read and listen", "hands.sparkles.fill", 0xF3D5C0, 0xC77D92) { router.open(tab: 1, faith: 0) }

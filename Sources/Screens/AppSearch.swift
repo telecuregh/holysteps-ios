@@ -10,7 +10,7 @@ struct AppFeature: Identifiable {
     var id: String { title }
 
     static func all(gender: String) -> [AppFeature] {
-        let cycle = gender == "male" ? "Wellness" : "Cycle"
+        let cycle = gender == "male" ? "Men" : "Women"
         var list: [AppFeature] = [
             AppFeature(title: "Read the Bible", symbol: "book", words: "bible scripture chapter verse translation read", target: .view { AnyView(BibleReaderView()) }),
             AppFeature(title: "Highlights and notes", symbol: "highlighter", words: "highlight note bookmark", target: .view { AnyView(HighlightsView()) }),

@@ -278,7 +278,7 @@ struct OnboardingView: View {
                 }
             }
             T("← swipe for earlier dates").font(.hs(11)).foregroundStyle(HS.textSubtle)
-            option("🤔", "I don't remember", "You can log it later from the Cycle tab", periodAnswered && lastPeriod == nil) { lastPeriod = nil; periodAnswered = true }
+            option("🤔", "I don't remember", "You can log it later from the Women tab", periodAnswered && lastPeriod == nil) { lastPeriod = nil; periodAnswered = true }
                 .padding(.top, 12)
             if let lp = lastPeriod {
                 let ago = cal.dateComponents([.day], from: lp, to: cal.startOfDay(for: Date())).day ?? 0
