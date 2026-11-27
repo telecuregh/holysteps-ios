@@ -207,7 +207,7 @@ struct WomensCycleView: View {
                 VStack(alignment: .leading, spacing: 4) {
                     T("Fertile window").font(.hs(14, .semibold)).foregroundStyle(HS.text)
                     D("\(prettyDate(pred.fertileStart)) – \(prettyDate(pred.fertileEnd))").font(.hs(13)).foregroundStyle(HS.textMuted)
-                    T("Predictions are estimates, not birth control.").font(.hs(11)).foregroundStyle(HS.textSubtle)
+                    T("Estimates only, and not a method of birth control: no day is safe. HolySteps can't tell you which days are. Talk with a doctor, or learn natural family planning from a certified instructor.").font(.hs(11)).foregroundStyle(HS.textSubtle)
                 }
             }
             .padding(.horizontal, 20).padding(.top, 12)

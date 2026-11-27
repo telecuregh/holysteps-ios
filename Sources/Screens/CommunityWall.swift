@@ -100,7 +100,10 @@ final class WallModel: ObservableObject {
         let k = random("n"); UserDefaults.standard.set(k, forKey: "wallKey"); return k
     }
 
-    private static let heavy = ["suicide", "kill myself", "end my life", "self harm", "self-harm", "hurt myself", "want to die", "suicidio", "quitarme la vida", "hacerme daño"]
+    private static let heavy = ["suicide", "kill myself", "end my life", "self harm", "self-harm", "hurt myself", "hurting myself", "cut myself",
+                                 "want to die", "better off dead", "don't want to live", "dont want to live", "no reason to live", "end it all",
+                                 "overdose", "hurt my baby", "harm my baby", "hurt the baby", "kms",
+                                 "suicidio", "suicid", "quitarme la vida", "hacerme daño", "matarme", "me quiero morir", "quiero morir", "no quiero vivir", "lastimarme", "autolesi"]
 
     func post(type: WallType, text: String, anonymous: Bool, name: String) async -> Bool {
         guard let uid else { message = tr("Couldn't reach HolySteps. Try again in a moment."); return false }

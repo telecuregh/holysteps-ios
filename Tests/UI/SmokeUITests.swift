@@ -19,7 +19,7 @@ final class SmokeUITests: XCTestCase {
 
     private func launch(_ args: [String]) -> XCUIApplication {
         let app = XCUIApplication()
-        app.launchArguments = args + ["-uiTestReset", "-sermonAskedNotify", "YES"] + (args.contains("-onboarded") ? [] : ["-onboarded", "YES"])
+        app.launchArguments = args + ["-uiTestReset", "-sermonAskedNotify", "YES", "-legalAcceptedVersion", "2026-11-26.1"] + (args.contains("-onboarded") ? [] : ["-onboarded", "YES"])
         app.launch()
         return app
     }
