@@ -184,7 +184,7 @@ final class CycleMoodTests: ObservableObject {
 
     static func guidance(_ r: String) -> String {
         switch r {
-        case "Positive": return "A positive home test is very likely right. Call a doctor or clinic to confirm and start prenatal care. Pregnancy tools in the More tab of Cycle has a kick counter, contraction timer and appointments."
+        case "Positive": return "A positive home test is very likely right. Call a doctor or clinic to confirm and start prenatal care. Turn on Pregnancy mode in the More tab of Cycle for your week-by-week updates, kick counter, contraction timer and appointments."
         case "Faint line": return "Any line, even a faint one, usually means pregnant, if it showed within the time on the box. Test again in 2 to 3 days with first-morning urine, and see a doctor to confirm."
         case "Invalid": return "An invalid test can't be read. Use a new test and follow the box instructions."
         default: return "Testing early can miss a pregnancy. If your period hasn't come, test again in a few days with first-morning urine. If it is still missing, see a doctor."
@@ -550,6 +550,9 @@ enum CycleExport {
         for (d, f) in CycleLog.shared.flow { rows.append((d, "flow", f)) }
         for (d, s) in CycleLog.shared.symptoms { rows.append((d, "symptoms", s.sorted().joined(separator: "; "))) }
         for (d, m) in CycleMoodTests.shared.mood { rows.append((d, "mood_1to5", String(m))) }
+        for (d, t) in FertilitySigns.shared.bbt { rows.append((d, "basal_temperature_f", String(format: "%.1f", t))) }
+        for (d, m) in FertilitySigns.shared.mucusDay where FertilitySigns.mucus.indices.contains(m) { rows.append((d, "cervical_mucus", FertilitySigns.mucus[m].0)) }
+        for d in FertilitySigns.shared.lhPositive { rows.append((d, "ovulation_test", "positive")) }
         for t in CycleMoodTests.shared.tests { rows.append((t.first ?? "", "pregnancy_test", t.last ?? "")) }
         for (d, v) in SeverityLog.shared.log where v.count == 5 {
             rows.append((d, "severity", "pain \(v[0])/10; irritability \(v[1])/3; anxiety \(v[2])/3; low mood \(v[3])/3; fatigue \(v[4])/3"))

@@ -13,6 +13,7 @@ private func prettyDate(_ d: Date) -> String { d.formatted(.dateTime.month(.abbr
 struct WomensCycleView: View {
     @EnvironmentObject var store: AppStore
     @ObservedObject private var log = CycleLog.shared
+    @ObservedObject private var preg = PregnancyMode.shared
     @State private var tab = 0
     @State private var planTab = 0
     @State private var showLog = false
@@ -52,6 +53,12 @@ struct WomensCycleView: View {
 
     @ViewBuilder private func today(_ r: Rhythm) -> some View {
         Spacer().frame(height: 12)
+        if preg.on {
+            // Pregnancy: there is no cycle to predict, so the week replaces the cycle ring.
+            PregnancyCard().padding(.horizontal, 20)
+            CoverCard(emoji: "🤰", title: "Pregnancy tools", subtitle: "Kick counter, contraction timer and appointments", tint: 0xF472B6) { PregnancyToolsView() }
+                .padding(.horizontal, 20).padding(.top, 12)
+        } else {
         GlassCard(glow: Color(hex: 0xE57A9E), warm: true) {
             VStack(spacing: 0) {
                 if let day = r.cycleDay, let phase = r.phase, let last = store.periodStarts.max() {
@@ -88,8 +95,9 @@ struct WomensCycleView: View {
             .frame(maxWidth: .infinity)
         }
         .padding(.horizontal, 20)
+        }
 
-        if r.phase == .menstrual {
+        if r.phase == .menstrual && !preg.on {
             SectionHeader(title: "Flow today").padding(.top, 8)
             GlassCard {
                 VStack(alignment: .leading, spacing: 14) {
@@ -98,6 +106,7 @@ struct WomensCycleView: View {
                 }
             }
             .padding(.horizontal, 20)
+            PeriodProductsCard(periodDay: r.cycleDay ?? 1).padding(.horizontal, 20).padding(.top, 12)
         }
 
         SectionHeader(title: "How do you feel today?").padding(.top, 8)
@@ -131,6 +140,11 @@ struct WomensCycleView: View {
                 }
             }
             .padding(.horizontal, 20).padding(.top, 12)
+        }
+        if !preg.on {
+            BirthControlCard().padding(.horizontal, 20).padding(.top, 12)
+            let ov = store.periodStarts.max().map { CycleLogic.predict(lastStart: $0, length: store.cycleLength, periodLength: store.periodLength).ovulation }
+            FertilitySignsCard(predictedOvulation: ov).padding(.horizontal, 20).padding(.top, 12)
         }
     }
 
@@ -291,7 +305,8 @@ struct WomensCycleView: View {
     // MARK: More
 
     @ViewBuilder private var more: some View {
-        ShareWithHusbandCard().padding(.horizontal, 20).padding(.top, 16)
+        PregnancySettings().padding(.horizontal, 20).padding(.top, 16)
+        ShareWithHusbandCard().padding(.horizontal, 20).padding(.top, 12)
         BodyEnergyEntryCard().padding(.horizontal, 20).padding(.top, 12)
         NewParentsEntryCard().padding(.horizontal, 20).padding(.top, 12)
         CoverCard(emoji: "🤕", title: "Headache diary", subtitle: "Log headaches and see what goes with yours") { HeadacheView() }
@@ -309,6 +324,7 @@ struct WomensCycleView: View {
                 privacyLine("Shared only if you choose", "Nothing about your cycle is shared with anyone.")
                 CycleLockSettings()
                 CycleExportButton()
+                DoctorSummaryButton()
                 Button(role: .destructive) { confirmDelete = true } label: { T("Delete my cycle data").font(.hs(13)).foregroundStyle(Color(hex: 0xFCA5A5)) }
                 T("HolySteps is not a medical device. Talk to a doctor about heavy bleeding, severe pain, or missed periods.")
                     .font(.hs(11)).foregroundStyle(HS.textSubtle)
@@ -317,7 +333,8 @@ struct WomensCycleView: View {
         .padding(.horizontal, 20).padding(.top, 16)
         .alert(tr("Delete your cycle data?"), isPresented: $confirmDelete) {
             Button(tr("Delete"), role: .destructive) { store.periodStarts = []; store.cycleLength = 28; log.erase()
-                CycleMoodTests.shared.erase(); SeverityLog.shared.erase(); PregTools.shared.erase() }
+                CycleMoodTests.shared.erase(); SeverityLog.shared.erase(); PregTools.shared.erase()
+                FertilitySigns.shared.erase(); PeriodProducts.shared.erase(); BirthControl.shared.erase(); PregnancyMode.shared.end() }
             Button(tr("Cancel"), role: .cancel) {}
         } message: { T("This removes every period date, flow and symptom log from this phone. It can't be undone.") }
     }
