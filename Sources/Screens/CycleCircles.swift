@@ -96,8 +96,10 @@ final class CycleCirclesModel: ObservableObject {
 struct CycleCirclesView: View {
     @EnvironmentObject var store: AppStore
     @StateObject private var m = CycleCirclesModel()
-    @State private var joining = false, creating = false
-    @State private var code = "", name = ""
+    @State private var joining = false
+    @State private var creating = false
+    @State private var code = ""
+    @State private var name = ""
 
     var body: some View {
         ZStack {
