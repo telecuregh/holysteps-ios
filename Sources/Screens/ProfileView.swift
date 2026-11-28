@@ -98,6 +98,7 @@ struct ProfileView: View {
                             link("alarm", "Wake-up alarm", WakeAlarm.on ? WakeAlarm.timeLabel : tr("Off"), 0xF59E0B) { WakeAlarmView() }
                             link("moon.stars", "Bedtime reminder", BedtimeReminder.on ? tr("On") : tr("Off"), 0x8B5CF6) { SleepView() }
                             link("calendar", "Weekly recap", RecapReminder.on ? tr("On") : tr("Off"), 0x8B5CF6) { WeeklyRecapView() }
+                            link("alarm.waves.left.and.right", "My reminders", tr("Drink water, move, bedtime and medicine"), 0x8B5CF6) { MyRemindersView() }
                         }
                         // Same sections, in the same order, as Android's Profile (ProfileScreen.kt).
                         group("People and safety") {

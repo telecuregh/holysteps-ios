@@ -362,7 +362,8 @@ struct HomeView: View {
         case .calmCheck: route = .calmCheck
         case .walk: route = .walk
         case .journal: route = .journal
-        case .sleep, .morningLight: route = .sleep
+        case .sleep: route = .sleep
+        case .morningLight: route = .feature("Morning light")
         }
     }
 
@@ -445,7 +446,7 @@ struct HomeView: View {
                     done: walkDone, action: { router.open(tab: 2) }),
             PlanRow(id: 3, emoji: male ? "⚡" : "🌸", title: "Check in",
                     subtitle: checkDone ? "Logged — see your trends" : "10 seconds: mood, energy, peace",
-                    done: checkDone, action: { router.open(tab: 3) }),
+                    done: checkDone, action: { if checkDone { route = .feature("Life & Health Trends") } else { showCheckIn = true } }),
         ]
         let doneCount = items.filter { $0.done }.count
         let perfect   = doneCount == 4

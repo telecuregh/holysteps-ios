@@ -21,6 +21,7 @@ struct HolyStepsApp: App {
         }
         I18n.shared.warmUp()
         UNUserNotificationCenter.current().delegate = NotificationRouter.shared
+        SelfCare.registerCategories()
     }
 
     var body: some Scene {

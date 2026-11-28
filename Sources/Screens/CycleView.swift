@@ -380,7 +380,7 @@ struct WomensCycleView: View {
         ] : []) + [
             ToolItem(symbol: "heart", color: HS.cycle, title: "Mood and tests", sub: "A daily mood scale and a pregnancy-test log", destination: AnyView(CycleMoodTestsView())),
             ToolItem(symbol: "checklist", color: Color(hex: 0xF9A8D4), title: "Medicines & supplements", sub: "Reminders for pills, vitamins and supplements",
-                     destination: AnyView(BodyBasicsView(part: .medicines).environmentObject(store))),
+                     destination: AnyView(HealthHelperView().environmentObject(store))),
         ], visible: 8)
         Spacer().frame(height: 14)
         ToolSection(title: "Body and health", items: [
@@ -398,9 +398,9 @@ struct WomensCycleView: View {
         ] : []) + (showCircles ? [
             ToolItem(symbol: "person.3", color: HS.cycle, title: "Cycle Circles", sub: "A small, moderated support group", destination: AnyView(CycleCirclesView().environmentObject(store))),
         ] : []) + [
-            ToolItem(symbol: "brain.head.profile", color: Color(hex: 0xF472B6), title: "Women's Mental Health", sub: "Talks, everyday audio and stories, read by Grace", badge: "New",
-                     destination: AnyView(WomenMindView())),
-            ToolItem(symbol: "face.smiling", color: Color(hex: 0xA78BFA), title: "Mood check-in", sub: "A private 1-minute check, with 988 one tap away", destination: AnyView(MoodCheckView())),
+            // Women's Mental Health and the mood check have their own tab, so they aren't listed here twice.
+            ToolItem(symbol: "figure.mind.and.body", color: Color(hex: 0xA78BFA), title: "Mind tracks", sub: "Carrying everything, comparison, becoming a mom, saying no",
+                     destination: AnyView(MindTracksView().environmentObject(store))),
         ], visible: 8)
         if hiddenToolCount > 0 {
             Button { withAnimation { showAllTools = true } } label: {
@@ -524,6 +524,7 @@ struct FlowBandPicker: View {
 struct MensWellnessView: View {
     @EnvironmentObject var store: AppStore
     @ObservedObject private var checkIns = CheckInStore.shared
+    @ObservedObject private var cycle = CycleLog.shared
     @ObservedObject private var account = AccountStore.shared
     @ObservedObject private var steps = StepsModel.shared
     @State private var tab = 0
@@ -544,17 +545,36 @@ struct MensWellnessView: View {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 0) {
                         ScreenPhoto(name: ScreenPhoto.daily("screen_wellness_men")).id("top")
-                        VStack(alignment: .leading, spacing: 4) {
-                            T("⚡ Men's Wellness").font(.hs(13, .bold)).foregroundStyle(color)
-                            D(tr(greeting) + ", " + (store.name.isEmpty ? tr("Brother") : store.name)).font(.hs(22, .bold)).foregroundStyle(HS.text)
-                            D(Date().formatted(.dateTime.weekday(.wide).locale(I18n.shared.locale))).font(.hs(13)).foregroundStyle(HS.textMuted)
+                        // The same layout as the Women tab (and Android's Men tab): photo, title, five sub tabs.
+                        VStack(alignment: .leading, spacing: 0) {
+                            T("Men").font(.hs(28)).foregroundStyle(HS.text)
+                            ItalicAccent(text: "your rhythm & strength", size: 19)
                         }
                         .padding(.top, 40).padding(.horizontal, 20).padding(.bottom, 12)
-                        // The same four sections as Android's men's tab (MensHealthScreen.kt): Today, Body, Plan, Mental Health.
-                        // The trackers, screenings and faith tools live in Body only, so Today and Plan stay short.
-                        SubTabs(tabs: ["Today", "Body", "Plan", "Mental Health"], selected: $tab).padding(.bottom, 16)
-                        if tab == 0 { today(phase, color) } else if tab == 2 { plan(phase, color) } else if tab == 3 { MentalHealthTab(men: true) }
-                        if tab == 1 {
+                        SubTabs(tabs: ["Today", "Plan", "Insights", "Mental Health", "More"], selected: $tab)
+                        switch tab {
+                        case 0: today(phase, color)
+                        case 1: plan(phase, color)
+                        case 2: insights(color)
+                        case 3: MentalHealthTab(men: true)
+                        default: moreTab
+                        }
+                        Spacer().frame(height: 100)
+                    }
+                }
+                .ignoresSafeArea(edges: .top)
+                .onChange(of: tab) { _, _ in withAnimation { proxy.scrollTo("top", anchor: .top) } }
+                }
+            }
+            .toolbar(.hidden, for: .navigationBar)
+            .sheet(isPresented: $paywall) { PlansView(feature: .mensHealth) }
+            .onAppear { if energy == 0, let c = checkIns.today { energy = min(5, max(1, c.energy - 1)) } }
+        }
+    }
+
+    /// Everything else, one tap each (the Women tab's More). Men's Mental Health and the mood check have their own tab.
+    @ViewBuilder private var moreTab: some View {
+        Spacer().frame(height: 4)
                         MensTabSectionHeader(emoji: "📋", title: "Track your body", subtitle: "Water, numbers, habits, medicines and check-ups")
                         // Android's "Track your body", one screen each.
                         CoverCard(emoji: "💧", title: "Food & water", subtitle: "Water, protein and real food", tint: 0x8B5CF6) { BodyBasicsView(part: .food).environmentObject(store) }
@@ -567,9 +587,7 @@ struct MensWellnessView: View {
                             .padding(.horizontal, 20).padding(.top, 12)
                         CoverCard(emoji: "🍷", title: "Habits", subtitle: "Drinks, caffeine, screens and smoking", tint: 0x8B5CF6) { BodyBasicsView(part: .habits).environmentObject(store) }
                             .padding(.horizontal, 20).padding(.top, 12)
-                        CoverCard(emoji: "💊", title: "Medicines & supplements", subtitle: "Private reminders for pills and vitamins", tint: 0x8B5CF6) { BodyBasicsView(part: .medicines).environmentObject(store) }
-                            .padding(.horizontal, 20).padding(.top, 12)
-                        CoverCard(emoji: "🧠", title: "Mood check-in", subtitle: "A private 1-minute check, with 988 one tap away", tint: 0xA78BFA) { MoodCheckView() }
+                        CoverCard(emoji: "💊", title: "Medicines & supplements", subtitle: "Private reminders for pills and vitamins", tint: 0x8B5CF6) { HealthHelperView().environmentObject(store) }
                             .padding(.horizontal, 20).padding(.top, 12)
                         CoverCard(emoji: "🧭", title: "Mind tracks", subtitle: "Seven short days on work pressure, anger, purpose and more", tint: 0xA78BFA) { MindTracksView().environmentObject(store) }
                             .padding(.horizontal, 20).padding(.top, 12)
@@ -593,11 +611,6 @@ struct MensWellnessView: View {
                             .padding(.horizontal, 20).padding(.top, 8)
 
                         // ── MENTAL HEALTH ──────────────────────────────────
-                        MensTabSectionHeader(emoji: "🧠", title: "Mental Health", subtitle: "6 million men get depression yearly. Most never say it.")
-                            .padding(.top, 24)
-                        CoverCard(emoji: "🧠", title: "Men's Mental Health", subtitle: "Audio sessions for depression, anger, grief, burnout, anxiety and recovery. Private. On-device.", tint: 0x8B5CF6) { MensMindView() }
-                            .padding(.horizontal, 20).padding(.top, 8)
-
                         // ── RELATIONSHIPS & IDENTITY ───────────────────────
                         MensTabSectionHeader(emoji: "🤝", title: "Relationships & Identity", subtitle: "Who you are when no one is watching.")
                             .padding(.top, 24)
@@ -637,19 +650,12 @@ struct MensWellnessView: View {
                             CoverCard(emoji: "📖", title: "Biblical identity", subtitle: "Who am I in Christ — especially in hard seasons. Daily prompt.", tint: 0xF59E0B) { MensBiblicalIdentityView() }
                                 .padding(.horizontal, 20).padding(.top, 8)
                         }
-
-                        }
-                        Spacer().frame(height: 100)
-                    }
-                }
-                .ignoresSafeArea(edges: .top)
-                .onChange(of: tab) { _, _ in withAnimation { proxy.scrollTo("top", anchor: .top) } }
-                }
-            }
-            .toolbar(.hidden, for: .navigationBar)
-            .sheet(isPresented: $paywall) { PlansView(feature: .mensHealth) }
-            .onAppear { if energy == 0, let c = checkIns.today { energy = min(5, max(1, c.energy - 1)) } }
-        }
+        MensTabSectionHeader(emoji: "💞", title: "Partner & family", subtitle: "Love her well, and know what to watch for")
+            .padding(.top, 24)
+        CoverCard(emoji: "💞", title: "Support her cycle", subtitle: "Your partner's phase and how to love her well this week", tint: 0xF472B6) { SupportHerCycleView() }
+            .padding(.horizontal, 20).padding(.top, 8)
+        CoverCard(emoji: "💌", title: "Partner coaching", subtitle: "Enter her code to get her daily tip on how to support her", tint: 0xF472B6) { PartnerCoachingView().environmentObject(store) }
+            .padding(.horizontal, 20).padding(.top, 8)
     }
 
     private var greeting: String {
@@ -657,72 +663,136 @@ struct MensWellnessView: View {
         return h < 12 ? "Good morning" : h < 17 ? "Good afternoon" : "Good evening"
     }
 
+    /// Android's MEN_CHECKIN_SYMPTOMS.
+    static let symptoms = ["😴 Tired", "🤕 Headache", "🔙 Back pain", "💪 Sore muscles", "😰 Stressed",
+                           "😤 Irritable", "🌙 Poor sleep", "🤒 Run down", "✨ Energetic", "😊 Happy"]
+
+    /// Practical, non-diagnostic care for what was logged (Android's mensSymptomCare); warning signs say when to get help.
+    static func care(_ s: String) -> String? {
+        if s.contains("Tired") { return "An earlier bedtime, a short walk in daylight and water through the day help most. Tiredness that lasts for weeks is worth a check-up." }
+        if s.contains("Headache") { return "Drink water, rest your eyes from screens and try a cool cloth on your forehead. A sudden, severe headache, or one with weakness or confusion, means call 911." }
+        if s.contains("Back pain") { return "Keep moving gently: a short walk and easy stretches usually help more than bed rest. See a doctor for numbness, leg weakness or pain after a fall." }
+        if s.contains("Sore muscles") { return "Light movement, a warm shower and protein with your next meal help recovery. Keep today's training easy." }
+        if s.contains("Stressed") { return "Breathe in for 4 and out for 6, for two minutes. A 10-minute walk lowers stress for hours afterward." }
+        if s.contains("Irritable") { return "Give yourself extra margin today. Food, water and a short walk often take the edge off. Ask what's underneath it." }
+        if s.contains("Poor sleep") { return "Keep the same wake time tomorrow, get daylight early, have caffeine before noon only and put the phone away 30 minutes before bed." }
+        if s.contains("Run down") { return "Rest, fluids and simple food. If you have a fever over 100.4°F or it lasts more than a few days, check in with your doctor." }
+        return nil
+    }
+
     @ViewBuilder private func today(_ phase: MensPhase, _ color: Color) -> some View {
-        VStack(alignment: .leading, spacing: 14) {
-            HStack(spacing: 12) {
-                D(phase.emoji).font(.system(size: 32))
-                VStack(alignment: .leading, spacing: 1) {
-                    T(phase.label).font(.hs(18, .bold)).foregroundStyle(color)
-                    T("Today's Energy Mode").font(.hs(12)).foregroundStyle(HS.textMuted)
-                }
-            }
-            T(phase.tip).font(.hs(14)).foregroundStyle(HS.text.opacity(0.85))
-            HStack(spacing: 4) {
-                ForEach(0..<7, id: \.self) { i in
-                    let d = Calendar.current.date(byAdding: .day, value: i, to: startOfWeek) ?? Date()
-                    let p = MensPhase.today(d), on = Calendar.current.isDateInToday(d)
-                    let c = HS.readable(Self.colors[p] ?? 0x10B981)
-                    VStack(spacing: 4) {
-                        D(String(d.formatted(.dateTime.weekday(.narrow).locale(I18n.shared.locale)))).font(.hs(10, on ? .bold : .regular)).foregroundStyle(on ? HS.text : HS.textMuted)
-                        Capsule().fill(on ? c : c.opacity(0.3)).frame(height: 6)
+        let weekDay = (Calendar.current.dateComponents([.day], from: startOfWeek, to: Calendar.current.startOfDay(for: Date())).day ?? 0) + 1
+        Spacer().frame(height: 12)
+        GlassCard(glow: color, warm: true) {
+            VStack(spacing: 0) {
+                ZStack {
+                    Circle().stroke(HS.overlay(0.10), lineWidth: 6.3)
+                    Circle().trim(from: 0, to: max(0.001, min(1, Double(weekDay) / 7)))
+                        .stroke(color, style: StrokeStyle(lineWidth: 6.3, lineCap: .round))
+                        .rotationEffect(.degrees(-90))
+                    VStack(spacing: 2) {
+                        T("Day \(weekDay)").font(.hs(30)).foregroundStyle(HS.text)
+                        T("of 7 · your week").font(.hs(12)).foregroundStyle(HS.textMuted)
                     }
-                    .frame(maxWidth: .infinity)
                 }
+                .frame(width: 150, height: 150)
+                D("\(phase.emoji) " + tr(phase.label)).font(.hs(20, .bold)).foregroundStyle(HS.peach).padding(.top, 10)
+                T("Today's energy mode").font(.hs(12)).foregroundStyle(HS.textMuted)
+                T(phase.tip).font(.hs(14)).foregroundStyle(HS.textSecondary).multilineTextAlignment(.center).padding(.top, 8)
+                HStack(spacing: 4) {
+                    ForEach(0..<7, id: \.self) { i in
+                        let d = Calendar.current.date(byAdding: .day, value: i, to: startOfWeek) ?? Date()
+                        let p = MensPhase.today(d), on = Calendar.current.isDateInToday(d)
+                        let c = HS.readable(Self.colors[p] ?? 0x10B981)
+                        VStack(spacing: 4) {
+                            D(String(d.formatted(.dateTime.weekday(.narrow).locale(I18n.shared.locale)))).font(.hs(10, on ? .bold : .regular)).foregroundStyle(on ? HS.text : HS.textMuted)
+                            Capsule().fill(on ? c : c.opacity(0.3)).frame(height: 6)
+                        }
+                        .frame(maxWidth: .infinity)
+                    }
+                }
+                .padding(.top, 14)
+                T("Energy today").font(.hs(14, .semibold)).foregroundStyle(HS.text).padding(.top, 16)
+                HStack(spacing: 8) {
+                    ForEach(Array([("🪫", "Low"), ("😐", "OK"), ("💪", "Good"), ("⚡", "Peak"), ("🔥", "On Fire")].enumerated()), id: \.offset) { i, e in
+                        let sel = energy == i + 1
+                        Button { energy = i + 1 } label: {
+                            VStack(spacing: 2) { D(e.0).font(.system(size: 18)); T(e.1).font(.hs(10, .medium)).foregroundStyle(sel ? HS.text : HS.textMuted) }
+                                .frame(maxWidth: .infinity).padding(.vertical, 10)
+                                .background(RoundedRectangle(cornerRadius: 12).fill(sel ? HS.goldButton.opacity(0.22) : HS.cardFill))
+                                .overlay(RoundedRectangle(cornerRadius: 12).strokeBorder(Color(hex: 0xD9B49F).opacity(sel ? 1 : 0.22), lineWidth: 1))
+                        }
+                        .buttonStyle(.plain).accessibilityAddTraits(sel ? .isSelected : [])
+                    }
+                }
+                .padding(.top, 8)
+                Button { save() } label: {
+                    T(checkIns.today != nil ? "✓ Checked in today · Update" : energy == 0 ? "Pick your energy to check in" : "⚡ Save today's check-in · +5 pts")
+                        .font(.hs(15, .bold)).foregroundStyle(HS.onGold)
+                        .padding(.horizontal, 22).padding(.vertical, 12)
+                        .background(RoundedRectangle(cornerRadius: 14).fill(HS.goldButton))
+                }
+                .disabled(energy == 0).padding(.top, 14)
             }
+            .frame(maxWidth: .infinity)
         }
-        .padding(20)
-        .background(RoundedRectangle(cornerRadius: 20).fill(LinearGradient(colors: [color.opacity(0.25), color.opacity(0.08)], startPoint: .topLeading, endPoint: .bottomTrailing)))
-        .overlay(RoundedRectangle(cornerRadius: 20).strokeBorder(color.opacity(0.35), lineWidth: 1))
         .padding(.horizontal, 20)
 
-        VStack(alignment: .leading, spacing: 10) {
-            T("⚡ Energy Today").font(.hs(12, .semibold)).foregroundStyle(HS.textMuted).tracking(0.8)
-            HStack(spacing: 8) {
-                ForEach(Array([("🪫", "Low"), ("😐", "OK"), ("💪", "Good"), ("⚡", "Peak"), ("🔥", "On Fire")].enumerated()), id: \.offset) { i, e in
-                    let sel = energy == i + 1
-                    Button { energy = i + 1 } label: {
-                        VStack(spacing: 2) { D(e.0).font(.system(size: 18)); T(e.1).font(.hs(9, .medium)).foregroundStyle(HS.textMuted) }
-                            .frame(maxWidth: .infinity).padding(.vertical, 10)
-                            .background(RoundedRectangle(cornerRadius: 10).fill(sel ? color.opacity(0.2) : HS.overlay(0.03)))
-                            .overlay(RoundedRectangle(cornerRadius: 10).strokeBorder(sel ? color.opacity(0.5) : HS.overlay(0.06), lineWidth: 1))
+        SectionHeader(title: "How do you feel today?").padding(.top, 8)
+        let selected = cycle.today
+        T(selected.isEmpty ? "Tap everything that applies — first log of the day earns +5 pts" : "✓ \(selected.count) logged for today · saved to your history")
+            .font(.hs(12)).foregroundStyle(selected.isEmpty ? HS.textMuted : HS.body).padding(.horizontal, 20)
+        VStack(spacing: 0) {
+            ForEach(0..<(Self.symptoms.count / 2), id: \.self) { row in
+                HStack(spacing: 10) {
+                    ForEach(Self.symptoms[(row * 2)...(row * 2 + 1)], id: \.self) { s in
+                        let on = selected.contains(s)
+                        Button { cycle.toggle(s) } label: {
+                            D((on ? "✓ " : "") + tr(s)).font(.hs(12)).foregroundStyle(on ? HS.text : HS.textSecondary)
+                                .frame(maxWidth: .infinity).padding(.vertical, 11).padding(.horizontal, 10)
+                                .background(RoundedRectangle(cornerRadius: 10).fill(on ? HS.goldButton.opacity(0.22) : HS.cardFill))
+                                .overlay(RoundedRectangle(cornerRadius: 10).strokeBorder(on ? Color(hex: 0xD9B49F) : Color(hex: 0xD9B49F).opacity(0.22), lineWidth: 1))
+                        }
+                        .buttonStyle(.plain)
                     }
-                    .buttonStyle(.plain).accessibilityAddTraits(sel ? .isSelected : [])
                 }
+                .padding(.vertical, 4)
             }
-            T("🎯 Today's Focus").font(.hs(12, .semibold)).foregroundStyle(HS.textMuted).tracking(0.8).padding(.top, 10)
+        }
+        .padding(.horizontal, 20).padding(.top, 8)
+        let tips = Self.symptoms.filter { selected.contains($0) }.compactMap { s in Self.care(s).map { (s, $0) } }
+        if !tips.isEmpty {
+            GlassCard(glow: color) {
+                VStack(alignment: .leading, spacing: 8) {
+                    T("💪 Care for today").font(.hs(14, .bold)).foregroundStyle(HS.peach)
+                    ForEach(tips, id: \.0) { s, tip in
+                        D(tr(s)).font(.hs(13, .semibold)).foregroundStyle(HS.text)
+                        T(tip).font(.hs(12)).foregroundStyle(HS.textSecondary)
+                    }
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+            }
+            .padding(.horizontal, 20).padding(.top, 12)
+        }
+
+        SectionHeader(title: "Today's focus").padding(.top, 8)
+        VStack(spacing: 8) {
             ForEach(Self.focusOptions(phase), id: \.self) { item in
                 let sel = focus.contains(item)
                 Button { if sel { focus.remove(item) } else { focus.insert(item) } } label: {
                     HStack(spacing: 12) {
-                        Image(systemName: sel ? "checkmark.circle.fill" : "circle").foregroundStyle(sel ? color : HS.textMuted)
-                        T(item).font(.hs(14)).foregroundStyle(sel ? HS.text : HS.text.opacity(0.7))
+                        Image(systemName: sel ? "checkmark.circle.fill" : "circle").foregroundStyle(sel ? HS.gold : HS.textMuted)
+                        T(item).font(.hs(14)).foregroundStyle(sel ? HS.text : HS.textSecondary)
                         Spacer(minLength: 0)
                     }
                     .padding(.horizontal, 14).padding(.vertical, 12)
-                    .background(RoundedRectangle(cornerRadius: 12).fill(sel ? color.opacity(0.12) : HS.overlay(0.03)))
-                    .overlay(RoundedRectangle(cornerRadius: 12).strokeBorder(sel ? color.opacity(0.4) : HS.overlay(0.06), lineWidth: 1))
+                    .background(RoundedRectangle(cornerRadius: 12).fill(sel ? HS.goldButton.opacity(0.18) : HS.cardFill))
+                    .overlay(RoundedRectangle(cornerRadius: 12).strokeBorder(Color(hex: 0xD9B49F).opacity(sel ? 1 : 0.22), lineWidth: 1))
                 }
                 .buttonStyle(.plain)
             }
-            if energy > 0 || checkIns.today != nil {
-                Button { save() } label: {
-                    T(checkIns.today != nil ? "✓ Checked in today · Update" : "Save Today's Check-in").font(.hs(15, .bold)).foregroundStyle(.white)
-                        .frame(maxWidth: .infinity).padding(.vertical, 15).background(RoundedRectangle(cornerRadius: 14).fill(color))
-                }
-                .disabled(energy == 0).padding(.top, 12)
-            }
         }
-        .padding(.horizontal, 20).padding(.top, 16)
+        .padding(.horizontal, 20)
     }
 
     @ViewBuilder private func plan(_ phase: MensPhase, _ color: Color) -> some View {
@@ -730,44 +800,57 @@ struct MensWellnessView: View {
         let seed = PhasePlan.epochDay
         let full = account.canUse(.mensHealth)
         let ideas = planTab == 0 ? PhasePlan.rotation(pools?.move ?? [], 4, seed) : PhasePlan.rotation(pools?.nourish ?? [], 3, seed)
-        VStack(alignment: .leading, spacing: 10) {
-            D(tr("Your \(phase.label) plan")).font(.hs(12, .semibold)).foregroundStyle(HS.textMuted).tracking(0.8)
+        Spacer().frame(height: 8)
+        SectionHeader(title: tr("Your \(phase.label) plan"))
+        GlassCard(glow: color) {
             VStack(alignment: .leading, spacing: 12) {
+                T(phase.tip).font(.hs(12, .medium)).foregroundStyle(HS.textMuted)
                 HStack(spacing: 8) {
-                    ForEach(Array(["🏃 Move", "🥗 Nourish"].enumerated()), id: \.offset) { i, l in
+                    ForEach(Array(["🏃 Move", "🥗 Nourish", "🧠 Mind"].enumerated()), id: \.offset) { i, l in
                         Button { planTab = i } label: {
-                            T(l).font(.hs(12, .semibold)).foregroundStyle(HS.text).frame(maxWidth: .infinity).padding(.vertical, 9)
-                                .background(RoundedRectangle(cornerRadius: 10).fill(planTab == i ? color.opacity(0.35) : HS.overlay(0.04)))
+                            T(l).font(.hs(12, .semibold)).foregroundStyle(planTab == i ? HS.peach : HS.text).frame(maxWidth: .infinity).padding(.vertical, 9)
+                                .background(RoundedRectangle(cornerRadius: 10).fill(planTab == i ? HS.goldButton.opacity(0.25) : HS.overlay(0.04)))
+                                .overlay(RoundedRectangle(cornerRadius: 10).strokeBorder(planTab == i ? Color(hex: 0xD9B49F) : .clear, lineWidth: 1))
                         }.buttonStyle(.plain)
                     }
                 }
-                ForEach(full ? ideas : Array(ideas.prefix(1)), id: \.self) { idea in
-                    HStack(alignment: .top, spacing: 8) { D("•").font(.hs(14, .bold)).foregroundStyle(color); T(idea).font(.hs(13)).foregroundStyle(HS.text) }
+                if planTab < 2 {
+                    ForEach(full ? ideas : Array(ideas.prefix(1)), id: \.self) { idea in
+                        HStack(alignment: .top, spacing: 8) { D("•").font(.hs(14, .bold)).foregroundStyle(color); T(idea).font(.hs(13)).foregroundStyle(HS.text) }
+                    }
+                } else if full, let tip = PhasePlan.rotation(pools?.mindset ?? [], 1, seed).first {
+                    D("💡 " + tr(tip)).font(.hs(13, .medium)).foregroundStyle(HS.text)
                 }
-                if full, let tip = PhasePlan.rotation(pools?.mindset ?? [], 1, seed).first {
-                    D("💡 " + tr(tip)).font(.hs(12, .medium)).foregroundStyle(HS.text).padding(10).frame(maxWidth: .infinity, alignment: .leading)
-                        .background(RoundedRectangle(cornerRadius: 10).fill(HS.overlay(0.05)))
-                } else if !full {
+                if !full {
                     Button { paywall = true } label: {
                         T("👑 See your whole plan: every move, meal and mindset idea, each day. Comes with Wellness.").font(.hs(12, .semibold)).foregroundStyle(HS.text)
-                            .padding(10).frame(maxWidth: .infinity, alignment: .leading).background(RoundedRectangle(cornerRadius: 10).fill(color.opacity(0.18)))
+                            .padding(10).frame(maxWidth: .infinity, alignment: .leading).background(RoundedRectangle(cornerRadius: 10).fill(HS.goldButton.opacity(0.18)))
                     }.buttonStyle(.plain)
                 }
             }
-            .padding(14)
-            .background(RoundedRectangle(cornerRadius: 16).fill(color.opacity(0.08)))
-            .overlay(RoundedRectangle(cornerRadius: 16).strokeBorder(color.opacity(0.3), lineWidth: 1))
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .padding(.horizontal, 20)
+        NewParentsEntryCard(title: "New dad, or a baby on the way?", subtitle: "Postpartum depression in moms and dads, how to care for her, and for yourself")
+            .padding(.horizontal, 20).padding(.top, 16)
+    }
 
-            BodyEnergyEntryCard().padding(.top, 10)
-            CoverCard(emoji: "💞", title: "Support her cycle", subtitle: "Your partner's phase and how to love her well this week", tint: 0xF472B6) { SupportHerCycleView() }
+    /// This week (the Women tab's Insights): what HolySteps has learned, energy and the numbers.
+    @ViewBuilder private func insights(_ color: Color) -> some View {
+        Spacer().frame(height: 8)
+        SectionHeader(title: "This week")
+        VStack(spacing: 12) {
+            CoverCard(emoji: "📅", title: "Your week", subtitle: "Steps, sleep, check-ins and workouts at a glance", tint: 0x38BDF8) { WeeklyRecapView().environmentObject(store) }
+            CoverCard(emoji: "📈", title: "Life & health trends", subtitle: "Mood, energy, sleep and steps over time", tint: 0x8B5CF6) { TrendsView().environmentObject(store) }
+            CoverCard(emoji: "📊", title: "About you", subtitle: "What all of it says about you", tint: 0x38BDF8) { AboutYouView().environmentObject(store) }
             CoverCard(emoji: "🤕", title: "Headache diary", subtitle: "Log headaches and see what goes with yours") { HeadacheView() }
-            CoverCard(emoji: "💌", title: "Partner coaching", subtitle: "Enter her code to get her daily tip on how to support her", tint: 0xF472B6) { PartnerCoachingView().environmentObject(store) }
-            NewParentsEntryCard(title: "New dad, or a baby on the way?", subtitle: "Postpartum depression in moms and dads, how to care for her, and for yourself")
-            HStack(spacing: 12) {
-                stat("👟", "Steps", steps.today.formatted(), color)
-                stat("🙏", "Prayer streak", "\(store.prayerStreak)d", color)
-            }
-            .padding(.top, 10)
+            BodyEnergyEntryCard()
+        }
+        .padding(.horizontal, 20)
+        SectionHeader(title: "Your numbers").padding(.top, 8)
+        HStack(spacing: 12) {
+            stat("👟", "Steps", steps.today.formatted(), color)
+            stat("🙏", "Prayer streak", "\(store.prayerStreak)d", color)
         }
         .padding(.horizontal, 20)
     }

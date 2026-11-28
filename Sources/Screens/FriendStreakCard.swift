@@ -10,6 +10,7 @@ struct FriendStreakCard: View {
     @State private var code = ""
     @State private var busy = false
     @State private var share: HabitCircle?
+    @State private var canceling: HabitCircle?
 
     private var streaks: [HabitCircle] { model.circles.filter(\.isFriendStreak) }
 
@@ -27,7 +28,12 @@ struct FriendStreakCard: View {
                         .font(.hs(13)).foregroundStyle(HS.textMuted)
                 }
                 ForEach(streaks) { s in
-                    if s.memberUids.count < 2 {
+                    if s.memberUids.count < 2 && s.ownerUid != model.uid {
+                        VStack(alignment: .leading, spacing: 3) {
+                            T("Your friend ended this streak").font(.hs(14, .semibold)).foregroundStyle(HS.text)
+                            T("Start a new one with the button below.").font(.hs(12)).foregroundStyle(HS.textMuted)
+                        }
+                    } else if s.memberUids.count < 2 {
                         VStack(alignment: .leading, spacing: 3) {
                             T("Waiting for your friend to join").font(.hs(14, .semibold)).foregroundStyle(HS.text)
                             D(tr("Code") + " " + s.inviteCode).font(.hs(12)).foregroundStyle(HS.textMuted)
@@ -45,6 +51,10 @@ struct FriendStreakCard: View {
                         }
                         .buttonStyle(.plain)
                     }
+                    Button { canceling = s } label: {
+                        T(cancelLabel(s)).font(.hs(12, .semibold)).foregroundStyle(HS.textMuted)
+                    }
+                    .buttonStyle(.plain)
                 }
                 if let m = model.message { D(m).font(.hs(12)).foregroundStyle(HS.gold).onTapGesture { model.message = nil } }
                 HStack(spacing: 8) {
@@ -70,6 +80,10 @@ struct FriendStreakCard: View {
             Button(tr("Join")) { let c = code; code = ""; Task { _ = await model.join(code: c, displayName: store.name) } }
             Button(tr("Cancel"), role: .cancel) { code = "" }
         } message: { T("Type the code your friend sent you.") }
+        .alert(cancelTitle, isPresented: Binding(get: { canceling != nil }, set: { if !$0 { canceling = nil } }), presenting: canceling) { s in
+            Button(tr(cancelLabel(s)), role: .destructive) { Task { await model.endFriendStreak(s) } }
+            Button(tr("Keep it"), role: .cancel) {}
+        } message: { s in T(cancelMessage(s)) }
         .sheet(item: $share) { s in
             VStack(spacing: 16) {
                 T("Invite your friend").font(.hs(20, .semibold))
@@ -90,9 +104,24 @@ struct FriendStreakCard: View {
             .replacingOccurrences(of: "{0}", with: code)
     }
 
+    private func endedByFriend(_ s: HabitCircle) -> Bool { s.memberUids.count < 2 && s.ownerUid != model.uid }
+    private func cancelLabel(_ s: HabitCircle) -> String {
+        endedByFriend(s) ? "Remove" : s.memberUids.count < 2 ? "Cancel invite" : "End streak"
+    }
+    private var cancelTitle: String {
+        guard let s = canceling else { return "" }
+        return tr(endedByFriend(s) ? "Remove this streak?" : s.memberUids.count < 2 ? "Cancel this invite?" : "End this friend streak?")
+    }
+    private func cancelMessage(_ s: HabitCircle) -> String {
+        if endedByFriend(s) { return "Your friend ended it, so it can't grow any more." }
+        if s.memberUids.count < 2 { return tr("The code {0} will stop working, so nobody can join with it.").replacingOccurrences(of: "{0}", with: s.inviteCode) }
+        return s.ownerUid == model.uid ? "This ends your friend streak for both of you, and the days are cleared."
+            : "You'll leave this friend streak. Your friend can invite someone else."
+    }
+
     private func inviteFriend() async {
         guard !busy else { return }
-        if let waiting = streaks.first(where: { $0.memberUids.count < 2 }) { share = waiting; return }
+        if let waiting = streaks.first(where: { $0.memberUids.count < 2 && $0.ownerUid == model.uid }) { share = waiting; return }
         busy = true
         defer { busy = false }
         if let made = await model.create(.friendStreak, name: "", habit: "", displayName: store.name) { share = made }

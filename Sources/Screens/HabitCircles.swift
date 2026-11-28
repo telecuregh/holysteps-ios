@@ -213,6 +213,25 @@ final class CirclesModel: ObservableObject {
         await load()
     }
 
+    /// Cancels a friend streak from either side (Android's cancelFriendStreak). The one who sent the invite ends it for
+    /// both: the code is replaced with one that was never registered, so the old link can't join, the friend is taken
+    /// off, then they leave. The one who joined just leaves, and the sender can invite someone else with the same code.
+    func endFriendStreak(_ c: HabitCircle) async {
+        guard let uid else { return }
+        guard c.ownerUid == uid else { await leave(c); if message == nil { message = tr("Friend streak ended.") }; return }
+        do {
+            try await Firestore.commit([.update("habitCircles/\(c.id)", ["inviteCode": .string(InviteCode.make("FRIEND"))])])
+            if let friend = c.memberUids.first(where: { $0 != uid }) {
+                try? await Firestore.commit([.delete("habitCircles/\(c.id)/members/\(friend)")])
+                try await Firestore.commit([.update("habitCircles/\(c.id)", ["memberUids": .array([.string(uid)])])])
+            }
+            try? await Firestore.commit([.delete("habitCircles/\(c.id)/members/\(uid)")])
+            try await Firestore.commit([.update("habitCircles/\(c.id)", ["memberUids": .array([])])])
+            message = tr(c.memberUids.count < 2 ? "Invite canceled. That code no longer works." : "Friend streak ended.")
+        } catch { message = tr("Couldn't cancel right now. Check your connection and try again.") }
+        await load()
+    }
+
     // Detail
 
     func members(_ c: HabitCircle) async -> [String: String] {

@@ -94,6 +94,42 @@ final class StepsModel: ObservableObject {
         }
     }
 
+    /// Minutes asleep per night (keyed by the morning you woke) for the last [days] days, for insights that need more
+    /// than a week (Morning light, Trends).
+    func sleepNights(days: Int) async -> [String: Int] {
+        guard available else { return [:] }
+        let cal = Calendar.current
+        var out: [String: Int] = [:]
+        for offset in 0..<days {
+            guard let d = cal.date(byAdding: .day, value: -offset, to: Date()) else { continue }
+            let morning = cal.startOfDay(for: d)
+            let m = await asleepMinutes(from: morning.addingTimeInterval(-6 * 3600), to: min(morning.addingTimeInterval(12 * 3600), Date()))
+            if m > 0 { out[AppStore.dayKey(d)] = m }
+        }
+        return out
+    }
+
+    /// Steps per day for the last [days] days (Apple Health plus walks logged by hand).
+    func stepsPerDay(days: Int) async -> [String: Int] {
+        let cal = Calendar.current
+        var out: [String: Int] = [:]
+        for offset in 0..<days {
+            guard let d = cal.date(byAdding: .day, value: -offset, to: Date()) else { continue }
+            let start = cal.startOfDay(for: d)
+            let end = offset == 0 ? Date() : (cal.date(byAdding: .day, value: 1, to: start) ?? Date())
+            let key = AppStore.dayKey(d)
+            out[key] = (available ? await steps(from: start, to: end) : 0) + (manual[key] ?? 0)
+        }
+        return out
+    }
+
+    /// Every step since [date] (Apple Health plus walks logged by hand): Bible Journeys measure the road with these.
+    func stepsSince(_ date: Date) async -> Int {
+        let hk = available ? await steps(from: date, to: Date()) : 0
+        let startKey = AppStore.dayKey(date)
+        return hk + manual.filter { $0.key >= startKey }.values.reduce(0, +)
+    }
+
     private func steps(from: Date, to: Date) async -> Int {
         await withCheckedContinuation { cont in
             let p = HKQuery.predicateForSamples(withStart: from, end: to)

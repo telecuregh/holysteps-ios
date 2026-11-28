@@ -72,6 +72,15 @@ struct AboutYouView: View {
                     .background(RoundedRectangle(cornerRadius: 14).fill(HS.cardFill))
                 }
 
+                // Android's "Look deeper".
+                ToolSection(title: "Look deeper", items: [
+                    ToolItem(symbol: "doc.text.magnifyingglass", color: HS.peach, title: "Your week", sub: "Body, sleep, mind and faith together", destination: AnyView(WeeklyRecapView())),
+                    ToolItem(symbol: "chart.xyaxis.line", color: HS.faith, title: "Life & health trends", sub: "Mood, energy and sleep over time", destination: AnyView(TrendsView())),
+                    ToolItem(symbol: "bolt", color: HS.body, title: "Body energy", sub: "How ready your body is today", destination: AnyView(Gated(feature: .bodyEnergy) { BodyEnergyView() })),
+                    ToolItem(symbol: "cross.case", color: Color(hex: 0x2DD4BF), title: "Health helper", sub: "Medicines, easy days and what helps you", destination: AnyView(HealthHelperView())),
+                ])
+                .padding(.horizontal, -20)
+
                 Button(role: .destructive) { confirmErase = true } label: {
                     T("Erase everything learned").font(.hs(14, .semibold)).frame(maxWidth: .infinity).padding(.vertical, 12)
                 }
