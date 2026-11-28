@@ -23,14 +23,14 @@ struct ProfileView: View {
                             .accessibilityHint(tr("Change your name"))
                             .padding(.top, 48).padding(.horizontal, 20).padding(.bottom, 12)
 
-                        group("Plan and account") {
+                        group("Your plan") {
                             link("crown", "Your plan", tr(AccountStore.shared.planName), 0xD9B49F) { AccountView() }
                             if let d = AccountStore.shared.doc, d.hasAdminGrant {
                                 AdminGrantBadge(expiry: d.adminGrantExpiry)
                             }
                             link("trophy", "Rewards & Achievements", tr("\(Points.total.formatted()) pts"), 0xF59E0B) { RewardsView() }
                         }
-                        group("Language") {
+                        group("Account") {
                             item("globe", "Language", i18n.choice == .system ? tr(i18n.choice.label) : i18n.choice.label, 0x8B5CF6) { sheet = .language }
                         }
                         SectionHeader(title: "Appearance").padding(.top, 8)
@@ -47,9 +47,6 @@ struct ProfileView: View {
                         group("Goals") {
                             item("figure.walk", "Daily Step Goal", tr("\(stepGoal.formatted()) steps"), 0x8B5CF6) { sheet = .stepGoal }
                         }
-                        group("Health") {
-                            link("applewatch", "Rings & watches", WearableModel.shared.on ? tr("Connected") : tr("Connect"), 0x56B892) { RingsWatchesView() }
-                        }
                         group("Faith and content") {
                             item("mic", "Narrator", VoicePacks.narrators.first { $0.id == listening.narrator }?.name ?? tr("Phone voice"), 0x8B5CF6) { sheet = .narrator }
                             item("calendar.badge.clock", "Weekly sermon", tr("Day and reminder"), 0x8B5CF6) { sheet = .sermon }
@@ -62,14 +59,18 @@ struct ProfileView: View {
                             link("moon.stars", "Bedtime reminder", BedtimeReminder.on ? tr("On") : tr("Off"), 0x8B5CF6) { SleepView() }
                             link("calendar", "Weekly recap", RecapReminder.on ? tr("On") : tr("Off"), 0x8B5CF6) { WeeklyRecapView() }
                         }
-                        group("Community") {
+                        // Same sections, in the same order, as Android's Profile (ProfileScreen.kt).
+                        group("People and safety") {
+                            link("shield.lefthalf.filled", "Safety circle", "", 0x60A5FA) { SafetyCircleView() }
                             link("person.3", "Family Relay", tr("Shared streak"), 0x56B892) { FamilyRelayView() }
                             link("figure.and.child.holdinghands", "Kids profiles", "", 0x60A5FA) { KidsProfilesView() }
-                            link("shield.lefthalf.filled", "Safety circle", "", 0x60A5FA) { SafetyCircleView() }
+                        }
+                        group("Devices") {
+                            link("applewatch", "Rings & watches", WearableModel.shared.on ? tr("Connected") : tr("Connect"), 0x56B892) { RingsWatchesView() }
                         }
                         group("About") {
-                            link("hand.raised", "Our promises to you", "", 0xD9B49F) { TrustView() }
                             link("questionmark.circle", "How HolySteps works", "", 0xD9B49F) { HowItWorksView() }
+                            link("hand.raised", "Our promises to you", "", 0xD9B49F) { TrustView() }
                             item("doc.text", "Terms of Service", "", 0x9F948B) { openURL(URL(string: AppLinks.site + "/terms")!) }
                             item("lock", "Privacy Policy", "", 0x9F948B) { openURL(URL(string: AppLinks.site + "/privacy")!) }
                         }
@@ -81,6 +82,7 @@ struct ProfileView: View {
                                         .font(.hs(13)).foregroundStyle(HS.textSecondary)
                                 }
                             }
+                            link("sparkles", "Your rhythms", tr("What HolySteps has learned, and your controls"), 0x8B5CF6) { AboutYouView().environmentObject(store) }
                             link("lock.shield", "Encrypted backup", Backup.code == nil ? tr("Off") : tr("On"), 0x56B892) { BackupView() }
                             Button(role: .destructive) { confirmErase = true } label: {
                                 T("Erase all my data on this phone").font(.hs(14, .semibold)).foregroundStyle(Color(hex: 0xFCA5A5))
