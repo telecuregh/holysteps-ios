@@ -158,7 +158,7 @@ enum Firestore {
 extension Error {
     /// What to tell the person when a shared write (partner link, circle, group) fails. Only a real network failure
     /// says "check your connection": a rule that refused it says why, so nobody is sent chasing their Wi-Fi.
-    func togetherText(_ offline: String, denied: String = TogetherText.planNeeded) -> String {
+    @MainActor func togetherText(_ offline: String, denied: String = TogetherText.planNeeded) -> String {
         switch self as? FSError {
         case .denied: return denied
         case .notSignedIn: return AccountStore.shared.notConnectedMessage
