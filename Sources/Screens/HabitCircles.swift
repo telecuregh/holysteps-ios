@@ -83,8 +83,12 @@ enum InviteCode {
     }
     static func resolve(_ code: String) async -> (type: String, target: String)? {
         let c = clean(code)
-        guard !c.isEmpty, !c.contains("/"), c.count <= 40, let d = try? await Firestore.get("inviteCodes/\(c)") else { return nil }
-        return (d["type"].string, d["targetId"].string)
+        // Same shape as Android's InviteLinks (letters, digits and dashes), so a pasted value can't change the request.
+        guard c.range(of: "^[A-Z0-9-]{4,40}$", options: .regularExpression) != nil, let d = try? await Firestore.get("inviteCodes/\(c)") else { return nil }
+        // The group id is used in a document path: only a plain id is accepted.
+        let target = d["targetId"].string
+        guard target.range(of: "^[A-Za-z0-9_-]{1,128}$", options: .regularExpression) != nil else { return nil }
+        return (d["type"].string, target)
     }
     /// The join link for a code, the same format Android uses (InviteLinks.url): the server's /join page and both apps
     /// understand it, so any phone camera that scans the QR code opens HolySteps straight to joining.
@@ -155,8 +159,18 @@ final class CirclesModel: ObservableObject {
         loading = false
     }
 
+    private var creating = false
+
     func create(_ t: HabitTemplate, name: String, habit: String, displayName: String) async -> HabitCircle? {
-        guard let uid else { message = tr("Couldn't reach HolySteps. Try again in a moment."); return nil }
+        guard let uid = await AccountStore.shared.ensureUid() else { message = AccountStore.shared.notConnectedMessage; return nil }
+        // A friend streak still waiting for its friend keeps its code: hand that one back instead of a new streak
+        // (and a new code) on every tap, as Android does.
+        if t.id == "friend_streak", let waiting = circles.first(where: { $0.isFriendStreak && $0.ownerUid == uid && $0.memberUids.count < 2 }) {
+            return waiting
+        }
+        guard !creating else { return nil }
+        creating = true
+        defer { creating = false }
         let id = Firestore.newId(), code = InviteCode.make(t.id == "friend_streak" ? "FRIEND" : "HABIT"), now = Firestore.nowMs
         let fields: [String: FSValue] = [
             "name": .string(String((name.isEmpty ? tr(t.title) : name).prefix(240))), "templateId": .string(t.id),
@@ -196,6 +210,25 @@ final class CirclesModel: ObservableObject {
             try? await Firestore.commit([.delete("habitCircles/\(c.id)/members/\(uid)")])
             try await Firestore.commit([.update("habitCircles/\(c.id)", ["memberUids": .array(c.memberUids.filter { $0 != uid }.map { .string($0) })])])
         } catch { message = error.wallText }
+        await load()
+    }
+
+    /// Cancels a friend streak from either side (Android's cancelFriendStreak). The one who sent the invite ends it for
+    /// both: the code is replaced with one that was never registered, so the old link can't join, the friend is taken
+    /// off, then they leave. The one who joined just leaves, and the sender can invite someone else with the same code.
+    func endFriendStreak(_ c: HabitCircle) async {
+        guard let uid else { return }
+        guard c.ownerUid == uid else { await leave(c); if message == nil { message = tr("Friend streak ended.") }; return }
+        do {
+            try await Firestore.commit([.update("habitCircles/\(c.id)", ["inviteCode": .string(InviteCode.make("FRIEND"))])])
+            if let friend = c.memberUids.first(where: { $0 != uid }) {
+                try? await Firestore.commit([.delete("habitCircles/\(c.id)/members/\(friend)")])
+                try await Firestore.commit([.update("habitCircles/\(c.id)", ["memberUids": .array([.string(uid)])])])
+            }
+            try? await Firestore.commit([.delete("habitCircles/\(c.id)/members/\(uid)")])
+            try await Firestore.commit([.update("habitCircles/\(c.id)", ["memberUids": .array([])])])
+            message = tr(c.memberUids.count < 2 ? "Invite canceled. That code no longer works." : "Friend streak ended.")
+        } catch { message = tr("Couldn't cancel right now. Check your connection and try again.") }
         await load()
     }
 
@@ -244,7 +277,8 @@ struct CirclesView: View {
     @ObservedObject private var account = AccountStore.shared
     @State private var creating = false
     @State private var joining = false
-    @State private var code = ""
+    /// Filled in when this screen was opened from an invite link (JoinInviteView).
+    @State private var code = InviteInbox.take("HABIT")
     @State private var paywall: Feature?
 
     var body: some View {
@@ -339,6 +373,7 @@ private struct NewCircleSheet: View {
                     }
                     T(t.proof.needs).font(.hs(12)).foregroundStyle(HS.textSecondary)
                     GoldButton(title: "Create") {
+                        guard !busy else { return }
                         busy = true
                         Task { made = await model.create(t, name: name, habit: habit, displayName: store.name); busy = false }
                     }

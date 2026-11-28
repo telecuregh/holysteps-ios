@@ -48,6 +48,7 @@ enum BedtimeReminder {
         let content = UNMutableNotificationContent()
         content.title = tr("Time to wind down")
         content.body = tr("A Bible sleep story is ready when you are.")
+        content.userInfo = ["route": "feature:Sleep stories"]
         let t = UNCalendarNotificationTrigger(dateMatching: DateComponents(hour: minutes / 60, minute: minutes % 60), repeats: true)
         try? await c.add(UNNotificationRequest(identifier: id, content: content, trigger: t))
         return true

@@ -3,9 +3,13 @@ import SwiftUI
 
 /// Siri, Shortcuts, Spotlight and the Action button. "Hey Siri, today's verse in HolySteps" answers without opening
 /// the app; the others open HolySteps straight to the right screen.
-enum QuickRoute: String, Identifiable {
+enum QuickRoute: Identifiable, Hashable {
     case prayerWalk, breathPrayer, faithCoach, sanctuary
-    var id: String { rawValue }
+    /// A screen from the search catalog, by its title (a tapped reminder opens it, as Android's open_route does).
+    case feature(String)
+    /// An invite link (holysteps://join?c=… or https://holysteps.org/join?c=…); nil when the link isn't valid.
+    case invite(InviteInbox.Invite?)
+    var id: String { "\(self)" }
 }
 
 @MainActor
@@ -46,11 +50,11 @@ struct SanctuaryIntent: AppIntent {
 }
 
 struct FaithCoachIntent: AppIntent {
-    static let title: LocalizedStringResource = "Talk to my faith coach"
-    static let description = IntentDescription("Open the private faith coach.")
+    static let title: LocalizedStringResource = "Open Faith Chat"
+    static let description = IntentDescription("Ask about faith, prayer and scripture.")
     static let openAppWhenRun = true
     @MainActor func perform() async throws -> some IntentResult {
-        if FaithCoach.available { open(.faithCoach) } else { TabRouter.shared.open(tab: 1) }
+        open(.faithCoach)
         return .result()
     }
 }
@@ -72,8 +76,8 @@ struct HolyShortcuts: AppShortcutsProvider {
                     shortTitle: "Breath prayer", systemImageName: "wind")
         AppShortcut(intent: SanctuaryIntent(), phrases: ["Open the sanctuary in \(.applicationName)"],
                     shortTitle: "Sanctuary", systemImageName: "headphones")
-        AppShortcut(intent: FaithCoachIntent(), phrases: ["Talk to my faith coach in \(.applicationName)"],
-                    shortTitle: "Faith coach", systemImageName: "sparkles")
+        AppShortcut(intent: FaithCoachIntent(), phrases: ["Open Faith Chat in \(.applicationName)", "Talk to my faith coach in \(.applicationName)"],
+                    shortTitle: "Faith Chat", systemImageName: "bubble.left.and.text.bubble.right")
         AppShortcut(intent: PrayIntent(), phrases: ["Pray with \(.applicationName)", "Open my prayers in \(.applicationName)"],
                     shortTitle: "Pray", systemImageName: "hands.sparkles")
     }
@@ -82,6 +86,8 @@ struct HolyShortcuts: AppShortcutsProvider {
 /// Shows the screen a shortcut asked for, over whatever tab is open.
 struct QuickRouteScreen: View {
     let route: QuickRoute
+    @EnvironmentObject private var store: AppStore
+    @Environment(\.dismiss) private var dismiss
     var body: some View {
         NavigationStack {
             switch route {
@@ -89,6 +95,23 @@ struct QuickRouteScreen: View {
             case .breathPrayer: BreathPrayerView()
             case .faithCoach: FaithCoachView()
             case .sanctuary: SpatialSanctuaryView()
+            case .invite(let i): JoinInviteView(invite: i)
+            case .feature(let title):
+                Group {
+                    if let f = AppFeature.all(gender: store.gender).first(where: { $0.title == title }) {
+                        switch f.target {
+                        case .view(let make): make()
+                        case .sleep: SleepView()
+                        case .tab: EmptyView()
+                        }
+                    }
+                }
+                .toolbar {
+                    ToolbarItem(placement: .topBarLeading) {
+                        Button { dismiss() } label: { Image(systemName: "chevron.left").font(.system(size: 17, weight: .semibold)) }
+                            .accessibilityLabel(tr("Back"))
+                    }
+                }
             }
         }
     }

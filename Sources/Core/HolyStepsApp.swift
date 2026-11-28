@@ -21,6 +21,7 @@ struct HolyStepsApp: App {
         }
         I18n.shared.warmUp()
         UNUserNotificationCenter.current().delegate = NotificationRouter.shared
+        SelfCare.registerCategories()
     }
 
     var body: some Scene {
@@ -34,9 +35,18 @@ struct HolyStepsApp: App {
                 .environmentObject(i18n)
                 .environmentObject(appearance)
                 .preferredColorScheme(appearance.mode.isLight ? .light : .dark)
-                .task { await AccountStore.shared.start(); await Legal.syncIfNeeded() }
+                .task { await AccountStore.shared.start(); await Legal.syncIfNeeded(); await ProfileSync.run(store: store) }
+                // Invite links: the join page's "Open in HolySteps" (holysteps://join?c=…), as on Android.
+                .onOpenURL { url in
+                    guard url.host == "join" || url.path.hasPrefix("/join") else { return }
+                    TabRouter.shared.quick = .invite(InviteInbox.parse(url))
+                }
                 .fullScreenCover(isPresented: $notifications.ringing) { WakeRingView { notifications.ringing = false }.environmentObject(i18n) }
-                .onChange(of: phase) { _, p in if p != .active { shareWithWidgets() }; if p == .background { Backup.maybeAuto() } }
+                .onChange(of: phase) { _, p in
+                    if p != .active { shareWithWidgets() }
+                    if p == .background { Backup.maybeAuto() }
+                    if p == .active { Task { await ProfileSync.run(store: store) } }
+                }
         }
     }
 

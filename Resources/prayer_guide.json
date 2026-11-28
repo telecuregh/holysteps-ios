@@ -1,0 +1,722 @@
+[
+{
+"id": "healing",
+"emoji": "🩺",
+"title": "Sickness and healing",
+"keywords": "sick ill illness disease health cancer hospital diagnosis recovery healing pain fever covid",
+"verses": [
+{
+"book": "Jeremiah",
+"ch": 17,
+"from": 14,
+"to": 14,
+"text": "Heal me, O Lord, and I shall be healed; save me, and I shall be saved: for thou art my praise."
+},
+{
+"book": "Psalms",
+"ch": 41,
+"from": 3,
+"to": 3,
+"text": "The Lord will strengthen him upon the bed of languishing: thou wilt make all his bed in his sickness."
+},
+{
+"book": "James",
+"ch": 5,
+"from": 15,
+"to": 15,
+"text": "And the prayer of faith shall save the sick, and the Lord shall raise him up; and if he have committed sins, they shall be forgiven him."
+}
+],
+"prompts": [
+"Tell God plainly what is wrong and what you are afraid of.",
+"Ask for healing, and for strength while you wait.",
+"Thank Him for the doctors, nurses and people who care."
+],
+"forMe": "Lord Jesus, You are the healer, and nothing about my body is hidden from You. You know this sickness, the pain and the fear that comes with it. I ask You to heal me. Give wisdom to everyone caring for me and let the treatment work. While I wait, hold me steady and keep my heart from despair. Let me feel Your nearness in the long hours. I trust You with my body and my life. In Jesus' name, amen.",
+"forOther": "Lord Jesus, You are the healer, and I bring {name} to You now. You know this sickness, the pain and the fear that comes with it. Please heal {name}. Give wisdom to every doctor and nurse, and let the treatment work. Strengthen {name} through each day and night, and comfort everyone who loves {name}. Let {name} feel Your nearness right now. We trust You with {name}'s life. In Jesus' name, amen."
+},
+{
+"id": "surgery",
+"emoji": "🏥",
+"title": "Surgery or a hospital stay",
+"keywords": "surgery operation hospital procedure doctors anesthesia icu",
+"verses": [
+{
+"book": "Isaiah",
+"ch": 41,
+"from": 10,
+"to": 10,
+"text": "Fear thou not; for I am with thee: be not dismayed; for I am thy God: I will strengthen thee; yea, I will help thee; yea, I will uphold thee with the right hand of my righteousness."
+},
+{
+"book": "Psalms",
+"ch": 73,
+"from": 26,
+"to": 26,
+"text": "My flesh and my heart faileth: but God is the strength of my heart, and my portion for ever."
+},
+{
+"book": "2 Corinthians",
+"ch": 12,
+"from": 9,
+"to": 9,
+"text": "And he said unto me, My grace is sufficient for thee: for my strength is made perfect in weakness. Most gladly therefore will I rather glory in my infirmities, that the power of Christ may rest upon me."
+}
+],
+"prompts": [
+"Name the day and the procedure.",
+"Pray for the surgeons, nurses and everyone in the room.",
+"Ask for peace before, and a good recovery after."
+],
+"forMe": "Father, I place this surgery in Your hands. Guide the surgeons and every person caring for me, steady their hands and sharpen their minds. Take away my fear and give me Your peace as I go in. Protect me from complications and give my body a strong, quick recovery. When I am weak, let Your strength carry me. Thank You that You are with me in every room I enter. In Jesus' name, amen.",
+"forOther": "Father, I place {name}'s surgery in Your hands. Guide the surgeons and every person caring for {name}; steady their hands and sharpen their minds. Take away fear and give {name} Your peace before it begins. Protect {name} from complications and bring a strong, quick recovery. Comfort the family as they wait. Thank You that You are with {name} in every room. In Jesus' name, amen."
+},
+{
+"id": "grief",
+"emoji": "🕊️",
+"title": "Grief and loss",
+"keywords": "grief loss death died funeral mourning grieving miscarriage bereavement widow sorrow",
+"verses": [
+{
+"book": "Psalms",
+"ch": 34,
+"from": 18,
+"to": 18,
+"text": "The Lord is nigh unto them that are of a broken heart; and saveth such as be of a contrite spirit."
+},
+{
+"book": "Matthew",
+"ch": 5,
+"from": 4,
+"to": 4,
+"text": "Blessed are they that mourn: for they shall be comforted."
+},
+{
+"book": "Revelation",
+"ch": 21,
+"from": 4,
+"to": 4,
+"text": "And God shall wipe away all tears from their eyes; and there shall be no more death, neither sorrow, nor crying, neither shall there be any more pain: for the former things are passed away."
+}
+],
+"prompts": [
+"Say the name of the one you lost, and tell God what you miss.",
+"It's all right to bring God your questions and your tears.",
+"Ask for comfort for today, not all the answers."
+],
+"forMe": "Lord, my heart is broken. You promised to be close to the brokenhearted, so please be close to me now. You know how much I loved them and how much I miss them. Hold me in the waves of sorrow, in the quiet moments and the hard days. Thank You for the gift of the life we shared. Give me comfort for today and hope for what is to come, when You will wipe away every tear. In Jesus' name, amen.",
+"forOther": "Lord, {name}'s heart is broken. You promised to be close to the brokenhearted, so please be close to {name} now. You know the love and the loss {name} carries. Hold {name} in the waves of sorrow, in the quiet moments and the hard days. Surround {name} with people who care, and give comfort for today and hope for what is to come, when You will wipe away every tear. In Jesus' name, amen."
+},
+{
+"id": "anxiety",
+"emoji": "🌊",
+"title": "Anxiety and worry",
+"keywords": "anxiety anxious worry worried fear panic stress nervous overthinking",
+"verses": [
+{
+"book": "Philippians",
+"ch": 4,
+"from": 6,
+"to": 7,
+"text": "Be careful for nothing; but in every thing by prayer and supplication with thanksgiving let your requests be made known unto God. And the peace of God, which passeth all understanding, shall keep your hearts and minds through Christ Jesus."
+},
+{
+"book": "1 Peter",
+"ch": 5,
+"from": 7,
+"to": 7,
+"text": "Casting all your care upon him; for he careth for you."
+},
+{
+"book": "Matthew",
+"ch": 6,
+"from": 34,
+"to": 34,
+"text": "Take therefore no thought for the morrow: for the morrow shall take thought for the things of itself. Sufficient unto the day is the evil thereof."
+}
+],
+"prompts": [
+"Name each worry, one at a time, and hand it to God.",
+"Breathe slowly while you pray.",
+"Thank Him for one thing that is good today."
+],
+"forMe": "Father, my mind is racing and my heart is heavy with worry. You told me to cast all my cares on You, so I give them to You now, one by one. Replace my anxious thoughts with Your peace, the peace that guards my heart and mind. Help me take today one step at a time and leave tomorrow with You. Thank You that You care for me more than I can know. In Jesus' name, amen.",
+"forOther": "Father, {name} is carrying so much worry right now. You told us to cast our cares on You, so I bring {name}'s cares to You. Quiet {name}'s racing thoughts and fill {name} with Your peace, the peace that guards the heart and mind. Help {name} take today one step at a time. Let {name} know how deeply You care. In Jesus' name, amen."
+},
+{
+"id": "depression",
+"emoji": "🌧️",
+"title": "Heaviness and depression",
+"keywords": "depression depressed sad hopeless empty heavy dark tired numb low",
+"verses": [
+{
+"book": "Psalms",
+"ch": 42,
+"from": 11,
+"to": 11,
+"text": "Why art thou cast down, O my soul? and why art thou disquieted within me? hope thou in God: for I shall yet praise him, who is the health of my countenance, and my God."
+},
+{
+"book": "Psalms",
+"ch": 40,
+"from": 1,
+"to": 2,
+"text": "To the chief Musician, A Psalm of David. I waited patiently for the Lord; and he inclined unto me, and heard my cry. He brought me up also out of an horrible pit, out of the miry clay, and set my feet upon a rock, and established my goings."
+},
+{
+"book": "Matthew",
+"ch": 11,
+"from": 28,
+"to": 28,
+"text": "Come unto me, all ye that labour and are heavy laden, and I will give you rest."
+}
+],
+"prompts": [
+"Tell God honestly how you feel, even if it's numb or angry.",
+"Ask Him for one small step you can take today.",
+"Think of one person you could reach out to."
+],
+"forMe": "Lord, I feel heavy and worn out, and some days I can't find hope. You see me here. Lift me out of this pit like You lifted David, and set my feet on solid ground. Give me strength for one small step today, and bring people who can help me. Remind me that I am loved by You, even when I can't feel it. I put my hope in You again. In Jesus' name, amen.",
+"forOther": "Lord, {name} feels heavy and worn out, and some days hope is hard to find. You see {name}. Lift {name} out of this pit and set {name}'s feet on solid ground. Give {name} strength for one small step today, and bring good help and good friends close. Remind {name} that You love {name}, even when it's hard to feel. In Jesus' name, amen."
+},
+{
+"id": "finding_work",
+"emoji": "💼",
+"title": "Finding work",
+"keywords": "job work unemployed interview career hiring application employment business",
+"verses": [
+{
+"book": "Proverbs",
+"ch": 16,
+"from": 3,
+"to": 3,
+"text": "Commit thy works unto the Lord, and thy thoughts shall be established."
+},
+{
+"book": "Psalms",
+"ch": 90,
+"from": 17,
+"to": 17,
+"text": "And let the beauty of the Lord our God be upon us: and establish thou the work of our hands upon us; yea, the work of our hands establish thou it."
+},
+{
+"book": "Philippians",
+"ch": 4,
+"from": 19,
+"to": 19,
+"text": "But my God shall supply all your need according to his riches in glory by Christ Jesus."
+}
+],
+"prompts": [
+"Name the jobs or interviews in front of you.",
+"Ask for open doors and favor with the people deciding.",
+"Pray for provision while you wait."
+],
+"forMe": "Father, I need work, and You know exactly what I need. I commit my plans to You. Open the right doors and close the wrong ones. Give me favor in every application and interview, and help me show what I can do with confidence. Provide for me and my family while I wait, and keep me from fear. Let the work of my hands be blessed by You. In Jesus' name, amen.",
+"forOther": "Father, {name} needs work, and You know exactly what {name} needs. I commit {name}'s plans to You. Open the right doors and close the wrong ones. Give {name} favor in every application and interview, and confidence to shine. Provide for {name} and the family while they wait, and keep them from fear. In Jesus' name, amen."
+},
+{
+"id": "work_stress",
+"emoji": "🗂️",
+"title": "Stress at work",
+"keywords": "work stress boss coworker workplace burnout deadline overworked tired job pressure",
+"verses": [
+{
+"book": "Colossians",
+"ch": 3,
+"from": 23,
+"to": 23,
+"text": "And whatsoever ye do, do it heartily, as to the Lord, and not unto men;"
+},
+{
+"book": "Psalms",
+"ch": 55,
+"from": 22,
+"to": 22,
+"text": "Cast thy burden upon the Lord, and he shall sustain thee: he shall never suffer the righteous to be moved."
+},
+{
+"book": "Isaiah",
+"ch": 40,
+"from": 31,
+"to": 31,
+"text": "But they that wait upon the Lord shall renew their strength; they shall mount up with wings as eagles; they shall run, and not be weary; and they shall walk, and not faint."
+}
+],
+"prompts": [
+"Name what is weighing on you at work.",
+"Ask for wisdom for one conversation or task.",
+"Pray for the people you work with, even the hard ones."
+],
+"forMe": "Lord, work feels heavy right now. I hand You the pressure, the deadlines and the hard conversations. Give me wisdom for each task and grace with the people around me. Help me work with honesty and care, as if for You. When I am tired, renew my strength. Show me where to set limits, and give me rest when the day is done. In Jesus' name, amen.",
+"forOther": "Lord, work feels heavy for {name} right now. I hand You the pressure, the deadlines and the hard conversations {name} is facing. Give {name} wisdom for each task and grace with the people around. When {name} is tired, renew {name}'s strength, and give {name} real rest when the day is done. In Jesus' name, amen."
+},
+{
+"id": "money",
+"emoji": "💵",
+"title": "Money worries",
+"keywords": "money debt bills rent finances provision broke budget loan mortgage poverty",
+"verses": [
+{
+"book": "Matthew",
+"ch": 6,
+"from": 33,
+"to": 33,
+"text": "But seek ye first the kingdom of God, and his righteousness; and all these things shall be added unto you."
+},
+{
+"book": "Hebrews",
+"ch": 13,
+"from": 5,
+"to": 5,
+"text": "Let your conversation be without covetousness; and be content with such things as ye have: for he hath said, I will never leave thee, nor forsake thee."
+},
+{
+"book": "Psalms",
+"ch": 37,
+"from": 25,
+"to": 25,
+"text": "I have been young, and now am old; yet have I not seen the righteous forsaken, nor his seed begging bread."
+}
+],
+"prompts": [
+"Tell God the exact bills and amounts that worry you.",
+"Ask for provision, and wisdom to manage what you have.",
+"Thank Him for what He has already provided."
+],
+"forMe": "Father, I'm worried about money, and You know every bill in front of me. You promised never to leave me or forsake me, so I bring You my needs. Provide what my family needs today. Give me wisdom to manage what I have, open doors of income, and free me from the grip of fear and debt. Help me seek You first and trust You with the rest. In Jesus' name, amen.",
+"forOther": "Father, {name} is worried about money, and You know every need in front of {name}. You promised never to leave us or forsake us. Provide what {name} needs today. Give {name} wisdom, open doors of income, and free {name} from the grip of fear and debt. Let {name} see Your faithfulness in a real way this week. In Jesus' name, amen."
+},
+{
+"id": "marriage",
+"emoji": "💍",
+"title": "Marriage",
+"keywords": "marriage husband wife spouse divorce conflict love relationship couple",
+"verses": [
+{
+"book": "Ecclesiastes",
+"ch": 4,
+"from": 12,
+"to": 12,
+"text": "And if one prevail against him, two shall withstand him; and a threefold cord is not quickly broken."
+},
+{
+"book": "Ephesians",
+"ch": 4,
+"from": 2,
+"to": 3,
+"text": "With all lowliness and meekness, with longsuffering, forbearing one another in love; Endeavouring to keep the unity of the Spirit in the bond of peace."
+},
+{
+"book": "1 Corinthians",
+"ch": 13,
+"from": 7,
+"to": 7,
+"text": "Beareth all things, believeth all things, hopeth all things, endureth all things."
+}
+],
+"prompts": [
+"Thank God for something good in your spouse.",
+"Name the hard thing honestly.",
+"Ask what you can do, not only what they should do."
+],
+"forMe": "Lord, I bring You my marriage. You know what is good between us and what is hurting. Be the third strand that holds us together. Give us patience, humility and kindness toward each other. Heal what is broken and help us forgive quickly. Show me how to love my spouse well today. Let our home be a place of peace. In Jesus' name, amen.",
+"forOther": "Lord, I bring You {name}'s marriage. You know what is good and what is hurting. Be the third strand that holds them together. Give them patience, humility and kindness toward each other. Heal what is broken and help them forgive. Let their home be a place of peace. In Jesus' name, amen."
+},
+{
+"id": "children",
+"emoji": "👶",
+"title": "Children",
+"keywords": "children kids son daughter child parenting teenager baby family",
+"verses": [
+{
+"book": "Proverbs",
+"ch": 22,
+"from": 6,
+"to": 6,
+"text": "Train up a child in the way he should go: and when he is old, he will not depart from it."
+},
+{
+"book": "Isaiah",
+"ch": 54,
+"from": 13,
+"to": 13,
+"text": "And all thy children shall be taught of the Lord; and great shall be the peace of thy children."
+},
+{
+"book": "Numbers",
+"ch": 6,
+"from": 24,
+"to": 26,
+"text": "The Lord bless thee, and keep thee: The Lord make his face shine upon thee, and be gracious unto thee: The Lord lift up his countenance upon thee, and give thee peace."
+}
+],
+"prompts": [
+"Name each child and one thing they need.",
+"Pray for their friends, school and safety.",
+"Ask for wisdom and patience as a parent."
+],
+"forMe": "Father, thank You for my children. I place each of them in Your hands. Keep them safe, guide their hearts and draw them close to You. Give them good friends and a love for what is right. Give me wisdom, patience and joy as I raise them. Bless them and keep them, and make Your face shine on them. In Jesus' name, amen.",
+"forOther": "Father, thank You for {name}. I place {name} in Your hands. Keep {name} safe, guide {name}'s heart and draw {name} close to You. Give {name} good friends and a love for what is right. Bless {name} and keep {name}, and make Your face shine on {name}. In Jesus' name, amen."
+},
+{
+"id": "pregnancy",
+"emoji": "🤰",
+"title": "Pregnancy and waiting for a child",
+"keywords": "pregnancy pregnant baby fertility trying to conceive ivf birth labor delivery waiting",
+"verses": [
+{
+"book": "Psalms",
+"ch": 139,
+"from": 13,
+"to": 14,
+"text": "For thou hast possessed my reins: thou hast covered me in my mother’s womb. I will praise thee; for I am fearfully and wonderfully made: marvellous are thy works; and that my soul knoweth right well."
+},
+{
+"book": "1 Samuel",
+"ch": 1,
+"from": 27,
+"to": 27,
+"text": "For this child I prayed; and the Lord hath given me my petition which I asked of him:"
+},
+{
+"book": "Lamentations",
+"ch": 3,
+"from": 25,
+"to": 26,
+"text": "The Lord is good unto them that wait for him, to the soul that seeketh him. It is good that a man should both hope and quietly wait for the salvation of the Lord."
+}
+],
+"prompts": [
+"Tell God the longing or the worry on your heart.",
+"Pray for health for mother and baby.",
+"Ask for peace in the waiting."
+],
+"forMe": "Lord, You knit every life together, and You know the longing and the hopes in my heart. I bring You this season. Give health and strength, and protect every step. In the waiting, keep my heart from fear and fill me with Your peace. Whatever comes, hold me close and help me trust Your love. In Jesus' name, amen.",
+"forOther": "Lord, You knit every life together, and You know the hopes in {name}'s heart. I bring You this season for {name}. Give health and strength, and protect every step of this journey. In the waiting, keep {name}'s heart from fear and fill {name} with Your peace. In Jesus' name, amen."
+},
+{
+"id": "exams",
+"emoji": "📚",
+"title": "Exams and studies",
+"keywords": "exam test school college university study studies grades finals school work student",
+"verses": [
+{
+"book": "James",
+"ch": 1,
+"from": 5,
+"to": 5,
+"text": "If any of you lack wisdom, let him ask of God, that giveth to all men liberally, and upbraideth not; and it shall be given him."
+},
+{
+"book": "Proverbs",
+"ch": 2,
+"from": 6,
+"to": 6,
+"text": "For the Lord giveth wisdom: out of his mouth cometh knowledge and understanding."
+},
+{
+"book": "Philippians",
+"ch": 4,
+"from": 13,
+"to": 13,
+"text": "I can do all things through Christ which strengtheneth me."
+}
+],
+"prompts": [
+"Name the exam or assignment and the day it's due.",
+"Ask for focus, memory and calm.",
+"Pray to do your best, and to trust God with the result."
+],
+"forMe": "Father, You give wisdom generously to anyone who asks, so I'm asking. Help me focus while I study and remember what I've learned. Calm my nerves before and during the exam, and help me think clearly. Help me work hard and do my best, and then leave the results with You. Thank You that my worth is in You, not in a grade. In Jesus' name, amen.",
+"forOther": "Father, You give wisdom generously to anyone who asks, so I ask for {name}. Help {name} focus while studying and remember what was learned. Calm {name}'s nerves and help {name} think clearly in the exam. Let {name} do their best and rest in You for the results. In Jesus' name, amen."
+},
+{
+"id": "travel",
+"emoji": "✈️",
+"title": "Travel and safety",
+"keywords": "travel trip journey flight drive road safety vacation moving",
+"verses": [
+{
+"book": "Psalms",
+"ch": 121,
+"from": 7,
+"to": 8,
+"text": "The Lord shall preserve thee from all evil: he shall preserve thy soul. The Lord shall preserve thy going out and thy coming in from this time forth, and even for evermore."
+},
+{
+"book": "Joshua",
+"ch": 1,
+"from": 9,
+"to": 9,
+"text": "Have not I commanded thee? Be strong and of a good courage; be not afraid, neither be thou dismayed: for the Lord thy God is with thee whithersoever thou goest."
+},
+{
+"book": "Isaiah",
+"ch": 43,
+"from": 2,
+"to": 2,
+"text": "When thou passest through the waters, I will be with thee; and through the rivers, they shall not overflow thee: when thou walkest through the fire, thou shalt not be burned; neither shall the flame kindle upon thee."
+}
+],
+"prompts": [
+"Name the trip: where, when and who is going.",
+"Pray for safety on the road, in the air or on the water.",
+"Ask God to watch over home while you're away."
+],
+"forMe": "Lord, I'm setting out, and I ask You to go with me. Watch over my going out and my coming in. Keep me safe on every road and in every place I stay. Give me alertness, patience and good judgment, and protect the people traveling with me. Watch over my home and family while I'm away, and bring me back safely. In Jesus' name, amen.",
+"forOther": "Lord, {name} is setting out, and I ask You to go with {name}. Watch over {name}'s going out and coming in. Keep {name} safe on every road and in every place {name} stays, and protect everyone traveling along. Bring {name} home safely. In Jesus' name, amen."
+},
+{
+"id": "addiction",
+"emoji": "⛓️",
+"title": "Addiction and freedom",
+"keywords": "addiction addicted alcohol drinking drugs porn gambling smoking recovery relapse sober habit",
+"verses": [
+{
+"book": "John",
+"ch": 8,
+"from": 36,
+"to": 36,
+"text": "If the Son therefore shall make you free, ye shall be free indeed."
+},
+{
+"book": "1 Corinthians",
+"ch": 10,
+"from": 13,
+"to": 13,
+"text": "There hath no temptation taken you but such as is common to man: but God is faithful, who will not suffer you to be tempted above that ye are able; but will with the temptation also make a way to escape, that ye may be able to bear it."
+},
+{
+"book": "2 Corinthians",
+"ch": 5,
+"from": 17,
+"to": 17,
+"text": "Therefore if any man be in Christ, he is a new creature: old things are passed away; behold, all things are become new."
+}
+],
+"prompts": [
+"Be honest with God about the struggle and the triggers.",
+"Ask for strength for today only.",
+"Think of one person you can tell or call."
+],
+"forMe": "Lord Jesus, You came to set the captives free, and I need Your freedom. You know this struggle and how often I've tried. I don't want to hide it from You. Break its hold on me. Give me strength for today, show me the way out when temptation comes, and bring people who can walk with me. Thank You that in You I am a new creation, and You are not done with me. In Jesus' name, amen.",
+"forOther": "Lord Jesus, You came to set the captives free, and I ask for {name}'s freedom. Break the hold this addiction has on {name}. Give {name} strength for today and a way out when temptation comes. Surround {name} with people who will walk alongside. Help {name} believe that in You there is a new beginning. Give me patience and love as I stand with {name}. In Jesus' name, amen."
+},
+{
+"id": "loved_ones_faith",
+"emoji": "✝️",
+"title": "A loved one's faith",
+"keywords": "salvation saved faith unbeliever prodigal backslidden church god believe family friend",
+"verses": [
+{
+"book": "2 Peter",
+"ch": 3,
+"from": 9,
+"to": 9,
+"text": "The Lord is not slack concerning his promise, as some men count slackness; but is longsuffering to us-ward, not willing that any should perish, but that all should come to repentance."
+},
+{
+"book": "Acts",
+"ch": 16,
+"from": 31,
+"to": 31,
+"text": "And they said, Believe on the Lord Jesus Christ, and thou shalt be saved, and thy house."
+},
+{
+"book": "Ezekiel",
+"ch": 36,
+"from": 26,
+"to": 26,
+"text": "A new heart also will I give you, and a new spirit will I put within you: and I will take away the stony heart out of your flesh, and I will give you an heart of flesh."
+}
+],
+"prompts": [
+"Name the person and what you long for them to know about God.",
+"Pray for open eyes and a soft heart.",
+"Ask God how you can love them well."
+],
+"forMe": "Father, I bring You the people I love who don't know You yet. You are patient, not wanting anyone to perish. Open their eyes to Your love, soften their hearts and draw them to Jesus. Send people into their lives who will show them who You are. Help me love them well and live what I believe. In Jesus' name, amen.",
+"forOther": "Father, I bring {name} to You. You are patient, not wanting anyone to perish. Open {name}'s eyes to Your love, soften {name}'s heart and draw {name} to Jesus. Send people into {name}'s life who will show who You are, and help me love {name} well. In Jesus' name, amen."
+},
+{
+"id": "decision",
+"emoji": "🧭",
+"title": "A hard decision",
+"keywords": "decision choice guidance direction wisdom confused crossroads move calling",
+"verses": [
+{
+"book": "Proverbs",
+"ch": 3,
+"from": 5,
+"to": 6,
+"text": "Trust in the Lord with all thine heart; and lean not unto thine own understanding. In all thy ways acknowledge him, and he shall direct thy paths."
+},
+{
+"book": "Psalms",
+"ch": 32,
+"from": 8,
+"to": 8,
+"text": "I will instruct thee and teach thee in the way which thou shalt go: I will guide thee with mine eye."
+},
+{
+"book": "Isaiah",
+"ch": 30,
+"from": 21,
+"to": 21,
+"text": "And thine ears shall hear a word behind thee, saying, This is the way, walk ye in it, when ye turn to the right hand, and when ye turn to the left."
+}
+],
+"prompts": [
+"Lay out the choices in front of you.",
+"Ask God for wisdom, and listen for a while.",
+"Pray for peace about the right path."
+],
+"forMe": "Lord, I'm at a crossroads and I don't know which way to go. I trust You more than my own understanding. Show me the path You have for me. Give me wisdom, wise counsel and Your peace about the right choice, and make me uneasy about the wrong one. Help me follow You, even when it's hard. In Jesus' name, amen.",
+"forOther": "Lord, {name} is at a crossroads and needs Your guidance. Help {name} trust You more than human understanding. Show {name} the path You have, and give {name} wisdom, wise counsel and peace about the right choice. In Jesus' name, amen."
+},
+{
+"id": "loneliness",
+"emoji": "🤝",
+"title": "Loneliness",
+"keywords": "lonely loneliness alone isolated friendless friends single widowed new city",
+"verses": [
+{
+"book": "Psalms",
+"ch": 68,
+"from": 6,
+"to": 6,
+"text": "God setteth the solitary in families: he bringeth out those which are bound with chains: but the rebellious dwell in a dry land."
+},
+{
+"book": "Psalms",
+"ch": 27,
+"from": 10,
+"to": 10,
+"text": "When my father and my mother forsake me, then the Lord will take me up."
+},
+{
+"book": "Matthew",
+"ch": 28,
+"from": 20,
+"to": 20,
+"text": "Teaching them to observe all things whatsoever I have commanded you: and, lo, I am with you alway, even unto the end of the world. Amen."
+}
+],
+"prompts": [
+"Tell God where you feel most alone.",
+"Thank Him that He is with you right now.",
+"Ask Him for one real friendship."
+],
+"forMe": "Lord, I feel alone. You promised to be with me always, so help me feel Your presence right now. You set the lonely in families; please bring good people into my life, friends who will know me and care. Give me courage to reach out. Until then, be my closest friend. In Jesus' name, amen.",
+"forOther": "Lord, {name} feels alone. You promised to be with us always, so let {name} feel Your presence right now. You set the lonely in families; bring good, caring people into {name}'s life. Show me how I can be a friend to {name}. In Jesus' name, amen."
+},
+{
+"id": "forgiveness",
+"emoji": "💛",
+"title": "Forgiveness and a broken relationship",
+"keywords": "forgive forgiveness hurt betrayal bitterness anger reconcile reconciliation family conflict friendship broken",
+"verses": [
+{
+"book": "Ephesians",
+"ch": 4,
+"from": 32,
+"to": 32,
+"text": "And be ye kind one to another, tenderhearted, forgiving one another, even as God for Christ’s sake hath forgiven you."
+},
+{
+"book": "Colossians",
+"ch": 3,
+"from": 13,
+"to": 13,
+"text": "Forbearing one another, and forgiving one another, if any man have a quarrel against any: even as Christ forgave you, so also do ye."
+},
+{
+"book": "Romans",
+"ch": 12,
+"from": 18,
+"to": 18,
+"text": "If it be possible, as much as lieth in you, live peaceably with all men."
+}
+],
+"prompts": [
+"Name the hurt honestly.",
+"Ask God to help you release it, even a little.",
+"Pray for the other person by name."
+],
+"forMe": "Father, I've been hurt and it's hard to let go. You have forgiven me so much. Help me forgive as You forgave me. Heal the wound and take away the bitterness. Where it's possible, bring peace and restore what's broken between us. Where it isn't, give me peace anyway. And show me where I need to ask forgiveness too. In Jesus' name, amen.",
+"forOther": "Father, {name} has been hurt and it's hard to let go. Heal {name}'s heart and take away the bitterness. Where it's possible, bring peace and restore what's broken. Give {name} the grace to forgive, and surround {name} with Your love. In Jesus' name, amen."
+},
+{
+"id": "protection",
+"emoji": "🛡️",
+"title": "Protection and fear",
+"keywords": "protection safe safety danger fear afraid scared night attack violence",
+"verses": [
+{
+"book": "Psalms",
+"ch": 91,
+"from": 1,
+"to": 2,
+"text": "He that dwelleth in the secret place of the most High shall abide under the shadow of the Almighty. I will say of the Lord, He is my refuge and my fortress: my God; in him will I trust."
+},
+{
+"book": "2 Timothy",
+"ch": 1,
+"from": 7,
+"to": 7,
+"text": "For God hath not given us the spirit of fear; but of power, and of love, and of a sound mind."
+},
+{
+"book": "Psalms",
+"ch": 4,
+"from": 8,
+"to": 8,
+"text": "I will both lay me down in peace, and sleep: for thou, Lord, only makest me dwell in safety."
+}
+],
+"prompts": [
+"Name what you're afraid of.",
+"Ask God to guard you and the people you love.",
+"Rest in His care."
+],
+"forMe": "Lord, You are my refuge and my fortress. I'm afraid, and I bring that fear to You. Guard me and the people I love. Keep us from harm, at home and wherever we go. You have not given me a spirit of fear, but of power, love and a sound mind. Let me lie down in peace and sleep, because You keep me safe. In Jesus' name, amen.",
+"forOther": "Lord, You are a refuge and a fortress. I ask You to guard {name}. Keep {name} from harm, at home and wherever {name} goes. Replace fear with Your power, love and a sound mind. Let {name} lie down in peace, safe in Your care. In Jesus' name, amen."
+},
+{
+"id": "thanksgiving",
+"emoji": "🙌",
+"title": "Thanksgiving",
+"keywords": "thanks thankful gratitude grateful praise answered prayer blessing celebrate",
+"verses": [
+{
+"book": "1 Thessalonians",
+"ch": 5,
+"from": 18,
+"to": 18,
+"text": "In every thing give thanks: for this is the will of God in Christ Jesus concerning you."
+},
+{
+"book": "Psalms",
+"ch": 100,
+"from": 4,
+"to": 4,
+"text": "Enter into his gates with thanksgiving, and into his courts with praise: be thankful unto him, and bless his name."
+},
+{
+"book": "Psalms",
+"ch": 107,
+"from": 1,
+"to": 1,
+"text": "O give thanks unto the Lord, for he is good: for his mercy endureth for ever."
+}
+],
+"prompts": [
+"Name three things you're thankful for today.",
+"Remember a prayer God answered.",
+"Thank Him for who He is, not only what He does."
+],
+"forMe": "Father, thank You. Thank You for life and breath, for the people I love, and for every good gift today. Thank You for the prayers You've answered and the ones You're still working on. Thank You most of all for Jesus. Fill my heart with gratitude, and let my life give You praise. In Jesus' name, amen.",
+"forOther": "Father, thank You for {name}. Thank You for the gift {name} is to me and to others, and for all You have done in {name}'s life. Bless {name} today, and let {name} feel how loved {name} is, by You and by me. In Jesus' name, amen."
+}
+]

@@ -3,7 +3,8 @@ import XCTest
 
 final class SermonTests: XCTestCase {
     func testLibraryLoads() {
-        XCTAssertEqual(SermonLibrary.all.count, 185)
+        XCTAssertEqual(SermonLibrary.all.count, 208)
+        XCTAssertEqual(SermonLibrary.stories.count, 20)
         XCTAssertEqual(SermonLibrary.books.count, 66)
         XCTAssertEqual(SermonLibrary.seasons.count, 22)
         XCTAssertEqual(SermonLibrary.narratedWeekly.count, 69)

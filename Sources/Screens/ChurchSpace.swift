@@ -103,7 +103,8 @@ struct ChurchTab: View {
     @EnvironmentObject var store: AppStore
     @ObservedObject private var model = ChurchModel.shared
     @State private var joining = false
-    @State private var code = ""
+    /// Filled in when this screen was opened from an invite link (JoinInviteView).
+    @State private var code = InviteInbox.take("CHURCH")
 
     var body: some View {
         VStack(spacing: 10) {

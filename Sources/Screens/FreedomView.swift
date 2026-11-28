@@ -57,6 +57,7 @@ final class FreedomStore: ObservableObject {
         ud.set(today, forKey: dayKey)
         checkedInToday = true
         ActivityLog.shared.add(.freedomCheckIn)
+        Task { @MainActor in await PartnerModel.shared.publish() }
     }
 
     func reset() {
@@ -65,6 +66,8 @@ final class FreedomStore: ObservableObject {
         ud.removeObject(forKey: dayKey)
         ud.set(AppStore.dayKey(), forKey: startKey)
         checkedInToday = false
+        // "Tell them when I slip", when an accountability partner was asked to be told.
+        Task { @MainActor in PartnerModel.shared.slipped() }
     }
 
     func saveNote(_ s: String) {
@@ -217,6 +220,9 @@ struct FreedomView: View {
 
     private var supportSection: some View {
         ToolSection(title: "", items: [
+            ToolItem(symbol: "person.2", color: HS.faith, title: "Accountability partner",
+                     sub: PartnerModel.shared.link == nil ? "Someone to look out for you, and you for them" : "Your partner and your messages",
+                     destination: AnyView(AccountabilityPartnerView())),
             ToolItem(symbol: "phone", color: HS.mind, title: "SAMHSA Helpline",
                      sub: "Free, confidential, 24/7. 1-800-662-4357",
                      action: { UIApplication.shared.open(URL(string: "tel://18006624357")!) }),

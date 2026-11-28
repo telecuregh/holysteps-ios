@@ -220,6 +220,9 @@ struct FormCoachView: View {
     private func finishSet() {
         stopTimer()
         ActivityLog.shared.add(.workoutSet)
+        let d = UserDefaults.standard
+        d.set(d.integer(forKey: "formCoachSets") + 1, forKey: "formCoachSets")
+        d.set(d.integer(forKey: "formCoachReps") + repCount, forKey: "formCoachReps")
         if currentSet >= sets {
             done = true
         } else {
@@ -254,5 +257,78 @@ struct CameraPreview: UIViewRepresentable {
             session = s
             DispatchQueue.global(qos: .userInitiated).async { s.startRunning() }
         }
+    }
+}
+
+/// Android's FormCoachExercisePicker: the five exercises the camera can count, with how to set the phone up.
+/// Locked behind the Fitness plan like Android (Feature.FORM_COACH).
+struct FormCoachPickerView: View {
+    struct Exercise: Identifiable { let id: String; let emoji: String; let instructions: String }
+    static let exercises = [
+        Exercise(id: "Squats", emoji: "🏋️", instructions: "Stand sideways-on to the phone, about 6 feet back, full body in frame."),
+        Exercise(id: "Push-ups", emoji: "💪", instructions: "Set the phone low and sideways-on, full body in frame."),
+        Exercise(id: "Lunges", emoji: "🦵", instructions: "Stand sideways-on to the phone, about 6 feet back, full body in frame."),
+        Exercise(id: "Bicep Curls", emoji: "💪", instructions: "Stand facing the phone slightly sideways, holding a weight (or just your arm), full body in frame."),
+        Exercise(id: "Sit-ups", emoji: "🔥", instructions: "Lie down sideways-on to the phone, far enough back that your knees and shoulders are both in frame."),
+    ]
+    @ObservedObject private var account = AccountStore.shared
+    @AppStorage("formCoachSets") private var sets = 0
+    @AppStorage("formCoachReps") private var reps = 0
+    @State private var paywall = false
+
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 14) {
+                VStack(alignment: .leading, spacing: 4) {
+                    T("📷 CAMERA FORM COACH").font(.hs(11, .semibold)).tracking(1.4).foregroundStyle(HS.peach)
+                    T(account.canUse(.formCoach) ? "Pick an exercise" : "See your form in real time").font(.hs(24, .light)).foregroundStyle(HS.text)
+                        .accessibilityAddTraits(.isHeader)
+                    T("move with mindful form").font(.custom("PlayfairDisplay-Italic", size: 18)).foregroundStyle(HS.peach)
+                    if sets > 0 { D("\(sets) \(tr(sets == 1 ? "set" : "sets")) · \(reps) \(tr(reps == 1 ? "rep" : "reps")) \(tr("all-time"))").font(.hs(12)).foregroundStyle(HS.textMuted) }
+                }
+                if !account.canUse(.formCoach) {
+                    GlassCard(warm: true) {
+                        VStack(spacing: 12) {
+                            Text("📷").font(.system(size: 48))
+                            T("Your phone's camera counts reps and checks your depth on squats and push-ups — entirely on your device.")
+                                .font(.hs(14)).foregroundStyle(HS.textSecondary).multilineTextAlignment(.center)
+                            GoldButton(title: "Get the Fitness plan") { paywall = true }
+                        }
+                        .frame(maxWidth: .infinity)
+                    }
+                } else {
+                    ForEach(Self.exercises) { ex in
+                        NavigationLink {
+                            FormCoachView(routineName: ex.id, sets: 3, reps: 10)
+                        } label: {
+                            HStack(spacing: 16) {
+                                Text(ex.emoji).font(.system(size: 32))
+                                VStack(alignment: .leading, spacing: 4) {
+                                    T(ex.id).font(.hs(17, .bold)).foregroundStyle(HS.text)
+                                    T(ex.instructions).font(.hs(12)).foregroundStyle(HS.textMuted).multilineTextAlignment(.leading)
+                                }
+                                Spacer(minLength: 0)
+                                Image(systemName: "chevron.right").font(.caption).foregroundStyle(HS.textMuted)
+                            }
+                            .padding(18)
+                            .background(RoundedRectangle(cornerRadius: 18).fill(HS.cardFill))
+                            .overlay(RoundedRectangle(cornerRadius: 18).strokeBorder(HS.gold.opacity(0.24), lineWidth: 1))
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+                HStack(alignment: .top, spacing: 8) {
+                    Text("🔒").font(.system(size: 14))
+                    T("On-device only — every frame is analyzed on your phone and discarded immediately. Nothing is recorded, saved, or uploaded.")
+                        .font(.hs(11)).foregroundStyle(HS.textMuted)
+                }
+                .padding(12)
+            }
+            .padding(20)
+        }
+        .background(HSBackground())
+        .navigationTitle(tr("Form Coach"))
+        .navigationBarTitleDisplayMode(.inline)
+        .sheet(isPresented: $paywall) { PlansView(feature: .formCoach) }
     }
 }

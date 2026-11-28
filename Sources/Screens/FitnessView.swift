@@ -94,6 +94,42 @@ final class StepsModel: ObservableObject {
         }
     }
 
+    /// Minutes asleep per night (keyed by the morning you woke) for the last [days] days, for insights that need more
+    /// than a week (Morning light, Trends).
+    func sleepNights(days: Int) async -> [String: Int] {
+        guard available else { return [:] }
+        let cal = Calendar.current
+        var out: [String: Int] = [:]
+        for offset in 0..<days {
+            guard let d = cal.date(byAdding: .day, value: -offset, to: Date()) else { continue }
+            let morning = cal.startOfDay(for: d)
+            let m = await asleepMinutes(from: morning.addingTimeInterval(-6 * 3600), to: min(morning.addingTimeInterval(12 * 3600), Date()))
+            if m > 0 { out[AppStore.dayKey(d)] = m }
+        }
+        return out
+    }
+
+    /// Steps per day for the last [days] days (Apple Health plus walks logged by hand).
+    func stepsPerDay(days: Int) async -> [String: Int] {
+        let cal = Calendar.current
+        var out: [String: Int] = [:]
+        for offset in 0..<days {
+            guard let d = cal.date(byAdding: .day, value: -offset, to: Date()) else { continue }
+            let start = cal.startOfDay(for: d)
+            let end = offset == 0 ? Date() : (cal.date(byAdding: .day, value: 1, to: start) ?? Date())
+            let key = AppStore.dayKey(d)
+            out[key] = (available ? await steps(from: start, to: end) : 0) + (manual[key] ?? 0)
+        }
+        return out
+    }
+
+    /// Every step since [date] (Apple Health plus walks logged by hand): Bible Journeys measure the road with these.
+    func stepsSince(_ date: Date) async -> Int {
+        let hk = available ? await steps(from: date, to: Date()) : 0
+        let startKey = AppStore.dayKey(date)
+        return hk + manual.filter { $0.key >= startKey }.values.reduce(0, +)
+    }
+
     private func steps(from: Date, to: Date) async -> Int {
         await withCheckedContinuation { cont in
             let p = HKQuery.predicateForSamples(withStart: from, end: to)
@@ -105,15 +141,16 @@ final class StepsModel: ObservableObject {
     }
 }
 
-/// Android's WalkScreen (the Fitness tab): the photo, "Move with Purpose", and Today, Train and Progress. Live walks
-/// with the map, the Form Coach, leagues and circles come with the health and community phases; until then they are
-/// left out rather than shown empty.
+/// Android's WalkScreen (the Fitness tab): the photo, "Move with Purpose", and Today, Train, Progress and Together,
+/// with the same sections, in the same order, as Android.
 struct FitnessView: View {
     @EnvironmentObject var store: AppStore
     @ObservedObject private var checkIns = CheckInStore.shared
     @ObservedObject private var model = StepsModel.shared
     @ObservedObject private var router = TabRouter.shared
     @AppStorage("stepGoal") private var goal = 8000
+    @AppStorage("distanceUnit") private var unit = "mi"
+    @AppStorage("sabbathDay") private var sabbathDay = 0
     @State private var tab = 0
     @State private var showManual = false
     @State private var showGoal = false
@@ -137,12 +174,14 @@ struct FitnessView: View {
                     VStack(alignment: .leading, spacing: 0) {
                         ScreenPhoto(name: "screen_fitness")
                         header
-                        SubTabs(tabs: ["Today", "Train", "Progress"], selected: $tab)
+                        // The same four sections as Android's Fitness tab (WalkScreen.kt).
+                        SubTabs(tabs: ["Today", "Train", "Progress", "Together"], selected: $tab)
                         Spacer().frame(height: 16)
                         switch tab {
                         case 0: today
                         case 1: train
-                        default: progress
+                        case 2: progress
+                        default: together
                         }
                         Spacer().frame(height: 100)
                     }
@@ -197,9 +236,12 @@ struct FitnessView: View {
                     }
                 }
                 .frame(width: 168, height: 168)
-                T(target < goal ? "Goal today: \(target.formatted()) steps (a gentler day; usually \(goal.formatted()))" : "Goal: \(goal.formatted()) steps")
+                let sabbath = sabbathDay != 0 && Calendar.current.component(.weekday, from: Date()) == sabbathDay
+                T(sabbath ? "Sabbath rest: no step goal today"
+                  : (target < goal ? "Goal today: \(target.formatted()) steps (a gentler day; usually \(goal.formatted()))" : "Goal: \(goal.formatted()) steps"))
                     .font(.hs(13)).foregroundStyle(HS.textMuted).multilineTextAlignment(.center).padding(.top, 12)
                 T(progress >= 1 ? "Goal reached! +20 pts earned"
+                  : sabbath ? "Walk only if it refreshes you. Your streak is resting too."
                   : (progress >= 0.75 ? "So close, \((target - model.today).formatted()) more steps to your goal"
                      : "\((target - model.today).formatted()) steps to your goal · +20 pts when you hit it"))
                     .font(.hs(13, .semibold)).foregroundStyle(progress >= 1 ? HS.body : HS.gold)
@@ -210,7 +252,7 @@ struct FitnessView: View {
         .padding(.horizontal, 20)
         HStack(spacing: 12) {
             statCard("flame", "\(kcal)", "kcal", 0xF3D5C0)
-            statCard("mappin", String(format: "%.2f", km / 1.609344), "mi", 0x64A5E8)
+            statCard("mappin", String(format: "%.2f", unit == "km" ? km : km / 1.609344), unit, 0x64A5E8)
             statCard("timer", minutesText(model.today), "walking", 0x56B892)
         }
         .padding(.horizontal, 20).padding(.top, 14)
@@ -317,21 +359,36 @@ struct FitnessView: View {
 
     private var train: some View {
         VStack(spacing: 0) {
-            ProgramsEntryCard().padding(.horizontal, 20).padding(.bottom, 8)
-            ToolSection(title: "Challenges", items: [
-                ToolItem(symbol: "trophy", color: HS.gold, title: "My challenges", sub: "Active fitness and faith commitments",
-                         destination: AnyView(CommitmentsView())),
-            ])
+            ProgramsEntryCard().padding(.horizontal, 20).padding(.bottom, 12)
             ToolSection(title: "Train", items: [
-                ToolItem(symbol: "calendar", color: HS.gold, title: "Programs", sub: "A few weeks of short workouts with Scripture each day",
-                         destination: AnyView(ProgramsView())),
+                // Same list, in the same order, as Android's Fitness → Train.
+                ToolItem(symbol: "map", color: HS.faith, title: "Prayer Walk Map", sub: "Pray for each place you pass", destination: AnyView(PrayerWalkMapView())),
+                ToolItem(symbol: "camera", color: HS.peach, title: "Form Coach", sub: "Squats, push-ups, lunges and more, checked on-device",
+                         badge: AccountStore.shared.canUse(.formCoach) ? nil : "👑", destination: AnyView(FormCoachPickerView())),
                 ToolItem(symbol: "figure.strengthtraining.traditional", color: HS.body, title: "Workouts", sub: "\(Coach.routines.count - 1) guided sessions with a coach's voice",
                          destination: AnyView(WorkoutLibraryView())),
+                ToolItem(symbol: "dumbbell", color: HS.body, title: "Strength log", sub: "Sets, reps, weight and your bests", destination: AnyView(StrengthLogView())),
                 ToolItem(symbol: "plus", color: HS.mind, title: "Log a Walk", sub: "Walked without your phone? Add it", action: { showManual = true }),
+                ToolItem(symbol: "brain.head.profile", color: HS.faith, title: "Adaptive Coach", sub: "Sleep and stress shape today's plan", destination: AnyView(AdaptiveCoachView())),
+                ToolItem(symbol: "bolt", color: HS.peach, title: "Body energy", sub: "How ready your body is today",
+                         destination: AnyView(Gated(feature: .bodyEnergy) { BodyEnergyView() })),
                 ToolItem(symbol: "target", color: HS.body, title: "Step goal", sub: "\(goal.formatted()) steps a day", action: { showGoal = true }),
                 ToolItem(symbol: "music.note", color: HS.peach, title: "Walking music", sub: "Gospel songs to walk with", destination: AnyView(MusicView(tab: 0))),
             ])
         }
+    }
+
+    // MARK: Together
+
+    /// Android's Fitness → Together: leagues, habit circles (with their live rooms) and commitments.
+    private var together: some View {
+        ToolSection(title: "Together", items: [
+            ToolItem(symbol: "trophy", color: HS.peach, title: "Leagues", sub: "Weekly step cohort, promotion and relegation", destination: AnyView(LeaguesView())),
+            ToolItem(symbol: "person.3", color: HS.body, title: "Habit Circles", sub: "Move and pray with friends",
+                     destination: AnyView(ScrollView { VStack(alignment: .leading, spacing: 12) { LiveRoomsView(); CirclesView() }.padding(.top, 12) }
+                        .background(HSBackground()).navigationTitle(tr("Habit Circles")))),
+            ToolItem(symbol: "flag", color: HS.cycle, title: "Commitments", sub: "Pledge a goal and keep it", destination: AnyView(CommitmentsView())),
+        ])
     }
 
     // MARK: Progress
@@ -341,9 +398,9 @@ struct FitnessView: View {
         let total = week.map(\.steps).reduce(0, +)
         let goalDays = week.filter { $0.steps >= goal }.count
         ToolSection(title: "Your data", items: [
-            ToolItem(symbol: "list.bullet", color: HS.body, title: "Your walks", sub: "\(WalkStore.shared.walks.count) saved",
+            ToolItem(symbol: "chart.bar", color: HS.body, title: "Statistics", sub: "\(WalkStore.shared.weekActiveMinutes) of 150 active min this week",
                      destination: AnyView(WalkHistoryView())),
-            ToolItem(symbol: "chart.bar", color: HS.peach, title: "Active minutes", sub: "\(WalkStore.shared.weekActiveMinutes) of 150 this week"),
+            ToolItem(symbol: "applewatch", color: HS.peach, title: "Wearables", sub: "Apple Health, heart rate and sleep", destination: AnyView(RingsWatchesView())),
         ])
         SectionHeader(title: "This Week").padding(.top, 10)
         HStack(spacing: 12) {

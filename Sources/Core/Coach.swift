@@ -103,11 +103,25 @@ final class CheckInStore: ObservableObject {
 final class CoachLog: ObservableObject {
     static let shared = CoachLog()
     @Published private(set) var days: [String: String] { didSet { UserDefaults.standard.set(days, forKey: "coachLog") } }
-    private init() { days = UserDefaults.standard.dictionary(forKey: "coachLog") as? [String: String] ?? [:] }
-    func finished(_ r: GuidedRoutine) { days[AppStore.dayKey()] = r.kind; ActivityLog.shared.add(.walk) }
+    /// Every finished workout by day as "KIND:minutes" (Android's coachLog sessions), for Vitality's weekly targets.
+    @Published private(set) var sessions: [String: [String]] { didSet { UserDefaults.standard.set(sessions, forKey: "coachSessions") } }
+    private init() {
+        days = UserDefaults.standard.dictionary(forKey: "coachLog") as? [String: String] ?? [:]
+        sessions = UserDefaults.standard.dictionary(forKey: "coachSessions") as? [String: [String]] ?? [:]
+    }
+    func finished(_ r: GuidedRoutine) {
+        let k = AppStore.dayKey()
+        days[k] = r.kind
+        var all = sessions
+        all[k, default: []].append("\(r.kind):\(r.minutes)")
+        // Keep about four months.
+        if all.count > 120 { for old in all.keys.sorted().prefix(all.count - 120) { all.removeValue(forKey: old) } }
+        sessions = all
+        ActivityLog.shared.add(.walk)
+    }
     var workedOutToday: Bool { days[AppStore.dayKey()] != nil }
     var yesterdayKind: String? { days[AppStore.dayKey(Date().addingTimeInterval(-86_400))] }
-    func erase() { days = [:] }
+    func erase() { days = [:]; sessions = [:] }
 }
 
 enum Coach {
@@ -164,7 +178,18 @@ enum Coach {
         return (zone, reasons)
     }
 
-    static func candidates(_ zone: EnergyZone, menstrual: Bool) -> [GuidedRoutine] {
+    static func candidates(_ zone: EnergyZone, menstrual: Bool, postMeno: Bool = false) -> [GuidedRoutine] {
+        if postMeno {
+            // DailyCoach.kt: keep the day's planned Vitality focus whenever it fits the zone; otherwise go gentler.
+            let fitting = Vitality.focus().routines.compactMap(routine).filter { $0.fits(zone) }
+            if !fitting.isEmpty { return fitting }
+            let ids: [String] = switch zone {
+            case .high, .steady: ["bone_strength", "heart_walk", "balance_drills"]
+            case .low: ["balance_drills", "mobility_reset", "gentle_yoga", "easy_walk"]
+            case .recover: ["restorative_stretch", "gentle_yoga", "easy_walk"]
+            }
+            return ids.compactMap(routine)
+        }
         let ids: [String]
         switch zone {
         case .high: ids = ["hiit_power", "strength_builder", "tempo_intervals"]
@@ -181,12 +206,13 @@ enum Coach {
         let (base, rhythmReason) = rhythm.zone
         let (zone, adjust) = adjusted(base, checkIn: checkIn, symptoms: symptoms)
         let menstrual = !rhythm.male && rhythm.phase == .menstrual
-        let cands = candidates(zone, menstrual: menstrual)
+        let postMeno = rhythm.postMeno
+        let cands = candidates(zone, menstrual: menstrual, postMeno: postMeno)
         let rotated = PhasePlan.rotation(cands.map(\.id), cands.count, seed).compactMap(routine)
         let avoid = (yesterdayKind == "HIIT" || yesterdayKind == "STRENGTH") ? yesterdayKind : nil
         let picked = rotated.first { $0.kind != avoid } ?? rotated.first
-        let gentler = zone.down != zone ? candidates(zone.down, menstrual: menstrual).first { $0.id != picked?.id } : nil
-        let stronger = zone.up != zone ? candidates(zone.up, menstrual: menstrual).first { $0.id != picked?.id } : nil
+        let gentler = zone.down != zone ? candidates(zone.down, menstrual: menstrual, postMeno: postMeno).first { $0.id != picked?.id } : nil
+        let stronger = zone.up != zone ? candidates(zone.up, menstrual: menstrual, postMeno: postMeno).first { $0.id != picked?.id } : nil
         let pool = library?.devotionals[zone.key] ?? []
         let devotional = pool.isEmpty ? nil : pool[((seed % pool.count) + pool.count) % pool.count]
         var reasons = [rhythmReason] + adjust

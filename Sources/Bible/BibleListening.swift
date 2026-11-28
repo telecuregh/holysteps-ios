@@ -50,7 +50,8 @@ final class BibleListening: NSObject, ObservableObject, AVSpeechSynthesizerDeleg
     /// Who is reading: "Grace", "Michael" or "your phone's voice".
     @Published private(set) var reader = ""
     /// The narrator chosen for the recorded chapters: a VoicePacks narrator id, or "device".
-    @Published var narrator: String = UserDefaults.standard.string(forKey: "bibleNarrator") ?? "af_heart" {
+    /// A narrator set to the phone's voice in an older version moves to Grace: the phone's voice is no longer offered.
+    @Published var narrator: String = UserDefaults.standard.string(forKey: "bibleNarrator").flatMap { $0 == VoicePacks.deviceVoice ? nil : $0 } ?? "af_heart" {
         didSet { UserDefaults.standard.set(narrator, forKey: "bibleNarrator") }
     }
 
@@ -122,9 +123,10 @@ final class BibleListening: NSObject, ObservableObject, AVSpeechSynthesizerDeleg
         // Grace reads the whole Bible in English and Spanish; the phone's own voice is never used for it. If her
         // recording can't be had (offline and not downloaded yet), say so instead of switching voices.
         if pack == nil {
-            error = tr(VoicePacks.mayBeRecorded(translation: translation)
+            // Grace has recorded the whole King James Bible; other translations say so plainly.
+            error = tr(translation == "KJV"
                        ? "Grace's recording couldn't be loaded. Check your connection and try again."
-                       : "Grace hasn't recorded this translation yet. Choose an English or Spanish Bible to hear her.")
+                       : "No audio yet for this translation. The King James Version has audio.")
             loading = false; playing = false
             return
         }
@@ -165,7 +167,8 @@ final class BibleListening: NSObject, ObservableObject, AVSpeechSynthesizerDeleg
 
     private func speak(_ v: Int) {
         verse = v
-        if let data = pack?.audio(for: Spoken.verse(verses[v - 1])) {
+        // Grace's recordings are keyed by the verse as printed; names like "Beer–sheba" keep their dash there.
+        if let data = pack?.audio(for: Spoken.verse(verses[v - 1])) ?? pack?.audio(for: verses[v - 1]) {
             let gen = generation
             playing = true
             clipPlaying = true

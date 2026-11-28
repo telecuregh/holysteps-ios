@@ -6,16 +6,19 @@ import Vision
 /// that moves (knees for squats and lunges, elbows for push-ups, arms for jacks), and gives one plain cue when form
 /// slips. On iOS 17 a 3D body pose checks how far your chest leans in squats. Every frame stays on the phone.
 enum PoseMove {
-    case knees, elbows, arms
+    case knees, elbows, arms, curl, situp
     static func from(_ name: String) -> PoseMove {
         let n = name.lowercased()
+        if n.contains("curl") { return .curl }
+        if n.contains("sit-up") || n.contains("sit up") || n.contains("situp") || n.contains("crunch") { return .situp }
         if n.contains("push") || n.contains("dip") || n.contains("press") { return .elbows }
         if n.contains("jack") || n.contains("arm") || n.contains("raise") || n.contains("overhead") { return .arms }
         return .knees
     }
     /// Below `down` counts as the bottom of a rep, back above `up` finishes it.
-    var down: Double { self == .arms ? 0.35 : 100 }
-    var up: Double { self == .arms ? 0.65 : 150 }
+    /// Curls and sit-ups use Android's FormCoachAnalyzer thresholds (elbow 70°/150°, hip 130°/160°).
+    var down: Double { switch self { case .arms: 0.35; case .curl: 70; case .situp: 130; default: 100 } }
+    var up: Double { switch self { case .arms: 0.65; case .situp: 160; default: 150 } }
 }
 
 final class PoseTracker: NSObject, ObservableObject, AVCaptureVideoDataOutputSampleBufferDelegate {
@@ -95,6 +98,10 @@ final class PoseTracker: NSObject, ObservableObject, AVCaptureVideoDataOutputSam
             let e = best(angle(p[.leftShoulder], p[.leftElbow], p[.leftWrist]), angle(p[.rightShoulder], p[.rightElbow], p[.rightWrist]))
             let line = best(angle(p[.leftShoulder], p[.leftHip], p[.leftAnkle]), angle(p[.rightShoulder], p[.rightHip], p[.rightAnkle]))
             return (e, (line ?? 180) < 155 ? "Keep your body in a straight line" : nil)
+        case .curl:
+            return (best(angle(p[.leftShoulder], p[.leftElbow], p[.leftWrist]), angle(p[.rightShoulder], p[.rightElbow], p[.rightWrist])), nil)
+        case .situp:
+            return (best(angle(p[.leftShoulder], p[.leftHip], p[.leftKnee]), angle(p[.rightShoulder], p[.rightHip], p[.rightKnee])), nil)
         case .arms:
             guard let n = p[.neck], let r = p[.root] else { return (nil, nil) }
             let torso = max(0.05, n.y - r.y)
@@ -117,7 +124,13 @@ final class PoseTracker: NSObject, ObservableObject, AVCaptureVideoDataOutputSam
         if atBottom, v > move.up {
             atBottom = false
             onRep?()
-            cue = deepest > 90 && move == .knees ? "Go a little lower if you can" : (deepest > 95 && move == .elbows ? "Lower your chest a bit more" : nil)
+            cue = switch move {
+            case .knees where deepest > 90: "Go a little lower if you can"
+            case .elbows where deepest > 95: "Lower your chest a bit more"
+            case .curl where deepest > 50: "Curl a bit higher."
+            case .situp where deepest > 95: "Come up a bit higher."
+            default: nil
+            }
         }
     }
 

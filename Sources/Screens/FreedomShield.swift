@@ -52,7 +52,9 @@ final class FreedomShield: ObservableObject {
     /// Off with the partner's code (or right away when no code was ever set).
     func turnOff(code: String?) -> Bool {
         if hasCode, !(code.map(check) ?? false) { return false }
-        clear(); return true
+        clear()
+        PartnerModel.shared.protectionOff()
+        return true
     }
 
     func startTimedUnlock() {

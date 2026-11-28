@@ -71,8 +71,8 @@ actor VoicePacks {
         return data
     }
 
-    private func loadIndex() async -> [String: [String: Entry]]? {
-        if let index, Date().timeIntervalSince(indexAt) < 6 * 3600 { return index }
+    private func loadIndex(force: Bool = false) async -> [String: [String: Entry]]? {
+        if !force, let index, Date().timeIntervalSince(indexAt) < 6 * 3600 { return index }
         let cache = dir("").appendingPathComponent("index.json")
         var body: Data?
         if Date().timeIntervalSince(failedAt) > 60 {
@@ -113,7 +113,11 @@ actor VoicePacks {
         let key = "\(voice)/\(packId)"
         if let p = loaded[key] { return p }
         let d = dir(voice)
-        let entry = await loadIndex()?[voice]?[packId]
+        var entry = await loadIndex()?[voice]?[packId]
+        // A recording added since the list was last fetched (new chapters, new sessions): ask the server once more.
+        if entry == nil, localPair(voice: voice, packId: packId) == nil, Date().timeIntervalSince(indexAt) > 120 {
+            entry = await loadIndex(force: true)?[voice]?[packId]
+        }
         if let e = entry {
             let pack = d.appendingPathComponent(e.file), json = d.appendingPathComponent(e.json)
             if let p = try? await fetch(voice: voice, packId: packId, entry: e, pack: pack, json: json) {

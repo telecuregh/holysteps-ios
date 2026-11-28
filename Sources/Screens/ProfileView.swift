@@ -9,8 +9,16 @@ struct ProfileView: View {
     @AppStorage("stepGoal") private var stepGoal = 8000
     @State private var confirmErase = false
     @State private var sheet: Sheet?
+    @AppStorage("faithStage") private var faithStage = "GROWING"
+    @AppStorage("distanceUnit") private var distanceUnit = "mi"
+    @AppStorage("aiFeaturesOn") private var aiOn = true
+    @AppStorage("sabbathDay") private var sabbathDay = 0
+    @ObservedObject private var steps = StepsModel.shared
+    @AppStorage("faithTradition") private var faithTradition = "NON_DENOMINATIONAL"
+    @ObservedObject private var bible = BibleState.shared
 
-    enum Sheet: String, Identifiable { case name, gender, language, cycleLength, periodLength, stepGoal, narrator, sermon; var id: String { rawValue } }
+    enum Sheet: String, Identifiable { case name, gender, language, cycleLength, periodLength, stepGoal, narrator, sermon, bibleLanguage, faithWalk, tradition, units, season; var id: String { rawValue } }
+    @AppStorage("lifeStage") private var lifeStage = "CYCLING"
 
     var body: some View {
         NavigationStack {
@@ -23,14 +31,14 @@ struct ProfileView: View {
                             .accessibilityHint(tr("Change your name"))
                             .padding(.top, 48).padding(.horizontal, 20).padding(.bottom, 12)
 
-                        group("Plan and account") {
+                        group("Your plan") {
                             link("crown", "Your plan", tr(AccountStore.shared.planName), 0xD9B49F) { AccountView() }
                             if let d = AccountStore.shared.doc, d.hasAdminGrant {
                                 AdminGrantBadge(expiry: d.adminGrantExpiry)
                             }
                             link("trophy", "Rewards & Achievements", tr("\(Points.total.formatted()) pts"), 0xF59E0B) { RewardsView() }
                         }
-                        group("Language") {
+                        group("Account") {
                             item("globe", "Language", i18n.choice == .system ? tr(i18n.choice.label) : i18n.choice.label, 0x8B5CF6) { sheet = .language }
                         }
                         SectionHeader(title: "Appearance").padding(.top, 8)
@@ -40,18 +48,53 @@ struct ProfileView: View {
                             item(store.gender == "male" ? "person" : "person", "I am",
                                  store.gender == "male" ? tr("A man") : (store.gender == "female" ? tr("A woman") : tr("Tap to choose")), 0x14B8A6) { sheet = .gender }
                             if store.gender != "male" {
+                                let season = Profile.seasons.first { $0.id == Profile.season } ?? Profile.seasons[0]
+                                item("leaf", "Life Stage", "\(season.emoji) \(tr(season.label))", 0x14B8A6) { sheet = .season }
+                            }
+                            // Past menopause there is no cycle to set (Android hides these rows too).
+                            if store.gender != "male" && lifeStage != "POSTMENOPAUSE" {
                                 item("arrow.triangle.2.circlepath", "Cycle Length", tr("\(store.cycleLength) days"), 0xEC4899) { sheet = .cycleLength }
                                 item("calendar", "Period Length", tr("\(store.periodLength) days"), 0xEC4899) { sheet = .periodLength }
                             }
                         }
+                        // Same rows, in the same order, as Android's Goals.
                         group("Goals") {
                             item("figure.walk", "Daily Step Goal", tr("\(stepGoal.formatted()) steps"), 0x8B5CF6) { sheet = .stepGoal }
+                            item("ruler", "Distance Units", distanceUnit == "km" ? tr("Kilometers (km)") : tr("Miles (mi)"), 0x06B6D4) { sheet = .units }
+                            // A weekly day of rest: the step goal rests too. Tapping steps through Off, Sunday, Saturday.
+                            item("leaf", "Sabbath Rest", sabbathDay == 1 ? tr("Sundays: streaks and the step goal rest")
+                                 : sabbathDay == 7 ? tr("Saturdays: streaks and the step goal rest") : tr("Off · tap to choose Sunday or Saturday"), 0x8B5CF6) {
+                                sabbathDay = sabbathDay == 0 ? 1 : (sabbathDay == 1 ? 7 : 0)
+                            }
+                            item("figure.walk.motion", "Step Counter", !steps.available ? tr("Manual logging") : (steps.asked ? tr("Apple Health") : tr("Off · allow Apple Health")), 0x22C55E) {
+                                if steps.available && !steps.asked { Task { await steps.request() } } else { openURL(URL(string: "x-apple-health://")!) }
+                            }
                         }
-                        group("Health") {
-                            link("applewatch", "Rings & watches", WearableModel.shared.on ? tr("Connected") : tr("Connect"), 0x56B892) { RingsWatchesView() }
-                        }
+                        // Same rows, in the same order, as Android's Faith and content.
                         group("Faith and content") {
-                            item("mic", "Narrator", VoicePacks.narrators.first { $0.id == listening.narrator }?.name ?? tr("Phone voice"), 0x8B5CF6) { sheet = .narrator }
+                            // Android's AiFeaturesSwitch: one switch for everything an AI writes.
+                            VStack(alignment: .leading, spacing: 6) {
+                                Toggle(isOn: $aiOn) {
+                                    VStack(alignment: .leading, spacing: 2) {
+                                        T("Use smart features").font(.hs(15, .semibold)).foregroundStyle(HS.text)
+                                        T(aiOn ? "On: Faith Chat and the Adaptive Coach's notes are generated for you."
+                                              : "Off: none of these run, and nothing you write is sent to the service.")
+                                            .font(.hs(12)).foregroundStyle(HS.textMuted)
+                                    }
+                                }
+                                .tint(HS.goldButton)
+                                .padding(.horizontal, 16).padding(.vertical, 14)
+                                .background(RoundedRectangle(cornerRadius: 14).fill(HS.cardFill))
+                                .overlay(RoundedRectangle(cornerRadius: 14).strokeBorder(Color(hex: 0xD9B49F).opacity(aiOn ? 0.55 : 0.22), lineWidth: 1))
+                                T("Grace and Michael, the narrators, are computer voices.").font(.hs(11)).foregroundStyle(HS.textSubtle)
+                            }
+                            let now = Bible.known.first { $0.id == bible.translationId }
+                            item("book", "Bible language", now.map { "\($0.language) · \($0.id)" } ?? "English", 0x0EA5E9) { sheet = .bibleLanguage }
+                            let stage = Profile.faithStages.first { $0.0 == faithStage } ?? Profile.faithStages[2]
+                            item("leaf", "Faith Walk", "\(stage.1) \(tr(stage.2))", 0xF59E0B) { sheet = .faithWalk }
+                            let trad = Profile.traditions.first { $0.0 == faithTradition } ?? Profile.traditions[3]
+                            item("building.columns", "Faith Tradition", "\(trad.1) \(tr(trad.2))", 0x8B5CF6) { sheet = .tradition }
+                            item("mic", "Narrator", VoicePacks.narrators.first { $0.id == listening.narrator }?.name ?? "Grace", 0x8B5CF6) { sheet = .narrator }
                             item("calendar.badge.clock", "Weekly sermon", tr("Day and reminder"), 0x8B5CF6) { sheet = .sermon }
                         }
                         group("Reminders and routines") {
@@ -61,15 +104,24 @@ struct ProfileView: View {
                             link("alarm", "Wake-up alarm", WakeAlarm.on ? WakeAlarm.timeLabel : tr("Off"), 0xF59E0B) { WakeAlarmView() }
                             link("moon.stars", "Bedtime reminder", BedtimeReminder.on ? tr("On") : tr("Off"), 0x8B5CF6) { SleepView() }
                             link("calendar", "Weekly recap", RecapReminder.on ? tr("On") : tr("Off"), 0x8B5CF6) { WeeklyRecapView() }
+                            link("alarm.waves.left.and.right", "My reminders", tr("Drink water, move, bedtime and medicine"), 0x8B5CF6) { MyRemindersView() }
                         }
-                        group("Community") {
+                        // Same sections, in the same order, as Android's Profile (ProfileScreen.kt).
+                        group("People and safety") {
+                            link("shield.lefthalf.filled", "Safety circle", "", 0x60A5FA) { SafetyCircleView() }
+                            link("person.2", "Accountability partner", tr("Someone to look out for you, and you for them"), 0x8B5CF6) { AccountabilityPartnerView() }
                             link("person.3", "Family Relay", tr("Shared streak"), 0x56B892) { FamilyRelayView() }
                             link("figure.and.child.holdinghands", "Kids profiles", "", 0x60A5FA) { KidsProfilesView() }
-                            link("shield.lefthalf.filled", "Safety circle", "", 0x60A5FA) { SafetyCircleView() }
+                        }
+                        group("Devices") {
+                            link("applewatch", "Rings & watches", WearableModel.shared.on ? tr("Connected") : tr("Connect"), 0x56B892) { RingsWatchesView() }
+                        }
+                        group("Calling HolySteps support?") {
+                            SupportCodeCard()
                         }
                         group("About") {
-                            link("hand.raised", "Our promises to you", "", 0xD9B49F) { TrustView() }
                             link("questionmark.circle", "How HolySteps works", "", 0xD9B49F) { HowItWorksView() }
+                            link("hand.raised", "Our promises to you", "", 0xD9B49F) { TrustView() }
                             item("doc.text", "Terms of Service", "", 0x9F948B) { openURL(URL(string: AppLinks.site + "/terms")!) }
                             item("lock", "Privacy Policy", "", 0x9F948B) { openURL(URL(string: AppLinks.site + "/privacy")!) }
                         }
@@ -81,6 +133,7 @@ struct ProfileView: View {
                                         .font(.hs(13)).foregroundStyle(HS.textSecondary)
                                 }
                             }
+                            link("sparkles", "Your rhythms", tr("What HolySteps has learned, and your controls"), 0x8B5CF6) { AboutYouView().environmentObject(store) }
                             link("lock.shield", "Encrypted backup", Backup.code == nil ? tr("Off") : tr("On"), 0x56B892) { BackupView() }
                             Button(role: .destructive) { confirmErase = true } label: {
                                 T("Erase all my data on this phone").font(.hs(14, .semibold)).foregroundStyle(Color(hex: 0xFCA5A5))
@@ -106,6 +159,7 @@ struct ProfileView: View {
                     SermonWeek.shared.eraseHeard()
                     QuizLog.shared.erase()
                     ActivityLog.shared.erase(); FirstWeek.shared.eraseAll(); CycleLog.shared.erase(); CheckInStore.shared.erase(); CoachLog.shared.erase(); WalkStore.shared.erase()
+                    Task { _ = await PartnerModel.shared.leave() }
                     BabyStore.shared.erase()
                     for k in ["rewardPoints", "bodyDays", "bodyConditions", "headaches", "tempLog", "calmChecks", "breathReadings", "ppChecks", "gardenBed"] {
                         UserDefaults.standard.removeObject(forKey: k)
@@ -145,9 +199,30 @@ struct ProfileView: View {
         case .periodLength: NumberSheet(title: "Period Length", suffix: "days", range: 1...14, value: store.periodLength) { store.periodLength = $0 }
         case .stepGoal: StepGoalSheet()
         case .narrator:
-            ChoiceSheet(title: "Narrator voice", options: VoicePacks.narrators.map { ($0.id, $0.name) } + [(VoicePacks.deviceVoice, tr("Phone voice"))],
+            // Grace and the other recorded voices only: the phone's own voice never reads in HolySteps.
+            ChoiceSheet(title: "Narrator voice", options: VoicePacks.narrators.map { ($0.id, $0.name) },
                         selected: listening.narrator, note: "Applies to Bible listening.") { listening.narrator = $0 }
         case .sermon: SermonSettingsView()
+        case .bibleLanguage:
+            let langs = Bible.languages(Bible.known)
+            ChoiceSheet(title: "Bible language", options: langs.map { l in
+                            let n = Bible.known.filter { $0.lang == l.code }.count
+                            return (l.code, "\(l.name)  ·  \(n) \(tr(n == 1 ? "Bible" : "Bibles"))")
+                        },
+                        selected: Bible.known.first { $0.id == bible.translationId }?.lang ?? "en") {
+                bible.translationId = Bible.defaultId(phoneLang: $0, catholic: faithTradition == "CATHOLIC")
+            }
+        case .units:
+            ChoiceSheet(title: "Distance Units", options: [("mi", tr("Miles (mi)")), ("km", tr("Kilometers (km)"))], selected: distanceUnit) { distanceUnit = $0 }
+        case .faithWalk:
+            ChoiceSheet(title: "Your faith walk", options: Profile.faithStages.map { ($0.0, "\($0.1)  \(tr($0.2)) — \(tr($0.3))") },
+                        selected: faithStage) { faithStage = $0 }
+        case .season:
+            ChoiceSheet(title: "Your season", options: Profile.seasons.map { ($0.id, "\($0.emoji)  \(tr($0.label)) — \(tr($0.description))") },
+                        selected: Profile.season) { Profile.setSeason($0); lifeStage = UserDefaults.standard.string(forKey: "lifeStage") ?? "CYCLING" }
+        case .tradition:
+            ChoiceSheet(title: "Your faith tradition", options: Profile.traditions.map { ($0.0, "\($0.1)  \(tr($0.2)) — \(tr($0.3))") },
+                        selected: faithTradition) { faithTradition = $0 }
         }
     }
 }
