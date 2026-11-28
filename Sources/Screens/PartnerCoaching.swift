@@ -106,17 +106,33 @@ final class PartnerCoachingModel: ObservableObject {
         history = tips.map(\.1).filter { $0 != today }
     }
 
-    func invite(name: String) async {
-        guard let uid = await AccountStore.shared.ensureUid() else { notice = AccountStore.shared.notConnectedMessage; return }
+    @Published var inviting = false
+
+    /// Makes the invitation and returns the whole code to send (code and secret), or nil with `notice` saying why.
+    /// Android's createPartnerLink: inviting needs the plan (entering a code is free), and the screen shows the
+    /// invitation at once instead of waiting for a search to find it again.
+    func invite(name: String) async -> String? {
+        guard !inviting else { return nil }
+        notice = ""
+        guard let uid = await AccountStore.shared.ensureUid() else { notice = AccountStore.shared.notConnectedMessage; return nil }
+        inviting = true
+        defer { inviting = false }
         let id = Firestore.newId(), code = InviteCode.make("LINK"), now = Firestore.nowMs
+        let fields: [String: FSValue] = [
+            "ownerUid": .string(uid), "ownerName": .string(String(name.prefix(100))), "partnerUid": .string(""), "partnerName": .string(""),
+            "status": .string("PENDING"), "inviteCode": .string(code), "createdAt": .int(now), "updatedAt": .int(now)]
         do {
-            try await Firestore.commit([.set("partnerLinks/\(id)", [
-                "ownerUid": .string(uid), "ownerName": .string(String(name.prefix(100))), "partnerUid": .string(""), "partnerName": .string(""),
-                "status": .string("PENDING"), "inviteCode": .string(code), "createdAt": .int(now), "updatedAt": .int(now)], mustNotExist: true)])
+            try await Firestore.commit([.set("partnerLinks/\(id)", fields, mustNotExist: true)])
             try await InviteCode.register(code, type: "partnerLink", target: id, uid: uid)
-            PairKeys.put(id, PairCrypto.newSecret())
-            await load()
-        } catch { notice = error.togetherText(tr("Couldn't create the invitation. Check your connection and try again.")) }
+        } catch {
+            notice = error.togetherText(tr("Couldn't create the invitation. Check your connection and try again."))
+            return nil
+        }
+        let secret = PairCrypto.newSecret()        // stays on the two phones; it seals the tips
+        PairKeys.put(id, secret)
+        link = (try? await Firestore.get("partnerLinks/\(id)")) ?? FSDoc(path: "partnerLinks/\(id)", fields: fields)
+        linkId = id; isOwner = true; loading = false
+        return PairCrypto.invite(code, secret)
     }
 
     func accept(_ input: String, name: String) async {
@@ -213,6 +229,11 @@ struct PartnerCoachingView: View {
     @EnvironmentObject var store: AppStore
     @StateObject private var m = PartnerCoachingModel()
     @State private var askCode = false
+    @ObservedObject private var account = AccountStore.shared
+    @State private var paywall = false
+    /// The invitation just made, offered straight away in the share sheet (as on Android).
+    @State private var shareNow: SharedInvite?
+    struct SharedInvite: Identifiable { let code: String; var id: String { code } }
     /// Filled in when this screen was opened from an invite link (JoinInviteView).
     @State private var code = InviteInbox.take("LINK")
 
@@ -227,12 +248,18 @@ struct PartnerCoachingView: View {
                     else if m.link == nil { empty }
                     else if m.isOwner { owner }
                     else { partner }
-                    if !m.notice.isEmpty { D(m.notice).font(.hs(13)).foregroundStyle(HS.textSecondary) }
+                    if !m.notice.isEmpty && m.link != nil { D(m.notice).font(.hs(13)).foregroundStyle(HS.textSecondary) }
                 }.padding(20)
             }
             .refreshable { await m.load() }
         }
         .task { m.store = store; await m.load(); await m.shareToday() }
+        .sheet(isPresented: $paywall) { PlansView(feature: .partnerCoaching) }
+        .sheet(item: $shareNow) { inv in
+            ActivitySheet(items: [tr("Here's my HolySteps partner code. Open HolySteps, go to Partner coaching, tap \"I have a code\" and enter it.") + "\n\n" + inv.code,
+                                  InviteCode.link(inv.code)])
+                .presentationDetents([.medium, .large])
+        }
         .alert(tr("Enter her invite code"), isPresented: $askCode) {
             TextField("LINK-…", text: $code).textInputAutocapitalization(.characters).autocorrectionDisabled()
             Button(tr("Join")) { let c = code; code = ""; Task { await m.accept(c, name: store.name) } }
@@ -247,12 +274,26 @@ struct PartnerCoachingView: View {
                 T(store.gender == "male" ? "Connect with your partner" : "Invite your partner in").font(.hs(16, .semibold)).foregroundStyle(HS.text)
                 T("She shares a daily tip on how to support her — never her raw symptoms, mood, or dates. She can pause or revoke it anytime.")
                     .font(.hs(13)).foregroundStyle(HS.textSecondary).multilineTextAlignment(.center)
-                HStack {
+                if store.gender != "male" {
+                    GoldButton(title: m.inviting ? "Making your invitation…" : "Invite my partner") {
+                        guard !m.inviting else { return }
+                        // Entering a code is free; inviting needs the plan (Android shows the paywall the same way).
+                        guard account.canUse(.partnerCoaching) else { paywall = true; return }
+                        Task { if let code = await m.invite(name: store.name) { shareNow = SharedInvite(code: code) } }
+                    }
+                    .disabled(m.inviting)
+                    .padding(.top, 4)
+                }
+                HStack(spacing: 18) {
                     Button(tr("I have a code")) { askCode = true }.foregroundStyle(HS.readable(0xA78BFA))
                     ScanQRButton(label: "Scan") { c in Task { await m.accept(c, name: store.name) } }
-                    if store.gender != "male" {
-                        GoldButton(title: "Invite my partner") { Task { await m.invite(name: store.name) } }
-                    }
+                }
+                if !m.notice.isEmpty {
+                    D(m.notice).font(.hs(13)).foregroundStyle(Color(hex: 0xF59E0B)).multilineTextAlignment(.center)
+                }
+                if store.gender != "male" && !account.canUse(.partnerCoaching) {
+                    T("Entering a partner's code is free. Inviting your partner needs a paid plan.")
+                        .font(.hs(12)).foregroundStyle(HS.textSubtle).multilineTextAlignment(.center)
                 }
             }.frame(maxWidth: .infinity)
         }
@@ -347,4 +388,14 @@ struct PartnerCoachingView: View {
             }
         }
     }
+}
+
+
+/// The system share sheet, opened by the app itself (ShareLink only opens from a tap on it).
+struct ActivitySheet: UIViewControllerRepresentable {
+    let items: [Any]
+    func makeUIViewController(context: Context) -> UIActivityViewController {
+        UIActivityViewController(activityItems: items, applicationActivities: nil)
+    }
+    func updateUIViewController(_ vc: UIActivityViewController, context: Context) {}
 }
