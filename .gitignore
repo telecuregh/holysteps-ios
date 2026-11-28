@@ -5,3 +5,4 @@ HolySteps.entitlements
 .DS_Store
 xcuserdata/
 Info.plist
+Resources/GoogleService-Info.plist

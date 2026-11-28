@@ -134,6 +134,7 @@ struct ChurchTab: View {
                         T("Ask your pastor or admin for your church's HolySteps code to unlock your church community.")
                             .font(.hs(13)).foregroundStyle(HS.textSecondary)
                         GoldButton(title: "Enter church code") { joining = true }
+                        ScanQRButton(label: "Scan your church's QR code") { c in Task { await model.join(code: c, name: store.name) } }
                         Link(destination: URL(string: "https://holysteps.org/?plan=church&mode=faith#pricing")!) {
                             T("Bring HolySteps to your church").font(.hs(13, .semibold)).foregroundStyle(HS.peach)
                         }
@@ -173,6 +174,7 @@ struct ChurchHomeView: View {
                         ShareLink(item: InviteCode.link(church.inviteCode)) {
                             D(tr("Invite (code {0})").replacingOccurrences(of: "{0}", with: church.inviteCode)).font(.hs(14, .semibold)).foregroundStyle(HS.gold)
                         }
+                        ShowQRButton(code: church.inviteCode)
                     }
                     SectionHeader(title: "Sermons").padding(.horizontal, -20)
                     if sermons.isEmpty { T("Your church's sermon notes will show here once a leader posts them.").font(.hs(13)).foregroundStyle(HS.textMuted) }

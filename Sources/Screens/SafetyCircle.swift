@@ -204,6 +204,7 @@ struct SafetyCircleView: View {
                                 HStack {
                                     GoldButton(title: "Start a circle") { Task { await s.create(name: store.name) } }
                                     Button(tr("Join with code")) { joining = true }.buttonStyle(.bordered)
+                                    ScanQRButton(label: "Scan") { c in Task { await s.join(c, name: store.name) } }
                                 }
                             }
                         }
@@ -312,6 +313,7 @@ struct SafetyCircleView: View {
                 D(s.inviteCode).font(.system(.title3, design: .monospaced)).foregroundStyle(HS.text).textSelection(.enabled)
                 ShareLink(item: s.inviteCode, message: Text(tr("Join my HolySteps safety circle: open Profile, then Safety circle, tap Join with code and enter it."))) { Image(systemName: "square.and.arrow.up") }
             }
+            ShowQRButton(code: s.inviteCode, kind: "safety", label: "Show QR code to scan")
             T("The code works once and expires soon.").font(.hs(11)).foregroundStyle(HS.textMuted)
         }
     }

@@ -55,7 +55,7 @@ final class ReadingTogetherModel: ObservableObject {
     }
 
     func create(_ plan: ReadingPlans.Plan, name: String, displayName: String) async {
-        guard let uid else { message = tr("Still connecting. Try again in a moment."); return }
+        guard let uid = await AccountStore.shared.ensureUid() else { message = AccountStore.shared.notConnectedMessage; return }
         let id = Firestore.newId(), code = InviteCode.make("READ"), now = Firestore.nowMs
         let n = String((name.trimmingCharacters(in: .whitespaces).isEmpty ? plan.title : name).prefix(240))
         do {
@@ -69,7 +69,7 @@ final class ReadingTogetherModel: ObservableObject {
     }
 
     func join(_ code: String, displayName: String) async {
-        guard let uid else { message = tr("Still connecting. Try again in a moment."); return }
+        guard let uid = await AccountStore.shared.ensureUid() else { message = AccountStore.shared.notConnectedMessage; return }
         guard let inv = await InviteCode.resolve(code), inv.type == "readingGroup" else { message = tr("That code wasn't found. Check it and try again."); return }
         do {
             try await Firestore.commit([.update("readingGroups/\(inv.target)", ["joinCode": .string(InviteCode.clean(code))], unions: ["memberUids": [.string(uid)]])])
@@ -156,6 +156,7 @@ struct ReadingTogetherView: View {
                     }
                     HStack {
                         Button(tr("Join with code")) { joining = true }.buttonStyle(.bordered)
+                        ScanQRButton(label: "Scan") { c in Task { await m.join(c, displayName: store.name) } }
                         GoldButton(title: "Start a reading group") { picking = true }
                     }
                     if !m.message.isEmpty { D(m.message).font(.hs(13)).foregroundStyle(HS.textSecondary) }
@@ -201,6 +202,7 @@ private struct ReadingGroupView: View {
                     HStack {
                         D(group["inviteCode"].string).font(.system(.callout, design: .monospaced)).foregroundStyle(HS.text).textSelection(.enabled)
                         ShareLink(item: group["inviteCode"].string, message: Text(tr("Read the Bible with me on HolySteps. Open Faith, then Reading together, tap \"Join with code\" and enter it."))) { Image(systemName: "square.and.arrow.up") }
+                        ShowQRButton(code: group["inviteCode"].string, label: "QR")
                     }
                     if let plan {
                         Stepper(tr("Day \(day) of \(plan.days)"), value: $day, in: 1...plan.days).font(.hs(14, .semibold))
