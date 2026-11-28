@@ -109,6 +109,7 @@ struct ProfileView: View {
                         // Same sections, in the same order, as Android's Profile (ProfileScreen.kt).
                         group("People and safety") {
                             link("shield.lefthalf.filled", "Safety circle", "", 0x60A5FA) { SafetyCircleView() }
+                            link("person.2", "Accountability partner", tr("Someone to look out for you, and you for them"), 0x8B5CF6) { AccountabilityPartnerView() }
                             link("person.3", "Family Relay", tr("Shared streak"), 0x56B892) { FamilyRelayView() }
                             link("figure.and.child.holdinghands", "Kids profiles", "", 0x60A5FA) { KidsProfilesView() }
                         }
@@ -158,6 +159,7 @@ struct ProfileView: View {
                     SermonWeek.shared.eraseHeard()
                     QuizLog.shared.erase()
                     ActivityLog.shared.erase(); FirstWeek.shared.eraseAll(); CycleLog.shared.erase(); CheckInStore.shared.erase(); CoachLog.shared.erase(); WalkStore.shared.erase()
+                    Task { _ = await PartnerModel.shared.leave() }
                     BabyStore.shared.erase()
                     for k in ["rewardPoints", "bodyDays", "bodyConditions", "headaches", "tempLog", "calmChecks", "breathReadings", "ppChecks", "gardenBed"] {
                         UserDefaults.standard.removeObject(forKey: k)

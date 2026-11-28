@@ -3,8 +3,8 @@ import SwiftUI
 /// Android's Bible Journeys (data/AppState.kt BIBLE_JOURNEYS, ui/screens/SignatureScreens.kt JourneysScreen): your real
 /// steps carry you along a real biblical route, and each stop unlocks its story. A journey starts from your step count
 /// the moment you pick it; switching starts the new one from your current count. Stops passed pay 10 points each and
-/// finishing pays 100 (data/StepRewards.kt journeyAward). Story text and references are as on Android; the stop's
-/// chapter opens in the Bible reader, where Grace reads it.
+/// finishing pays 100 (data/StepRewards.kt journeyAward). Story text and references are as on Android; Grace reads
+/// each stop, and the stop's chapter opens in the Bible reader.
 struct JourneyStop: Hashable { let atKm: Double; let name, story, reference: String }
 
 struct BibleJourney: Identifiable, Hashable {
@@ -54,6 +54,11 @@ enum BibleJourneys {
     ]
 
     static func byId(_ id: String) -> BibleJourney { all.first { $0.id == id } ?? all[0] }
+
+    /// The words Grace reads for a stop (Android's stopNarration; her recordings are in the "stories" pack).
+    static func narration(_ s: JourneyStop) -> String {
+        "\(s.name). \(s.story) \(s.reference.replacingOccurrences(of: "-", with: " to ").replacingOccurrences(of: ":", with: ", verse "))."
+    }
 
     /// "Luke 24:32" → ("Luke", 24) for the reader; nil when the reference isn't one chapter.
     static func chapter(_ reference: String) -> (String, Int)? {
@@ -138,7 +143,8 @@ struct JourneysView: View {
     @State private var paywall = false
     @State private var reached: (String, JourneyStop)?
     @State private var reading: JourneyStop?
-    @State private var started: String?
+    @State private var speaking: String?
+    @State private var listenFailed = false
     private var usesKm: Bool { UserDefaults.standard.string(forKey: "distanceUnit") == "km" }
 
     var body: some View {
@@ -190,6 +196,8 @@ struct JourneysView: View {
         .hsBackButton()
         .task { await store.refresh(); reached = store.unseen.last }
         .sheet(isPresented: $paywall) { PlansView(feature: .bibleJourneys) }
+        .onDisappear { GraceVoice.stop() }
+        .alert(tr("Grace's recording couldn't be loaded. Check your connection and try again."), isPresented: $listenFailed) { Button(tr("OK")) {} }
         .alert(tr("📍 You reached") + " \(reached?.1.name ?? "")", isPresented: Binding(get: { reached != nil }, set: { if !$0 { reached = nil } })) {
             if let r = reached, BibleJourneys.chapter(r.1.reference) != nil {
                 Button(tr("📖 Read the chapter")) { store.markSeen(store.unseen.map(\.0)); reading = r.1; reached = nil }
@@ -254,6 +262,10 @@ struct JourneysView: View {
                     T(s.story).font(.hs(13)).foregroundStyle(HS.textSecondary)
                     HStack(spacing: 12) {
                         D(s.reference).font(.hs(11, .semibold)).foregroundStyle(HS.faith)
+                        Button { listen(s) } label: {
+                            T(speaking == s.name ? "⏹ Stop" : "🔊 Listen").font(.hs(12, .semibold)).foregroundStyle(HS.body)
+                        }
+                        .buttonStyle(.plain)
                         if BibleJourneys.chapter(s.reference) != nil {
                             Button { reading = s } label: { T("📖 Read the chapter").font(.hs(12, .semibold)).foregroundStyle(HS.body) }
                                 .buttonStyle(.plain)
@@ -265,6 +277,18 @@ struct JourneysView: View {
             }
         }
         .padding(.vertical, 6)
+    }
+
+    /// Grace reads the stop; the phone's own voice is never used.
+    private func listen(_ s: JourneyStop) {
+        if speaking == s.name { GraceVoice.stop(); speaking = nil; return }
+        GraceVoice.stop()
+        speaking = s.name
+        Task {
+            let ok = await GraceVoice.say(BibleJourneys.narration(s), pack: "stories")
+            if speaking == s.name { speaking = nil }
+            if !ok { listenFailed = true }
+        }
     }
 
     private func journeyRow(_ j: BibleJourney, active: Bool) -> some View {

@@ -6,7 +6,7 @@ enum BabyLog {
     enum Sex: String, Codable, CaseIterable { case BOY, GIRL, UNSET
         var label: String { ["BOY": "Boy", "GIRL": "Girl", "UNSET": "Not set"][rawValue]! }
     }
-    struct Baby: Codable, Identifiable, Equatable { var id = UUID().uuidString; var name: String; var birth: String; var sex: Sex }
+    struct Baby: Codable, Identifiable, Equatable { var id = BabyLog.newId(); var name: String; var birth: String; var sex: Sex }
     enum Kind: String, Codable { case br, bo, so, pu, sl, di, gr
         var label: String { ["br": "Breastfeed", "bo": "Bottle", "so": "Solids", "pu": "Pumping", "sl": "Sleep", "di": "Diaper", "gr": "Growth"][rawValue]! }
         var emoji: String { ["br": "🤱", "bo": "🍼", "so": "🥣", "pu": "🫙", "sl": "😴", "di": "🧷", "gr": "📏"][rawValue]! }
@@ -22,7 +22,7 @@ enum BabyLog {
         var dirty: Bool { self == .d || self == .b }
     }
     struct Entry: Codable, Identifiable, Equatable {
-        var id = UUID().uuidString
+        var id = BabyLog.newId()
         var babyId: String
         var kind: Kind
         var start: Date
@@ -217,11 +217,38 @@ enum BabyLog {
 final class BabyStore: ObservableObject {
     static let shared = BabyStore()
     struct Saved: Codable { var babies: [BabyLog.Baby] = []; var entries: [BabyLog.Entry] = []; var timer: BabyLog.Timer?; var current: String? }
-    @Published var data = Saved() { didSet { save() } }
+    @Published var data = Saved() {
+        didSet {
+            save()
+            // A shared baby's changes go to the other phones (not the ones that just came from them).
+            if !applyingRemote { BabyShare.shared.record(before: oldValue, after: data) }
+        }
+    }
+    private var applyingRemote = false
     private let url = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0].appendingPathComponent("baby.json")
 
     private init() {
         if let d = try? Data(contentsOf: url), let s = try? JSONDecoder().decode(Saved.self, from: d) { data = s }
+    }
+
+    /// Changes read from the family log, applied without being sent back.
+    func applyRemote(_ d: Saved) { applyingRemote = true; data = d; applyingRemote = false }
+
+    /// Ids made by older iPhone versions (UUIDs) become Android's shape before a baby is shared.
+    func makeIdsCompatible() {
+        guard data.babies.contains(where: { !BabyLog.validId($0.id) }) || data.entries.contains(where: { !BabyLog.validId($0.id) || !BabyLog.validId($0.babyId) }) else { return }
+        var map: [String: String] = [:]
+        func fix(_ id: String) -> String {
+            if BabyLog.validId(id) { return id }
+            if let m = map[id] { return m }
+            let n = BabyLog.newId(); map[id] = n; return n
+        }
+        var d = data
+        d.babies = d.babies.map { var b = $0; b.id = fix(b.id); return b }
+        d.entries = d.entries.map { var e = $0; e.id = fix(e.id); e.babyId = fix(e.babyId); return e }
+        if var t = d.timer { t.babyId = fix(t.babyId); d.timer = t }
+        d.current = d.current.map(fix)
+        applyRemote(d)
     }
     private func save() {
         try? FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
@@ -229,7 +256,12 @@ final class BabyStore: ObservableObject {
     }
     var baby: BabyLog.Baby? { data.babies.first { $0.id == data.current } ?? data.babies.first }
     func add(_ e: BabyLog.Entry) { data.entries.append(e); data.entries = Array(data.entries.suffix(5000)); ActivityLog.shared.add(.tracker) }
-    func erase() { data = Saved() }
+    /// Clears this phone only: a shared baby just stops syncing here, and the other phones keep their log.
+    func erase() {
+        let ids = data.babies.map(\.id)
+        applyRemote(Saved())
+        Task { for id in ids { _ = await BabyShare.shared.leave(id, forEveryone: false) } }
+    }
 }
 
 struct BabyView: View {
@@ -237,7 +269,10 @@ struct BabyView: View {
     @State private var sheet: Sheet?
     @State private var now = Date()
     @State private var confirmDelete = false
+    @State private var sharing = InviteInbox.waiting("baby")
+    @ObservedObject private var family = BabyShare.shared
     private let tick = Foundation.Timer.publish(every: 1, on: .main, in: .common).autoconnect()
+    private let syncTick = Foundation.Timer.publish(every: 30, on: .main, in: .common).autoconnect()
     private let sky = Color(hex: 0x38BDF8)
 
     enum Sheet: String, Identifiable { case addBaby, bottle, diaper, growth, solids, pump; var id: String { rawValue } }
@@ -249,7 +284,8 @@ struct BabyView: View {
                 VStack(alignment: .leading, spacing: 14) {
                     T("🍼 BABY LOG").font(.hs(12, .bold)).foregroundStyle(HS.readable(0x38BDF8))
                     if let baby = store.baby { content(baby) } else { empty }
-                    T("🔒 Your baby's log stays on this phone. It's a log, not medical advice; call your baby's doctor with any worry.")
+                    T(family.shares.isEmpty ? "🔒 Your baby's log stays on this phone. It's a log, not medical advice; call your baby's doctor with any worry."
+                      : "🔒 A shared baby is encrypted on this phone before it's sent, so only phones with the invite code can read it. It's a log, not medical advice; call your baby's doctor with any worry.")
                         .font(.hs(11)).foregroundStyle(HS.textMuted)
                 }
                 .padding(20).padding(.bottom, 40)
@@ -257,7 +293,10 @@ struct BabyView: View {
         }
         .navigationBarTitleDisplayMode(.inline)
         .onReceive(tick) { now = $0 }
+        .onReceive(syncTick) { _ in if !family.shares.isEmpty { Task { await family.sync() } } }
+        .task { if !family.shares.isEmpty { await family.sync() } }
         .sheet(item: $sheet) { s in BabySheet(kind: s) }
+        .sheet(isPresented: $sharing) { BabyShareSheet(baby: store.baby) }
         .alert(tr("Delete the baby log?"), isPresented: $confirmDelete) {
             Button(tr("Delete"), role: .destructive) { store.erase() }
             Button(tr("Cancel"), role: .cancel) {}
@@ -271,6 +310,10 @@ struct BabyView: View {
                 T("A side timer for breastfeeds, bottle amounts, sleep windows for your baby's age, and growth against the WHO charts your pediatrician uses.")
                     .font(.hs(13)).foregroundStyle(HS.textSecondary)
                 GoldButton(title: "Add your baby") { sheet = .addBaby }
+                Button { sharing = true } label: {
+                    T("Joining someone else's baby? Enter their code").font(.hs(13, .semibold)).foregroundStyle(HS.readable(0x38BDF8))
+                }
+                .buttonStyle(.plain)
             }
         }
     }
@@ -287,6 +330,11 @@ struct BabyView: View {
                 if store.data.babies.count < 6 { Button(tr("Add a baby")) { sheet = .addBaby } }
             } label: { Image(systemName: "person.2.circle").font(.system(size: 26)).foregroundStyle(HS.gold) }
             .accessibilityLabel(tr("Switch baby"))
+            Button { sharing = true } label: {
+                Image(systemName: family.share(of: baby.id) != nil ? "person.2.wave.2.fill" : "square.and.arrow.up")
+                    .font(.system(size: 22)).foregroundStyle(HS.readable(0x38BDF8)).frame(width: 44, height: 44)
+            }
+            .accessibilityLabel(tr("Share with your partner or sitter"))
         }
         if let t = store.data.timer, t.babyId == baby.id { timerCard(t) }
         else {

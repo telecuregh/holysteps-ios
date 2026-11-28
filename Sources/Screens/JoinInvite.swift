@@ -30,6 +30,8 @@ enum InviteInbox {
     /// The invite whose Join was tapped, waiting for its screen to fill the code in once.
     private static var pending: Invite?
     static func hold(_ i: Invite) { pending = i }
+    /// Whether a code of this kind is waiting (without taking it).
+    static func waiting(_ kind: String) -> Bool { pending?.kind == kind }
     /// The waiting code for this kind of invite, or "" (and it is only given out once).
     static func take(_ kind: String) -> String {
         guard let p = pending, p.kind == kind else { return "" }
@@ -60,7 +62,7 @@ struct JoinInviteView: View {
     }
 
     /// Invites for something the iPhone app doesn't have yet.
-    private var notOnIPhone: Bool { invite?.kind == "PAIR" || invite?.kind == "baby" }
+    private var notOnIPhone: Bool { false }
 
     var body: some View {
         ZStack {
@@ -104,6 +106,8 @@ struct JoinInviteView: View {
         case "READ": ReadingTogetherView()
         case "CHURCH": ChurchTab()
         case "safety": SafetyCircleView()
+        case "PAIR": AccountabilityPartnerView()
+        case "baby": BabyView()
         default: EmptyView()
         }
     }

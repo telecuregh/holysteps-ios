@@ -33,6 +33,7 @@ struct AppFeature: Identifiable {
             AppFeature(title: "Form Coach", symbol: "camera", words: "form coach camera reps squats push-ups lunges curls sit-ups posture", target: .view { AnyView(FormCoachPickerView()) }),
             AppFeature(title: "Strength log", symbol: "dumbbell", words: "strength lift weights sets reps bench squat deadlift gym", target: .view { AnyView(StrengthLogView()) }),
             AppFeature(title: "Mind tracks", symbol: "brain", words: "mind tracks stress pressure anger purpose comparison boundaries mental load", target: .view { AnyView(MindTracksView()) }),
+            AppFeature(title: "Accountability partner", symbol: "person.2", words: "accountability partner freedom friend support encourage check in slip protection", target: .view { AnyView(AccountabilityPartnerView()) }),
             AppFeature(title: "Bible Journeys", symbol: "map", words: "bible journeys walk routes emmaus exodus bethlehem paul steps stops story", target: .view { AnyView(JourneysView()) }),
             AppFeature(title: "Morning light", symbol: "sun.max", words: "morning light sunlight daylight outside wake sleep lux circadian", target: .view { AnyView(MorningLightView()) }),
             AppFeature(title: "My reminders", symbol: "bell.badge", words: "reminders water drink move stand bed bedtime self care notification", target: .view { AnyView(MyRemindersView()) }),
