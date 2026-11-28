@@ -105,11 +105,13 @@ struct HomeView: View {
             .sheet(isPresented: $showCheckIn) { CheckInSheet() }
             .fullScreenCover(item: $playing) { s in SermonPlayerView(sermon: s) }
             .task {
+                // What's learned is on this phone: show it first, before anything waits on the network or Health.
+                learned = learning.analyze(store: store)
+                shortcutKeys = learning.shortcuts(gender: store.gender)
                 await inbox.refresh()
                 await steps.refresh()
                 week.refresh(store: store, stepsToday: steps.today)
                 learned = learning.analyze(store: store)
-                shortcutKeys = learning.shortcuts(gender: store.gender)
             }
             .onChange(of: learning.events.count) { learned = learning.analyze(store: store) }
             .onChange(of: checkIns.all.count) { learned = learning.analyze(store: store) }
