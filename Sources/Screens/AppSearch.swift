@@ -59,6 +59,34 @@ struct AppFeature: Identifiable {
             AppFeature(title: "Safety circle", symbol: "shield", words: "safety sos emergency walk share location circle family", target: .view { AnyView(SafetyCircleView()) }),
             AppFeature(title: "Partner coaching", symbol: "heart.circle", words: "partner husband wife spouse coaching support tip invite code", target: .view { AnyView(PartnerCoachingView()) }),
             AppFeature(title: "Headache diary", symbol: "bolt.heart", words: "headache migraine diary", target: .view { AnyView(HeadacheView()) }),
+            // Every screen Android's search lists (FeatureSearch.kt), with Android's names, so search and "Your shortcuts"
+            // find and learn the same things on both phones.
+            AppFeature(title: "Prayer Walk", symbol: "figure.walk", words: "prayer walk pray walking", target: .view { AnyView(PrayerWalkFeatureView()) }),
+            AppFeature(title: "Verse Memory", symbol: "brain", words: "verse memory memorize scripture flashcard", target: .view { AnyView(VerseMemoryView()) }),
+            AppFeature(title: "Prayer garden", symbol: "leaf", words: "garden prayer flower bloom answered grow", target: .view { AnyView(PrayerGardenView()) }),
+            AppFeature(title: "Audio Sanctuary", symbol: "headphones", words: "audio sanctuary guided prayer meditation listen calm", target: .view { AnyView(AudioPrayerView()) }),
+            AppFeature(title: "Spatial Sanctuary", symbol: "ear", words: "spatial sanctuary rain creek bell headphones", target: .view { AnyView(SpatialSanctuaryView()) }),
+            AppFeature(title: "Breath prayer", symbol: "wind", words: "breath prayer breathe haptic calm", target: .view { AnyView(BreathPrayerView()) }),
+            AppFeature(title: "Prayer Wall", symbol: "rectangle.3.group.bubble", words: "prayer wall testimony requests community", target: .view { AnyView(PrayerWallView()) }),
+            AppFeature(title: "Habit Circles", symbol: "person.3", words: "habit circle friends streak accountability together", target: .view { AnyView(CirclesView()) }),
+            AppFeature(title: "Family Faith Relay", symbol: "flame", words: "family relay baton faith together", target: .view { AnyView(FamilyRelayView()) }),
+            AppFeature(title: "My church", symbol: "building.columns", words: "church congregation pastor sermon members", target: .view { AnyView(ChurchTab()) }),
+            AppFeature(title: "Live rooms", symbol: "dot.radiowaves.left.and.right", words: "live room voice pray together", target: .view { AnyView(LiveRoomsView()) }),
+            AppFeature(title: "Wake-up alarm", symbol: "alarm", words: "alarm wake morning scripture", target: .view { AnyView(WakeAlarmView()) }),
+            AppFeature(title: "Calm Check", symbol: "heart.text.square", words: "calm check stress heart rate camera", target: .view { AnyView(CalmCheckView()) }),
+            AppFeature(title: "Breathing Pace", symbol: "lungs", words: "breathing pace breath rate", target: .view { AnyView(BreathPaceView()) }),
+            AppFeature(title: "Temperature & fever", symbol: "thermometer", words: "temperature fever thermometer", target: .view { AnyView(TemperatureView()) }),
+            AppFeature(title: "Rewards", symbol: "star", words: "rewards points badges achievements", target: .view { AnyView(RewardsView()) }),
+            AppFeature(title: "Backup & restore", symbol: "externaldrive", words: "backup restore export save phone", target: .view { AnyView(BackupView()) }),
+            AppFeature(title: "Rings & watches", symbol: "applewatch", words: "watch ring oura health wearable heart rate sleep", target: .view { AnyView(RingsWatchesView()) }),
+            AppFeature(title: "Freedom", symbol: "lock.open", words: "freedom habit urge recovery block sites", target: .view { AnyView(FreedomView()) }),
+            AppFeature(title: "Baby tracker", symbol: "figure.and.child.holdinghands", words: "baby feed diaper sleep newborn", target: .view { AnyView(BabyView()) }),
+            AppFeature(title: "Challenges", symbol: "flag", words: "commitment pledge goal challenge", target: .view { AnyView(CommitmentsView()) }),
+            AppFeature(title: "Workout programs", symbol: "list.bullet.rectangle", words: "program plan weeks workout", target: .view { AnyView(ProgramsView()) }),
+            AppFeature(title: "Workouts", symbol: "figure.strengthtraining.traditional", words: "workout exercise routine guided", target: .view { AnyView(WorkoutLibraryView()) }),
+            AppFeature(title: "Activity statistics", symbol: "chart.bar", words: "statistics walks history distance minutes", target: .view { AnyView(WalkHistoryView()) }),
+            AppFeature(title: "Body & energy", symbol: "bolt", words: "body energy readiness recovery", target: .view { AnyView(Gated(feature: .bodyEnergy) { BodyEnergyView() }) }),
+            AppFeature(title: "Trust and privacy", symbol: "lock.shield", words: "privacy trust data security", target: .view { AnyView(TrustView()) }),
         ]
         if gender != "male" {
             list += [
@@ -68,9 +96,16 @@ struct AppFeature: Identifiable {
                 AppFeature(title: "Mood and tests", symbol: "face.smiling", words: "mood pregnancy test period", target: .view { AnyView(CycleLockGate { CycleMoodTestsView() }) }),
                 AppFeature(title: "Symptom severity", symbol: "chart.line.uptrend.xyaxis", words: "pms pmdd pcos endometriosis pain severity period", target: .view { AnyView(CycleLockGate { SeverityView() }) }),
                 AppFeature(title: "Pregnancy tools", symbol: "figure.and.child.holdinghands", words: "pregnancy kick counter contraction timer appointment", target: .view { AnyView(CycleLockGate { PregnancyToolsView() }) }),
+                AppFeature(title: "New parents", symbol: "heart.circle", words: "postpartum new mom baby blues depression after birth", target: .view { AnyView(PostpartumView()) }),
             ]
         }
-        if gender == "male" { list.removeAll { $0.words.contains("period") } }
+        if gender == "male" {
+            list += [
+                AppFeature(title: "Men's wellness", symbol: "heart", words: "men health screening testosterone prostate", target: .view { AnyView(MensWellnessView()) }),
+                AppFeature(title: "Support her cycle", symbol: "heart.circle", words: "wife partner cycle support husband", target: .view { AnyView(SupportHerCycleView()) }),
+            ]
+            list.removeAll { $0.words.contains("period") }
+        }
         return list
     }
 }
