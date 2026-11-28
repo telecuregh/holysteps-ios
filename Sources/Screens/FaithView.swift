@@ -206,6 +206,8 @@ struct FaithView: View {
         SpiritStressCard().padding(.top, 12)
         Spacer().frame(height: 16)
         ToolSection(title: "Ways to pray", items: [
+            ToolItem(symbol: "hands.sparkles", color: HS.faith, title: "Pray about…", sub: "A guide for any need, for you or someone you love",
+                     destination: AnyView(PrayAboutView())),
             ToolItem(symbol: "checklist", color: HS.peach, title: "Prayer List", sub: "\(store.prayers.count - answered) praying · \(answered) answered",
                      destination: AnyView(PrayerJournalView(section: 0))),
             ToolItem(symbol: "figure.walk", color: HS.body, title: "Prayer Walk", sub: "Pray as you walk", badge: "+40 pts",
@@ -216,6 +218,9 @@ struct FaithView: View {
                      destination: AnyView(FaithCoachView()))] : []), visible: 8)
         Spacer().frame(height: 10)
         ToolSection(title: "Practices", items: [
+            ToolItem(symbol: "leaf", color: HS.body, title: "Fasting",
+                     sub: FastStore.shared.start == nil ? "Set a fast and pray through it" : "Fast in progress",
+                     destination: AnyView(FastingView())),
             ToolItem(symbol: "alarm", color: HS.peach, title: "Wake-up alarm", sub: "Wake to scripture and prayer", destination: AnyView(WakeAlarmView())),
         ])
     }
@@ -258,6 +263,8 @@ struct FaithView: View {
         ToolSection(title: "Reflect", items: [
             ToolItem(symbol: "book.closed", color: HS.body, title: "Faith Journal", sub: "\(store.journal.count) entries",
                      destination: AnyView(PrayerJournalView(section: 1))),
+            ToolItem(symbol: "note.text", color: HS.peach, title: "Sermon notes", sub: "\(SermonNotesStore.shared.notes.count) notes · private to you",
+                     destination: AnyView(SermonNotesView())),
         ])
     }
 
