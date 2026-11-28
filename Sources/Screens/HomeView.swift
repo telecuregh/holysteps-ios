@@ -169,7 +169,7 @@ struct HomeView: View {
                         .foregroundStyle(light ? Color(hex: 0x2E2529) : Color.white.opacity(0.85))
                         .padding(.horizontal, light ? 14 : 0).padding(.vertical, light ? 4 : 0)
                         .background(Capsule().fill(light ? Color.white.opacity(0.85) : .clear))
-                    T(male ? "Your faith, body, mind & strength" : "Your faith, body, mind & cycle")
+                    T(male ? "Your faith, body, mind & strength" : Vitality.isOn ? "Your faith, body, mind & vitality" : "Your faith, body, mind & cycle")
                         .font(.hs(18)).lineLimit(1).minimumScaleFactor(0.8)
                         .foregroundStyle(light ? Color(hex: 0x3A3135) : Color.white.opacity(0.92))
                     ItalicAccent(text: "working together as one", size: 23)
@@ -391,7 +391,13 @@ struct HomeView: View {
             RingItem(label: "Steps", value: steps.today.formatted(), hex: 0x56B892, progress: min(1, Double(steps.today) / Double(goal))),
             RingItem(label: "Prayer", value: "\(prayers)/4", hex: 0x9D7FEA, progress: Double(prayers) / 4),
         ]
-        if !male, let day = rhythm.cycleDay, let phase = rhythm.phase {
+        if rhythm.postMeno {
+            // Past menopause: the week's Vitality targets (strength, balance, active minutes), Android's vitalityProgress.
+            let w = Vitality.week()
+            let p = [Double(w.strengthDays) / Double(Vitality.strengthTarget), Double(w.balance) / Double(Vitality.balanceTarget),
+                     Double(w.minutes) / Double(Vitality.activeMinutesTarget)].map { min(1, $0) }.reduce(0, +) / 3
+            items.append(RingItem(label: "Vitality", value: tr(Vitality.focus().label), hex: 0x14B8A6, progress: p))
+        } else if !male, let day = rhythm.cycleDay, let phase = rhythm.phase {
             items.append(RingItem(label: phase.label, value: tr("Day {0}").replacingOccurrences(of: "{0}", with: "\(day)"), hex: 0xE57A9E,
                                   progress: min(1, Double(day) / Double(max(1, store.cycleLength)))))
         } else if let m = steps.sleepLastNight {
@@ -559,14 +565,15 @@ struct HomeView: View {
     // MARK: Tiles
 
     private var tiles: some View {
-        let cycleTitle = male ? "Men" : "Women"
+        let cycleTitle = male ? "Men" : Vitality.isOn ? "Vitality" : "Women"
         return VStack(spacing: 14) {
             HStack(spacing: 14) {
                 tile("Faith", "Pray, read and listen", "hands.sparkles.fill", 0xF3D5C0, 0xC77D92) { router.open(tab: 1, faith: 0) }
                 tile("Fitness", "Steps and walks", "figure.walk", 0x56B892, 0x7FA86A) { router.open(tab: 2) }
             }
             HStack(spacing: 14) {
-                tile(cycleTitle, male ? "Strength and energy" : "Your rhythm, day by day", male ? "dumbbell" : "camera.macro", 0xE57A9E, 0xD27C86) { router.open(tab: 3) }
+                tile(cycleTitle, male ? "Strength and energy" : Vitality.isOn ? "Strength, balance and this season" : "Your rhythm, day by day",
+                     male ? "dumbbell" : Vitality.isOn ? "leaf" : "camera.macro", 0xE57A9E, 0xD27C86) { router.open(tab: 3) }
                 tile("Sleep", "Stories and night prayers", "moon.stars", 0x64A5E8, 0x5FA3A8) { route = .sleep }
             }
         }
