@@ -123,9 +123,10 @@ final class BibleListening: NSObject, ObservableObject, AVSpeechSynthesizerDeleg
         // Grace reads the whole Bible in English and Spanish; the phone's own voice is never used for it. If her
         // recording can't be had (offline and not downloaded yet), say so instead of switching voices.
         if pack == nil {
-            error = tr(VoicePacks.mayBeRecorded(translation: translation)
+            // Grace has recorded the whole King James Bible; other translations say so plainly.
+            error = tr(translation == "KJV"
                        ? "Grace's recording couldn't be loaded. Check your connection and try again."
-                       : "Grace hasn't recorded this translation yet. Choose an English or Spanish Bible to hear her.")
+                       : "Grace reads the King James Bible. Switch to the King James Version to listen.")
             loading = false; playing = false
             return
         }
