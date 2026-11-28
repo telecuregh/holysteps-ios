@@ -6,7 +6,7 @@ import SwiftUI
 /// by tools/sermons2json.py). Scripts use the same light markup as Android's Audio Sanctuary: blank-line separated
 /// paragraphs, "[PAUSE 6 SECONDS]" for silence, any other bracketed line is a stage direction and is skipped.
 struct Sermon: Identifiable, Decodable, Hashable {
-    enum Group: String, Decodable { case weekly, facing, books, seasons, sleep, mind }
+    enum Group: String, Decodable { case weekly, facing, books, seasons, sleep, mind, stories }
 
     let id: String
     let group: Group
@@ -112,6 +112,8 @@ enum SermonLibrary {
     static var weekly: [Sermon] { all.filter { $0.group == .weekly } }
     static var books: [Sermon] { all.filter { $0.group == .books } }
     static var seasons: [Sermon] { all.filter { $0.group == .seasons } }
+    /// True stories (Android's HopeStories): someone who came through the hard thing, read by Grace.
+    static var stories: [Sermon] { all.filter { $0.group == .stories } }
 
     /// Weekly sermons the preacher voice reads (not Joel's recordings): the free weekly rotation on Android.
     static var narratedWeekly: [Sermon] { weekly.filter { $0.recorded.isEmpty } }

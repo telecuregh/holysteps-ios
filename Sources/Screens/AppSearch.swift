@@ -23,6 +23,7 @@ struct AppFeature: Identifiable {
             AppFeature(title: "This week's sermon", symbol: "mic", words: "sermon preach message church week", target: .tab(1, faith: 2)),
             AppFeature(title: "Sermons library", symbol: "mic", words: "sermon library all", target: .view { AnyView(SermonLibraryView()) }),
             AppFeature(title: "Sermons for what you're facing", symbol: "mic", words: "sermon grief anxiety fear facing topic", target: .view { AnyView(SermonTopicsView()) }),
+            AppFeature(title: "True stories", symbol: "heart.text.square", words: "true story stories hope came through testimony", target: .view { AnyView(TrueStoriesView()) }),
             AppFeature(title: "Sermons through the Bible", symbol: "mic", words: "sermon book bible season", target: .view { AnyView(BibleSermonsView()) }),
             AppFeature(title: "Hymns", symbol: "music.note", words: "hymn music song", target: .view { AnyView(MusicView(tab: 1)) }),
             AppFeature(title: "Gospel songs", symbol: "music.note", words: "gospel worship music song my music", target: .view { AnyView(MusicView(tab: 0)) }),

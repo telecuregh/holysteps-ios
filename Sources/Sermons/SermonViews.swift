@@ -317,6 +317,9 @@ struct SermonTopicsView: View {
                         }
                     }
                     CrisisCard()
+                    NavigationLink { TrueStoriesView() } label: {
+                        row(tr("True stories"), tr("Someone came through this, and so will you"))
+                    }
                     ForEach(topicGroups, id: \.self) { g in
                         T(g.uppercased()).font(.hs(11, .semibold)).tracking(1.4).foregroundStyle(HS.peach).padding(.top, 10).padding(.leading, 4)
                             .accessibilityAddTraits(.isHeader)
@@ -361,6 +364,58 @@ struct SermonTopicsView: View {
         }
         .padding(.horizontal, 16).padding(.vertical, 14)
         .background(RoundedRectangle(cornerRadius: 16).fill(HS.card.opacity(0.8)))
+    }
+}
+
+// MARK: - True stories
+
+/// Android's TrueStoriesScreen: true-to-life stories of people who came through a hard season, read by Grace.
+/// Comfort, not crisis care, so the helpline stays at the top.
+struct TrueStoriesView: View {
+    @ObservedObject private var account = AccountStore.shared
+    @State private var open: Sermon?
+    @State private var paywall = false
+
+    var body: some View {
+        let paid = account.canUse(.sanctuaryFull)
+        ZStack {
+            HSBackground()
+            ScrollView {
+                VStack(alignment: .leading, spacing: 12) {
+                    GlassCard {
+                        VStack(alignment: .leading, spacing: 6) {
+                            T("TRUE STORIES").font(.hs(11, .semibold)).tracking(1.4).foregroundStyle(HS.peach)
+                            T("Someone came through this").font(.hs(24, .light)).foregroundStyle(HS.text)
+                                .accessibilityAddTraits(.isHeader)
+                            ItalicAccent(text: "and so will you", size: 18)
+                            T("Real, true-to-life stories of people who went through the hard thing you're carrying, and how, in time, it worked out. Settle in and listen.")
+                                .font(.hs(13)).foregroundStyle(HS.textSecondary)
+                        }
+                    }
+                    CrisisCard()
+                    ForEach(SermonLibrary.stories) { s in
+                        Button { if paid { open = s } else { paywall = true } } label: {
+                            HStack {
+                                VStack(alignment: .leading, spacing: 3) {
+                                    T(s.subtitle.uppercased()).font(.hs(11, .semibold)).tracking(0.6).foregroundStyle(HS.peach)
+                                    T(s.title).font(.hs(16, .semibold)).foregroundStyle(HS.text).multilineTextAlignment(.leading)
+                                    T(tr("A true story") + " · " + s.minutesLabel).font(.hs(12)).foregroundStyle(HS.textMuted)
+                                }
+                                Spacer()
+                                Image(systemName: paid ? "chevron.right" : "lock.fill").foregroundStyle(HS.gold)
+                            }
+                            .padding(.horizontal, 16).padding(.vertical, 14)
+                            .background(RoundedRectangle(cornerRadius: 16).fill(HS.card.opacity(0.8)))
+                        }
+                    }
+                }
+                .padding(20)
+            }
+        }
+        .navigationTitle(tr("True stories"))
+        .navigationBarTitleDisplayMode(.inline)
+        .fullScreenCover(item: $open) { s in SermonPlayerView(sermon: s) }
+        .sheet(isPresented: $paywall) { PlansView(feature: .sanctuaryFull) }
     }
 }
 
