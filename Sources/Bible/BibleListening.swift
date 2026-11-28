@@ -166,7 +166,8 @@ final class BibleListening: NSObject, ObservableObject, AVSpeechSynthesizerDeleg
 
     private func speak(_ v: Int) {
         verse = v
-        if let data = pack?.audio(for: Spoken.verse(verses[v - 1])) {
+        // Grace's recordings are keyed by the verse as printed; names like "Beer–sheba" keep their dash there.
+        if let data = pack?.audio(for: Spoken.verse(verses[v - 1])) ?? pack?.audio(for: verses[v - 1]) {
             let gen = generation
             playing = true
             clipPlaying = true
