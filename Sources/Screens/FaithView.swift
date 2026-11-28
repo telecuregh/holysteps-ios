@@ -288,6 +288,7 @@ struct FaithView: View {
         ])
         Spacer().frame(height: 10)
         ToolSection(title: "Support", items: [
+            ToolItem(symbol: "brain", color: HS.mind, title: "Mind tracks", sub: "Seven short days on what's weighing on you", destination: AnyView(MindTracksView())),
             ToolItem(symbol: "shield", color: HS.body, title: "Freedom", sub: "Private help to break free", destination: AnyView(FreedomView())),
             ToolItem(symbol: "hands.sparkles", color: HS.faith, title: "Sermons for what you're facing", sub: "Anxiety, grief, loneliness, anger and more",
                      destination: AnyView(SermonTopicsView())),

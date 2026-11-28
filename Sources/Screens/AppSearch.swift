@@ -28,6 +28,7 @@ struct AppFeature: Identifiable {
             AppFeature(title: "Fasting", symbol: "leaf", words: "fast fasting pray hunger", target: .view { AnyView(FastingView()) }),
             AppFeature(title: "Sermon notes", symbol: "note.text", words: "sermon notes church preacher passages takeaway", target: .view { AnyView(SermonNotesView()) }),
             AppFeature(title: "Strength log", symbol: "dumbbell", words: "strength lift weights sets reps bench squat deadlift gym", target: .view { AnyView(StrengthLogView()) }),
+            AppFeature(title: "Mind tracks", symbol: "brain", words: "mind tracks stress pressure anger purpose comparison boundaries mental load", target: .view { AnyView(MindTracksView()) }),
             AppFeature(title: "About you", symbol: "person.text.rectangle", words: "about you learned patterns routines rhythms insights habits", target: .view { AnyView(AboutYouView()) }),
             AppFeature(title: "Sermons through the Bible", symbol: "mic", words: "sermon book bible season", target: .view { AnyView(BibleSermonsView()) }),
             AppFeature(title: "Hymns", symbol: "music.note", words: "hymn music song", target: .view { AnyView(MusicView(tab: 1)) }),

@@ -571,6 +571,8 @@ struct MensWellnessView: View {
                             .padding(.horizontal, 20).padding(.top, 12)
                         CoverCard(emoji: "🧠", title: "Mood check-in", subtitle: "A private 1-minute check, with 988 one tap away", tint: 0xA78BFA) { MoodCheckView() }
                             .padding(.horizontal, 20).padding(.top, 12)
+                        CoverCard(emoji: "🧭", title: "Mind tracks", subtitle: "Seven short days on work pressure, anger, purpose and more", tint: 0xA78BFA) { MindTracksView().environmentObject(store) }
+                            .padding(.horizontal, 20).padding(.top, 12)
                         CoverCard(emoji: "📊", title: "About you", subtitle: "What all of it says about you", tint: 0x38BDF8) { AboutYouView().environmentObject(store) }
                             .padding(.horizontal, 20).padding(.top, 12)
 
