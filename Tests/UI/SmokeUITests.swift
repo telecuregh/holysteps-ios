@@ -343,7 +343,7 @@ final class SmokeUITests: XCTestCase {
         tab(man, "Men").tap(); sleep(1)
         shot(man, "59-mens-wellness")
         button(man, containing: "Good").tap()
-        button(man, containing: "Save Today's Check-in").tap(); sleep(1)
+        button(man, containing: "Save today's check-in").tap(); sleep(1)
         tab(man, "Plan").tap(); sleep(1)
         shot(man, "59b-mens-plan")
     }
