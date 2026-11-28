@@ -18,6 +18,8 @@ final class SermonPlayer: NSObject, ObservableObject, AVSpeechSynthesizerDelegat
     @Published private(set) var finished = false
     /// "Preacher" when the recording is playing this line, "Your phone's voice" otherwise.
     @Published private(set) var reader = ""
+    /// Why Joel's recording isn't playing (no plan, offline), shown under the captions; nil when it plays.
+    @Published private(set) var note: String?
 
     var active: Bool { sermon != nil }
     var progress: Double { captions.isEmpty ? 0 : Double(index) / Double(captions.count) }
@@ -31,6 +33,8 @@ final class SermonPlayer: NSObject, ObservableObject, AVSpeechSynthesizerDelegat
     private var paused = false
     /// Joel's full recording, when the sermon has one (bundled, or on holysteps.org for signed-in accounts).
     private var recording: AVPlayer?
+    /// Keeps the decrypting loader alive while its recording plays.
+    private var audioLoader: CTRLoader?
 
     override private init() {
         super.init()
@@ -129,6 +133,7 @@ final class SermonPlayer: NSObject, ObservableObject, AVSpeechSynthesizerDelegat
         clip.stop()
         recording?.pause()
         recording = nil
+        audioLoader = nil
         synth.stopSpeaking(at: .immediate)
         finishSpeaking()
         playing = false
@@ -176,13 +181,23 @@ final class SermonPlayer: NSObject, ObservableObject, AVSpeechSynthesizerDelegat
 
     /// Plays Joel's recording from the current paragraph. False when it can't be had (offline, not signed in).
     private func runRecording(_ s: Sermon, _ url: URL) async -> Bool {
-        var options: [String: Any] = [:]
-        if !url.isFileURL {
-            var req = URLRequest(url: url)
-            await HolyStepsSignIn.authorize(&req)
-            if let h = req.allHTTPHeaderFields { options["AVURLAssetHTTPHeaderFieldsKey"] = h }
+        note = nil
+        let asset: AVURLAsset
+        if let file = SermonAudio.fileOf(url) {
+            // Joel's protected recordings: the key and an encrypted copy from the server, decrypted as it plays.
+            switch await SermonAudio.prepare(file) {
+            case .ready(let a, let loader): asset = a; audioLoader = loader
+            case .failed(let p): note = SermonAudio.message(p); return false
+            }
+        } else {
+            var options: [String: Any] = [:]
+            if !url.isFileURL {
+                var req = URLRequest(url: url)
+                await HolyStepsSignIn.authorize(&req)
+                if let h = req.allHTTPHeaderFields { options["AVURLAssetHTTPHeaderFieldsKey"] = h }
+            }
+            asset = AVURLAsset(url: url, options: options)
         }
-        let asset = AVURLAsset(url: url, options: options)
         guard let duration = try? await asset.load(.duration), duration.seconds > 1, !Task.isCancelled else { return false }
         let item = AVPlayerItem(asset: asset)
         let player = AVPlayer(playerItem: item)

@@ -208,6 +208,9 @@ struct SermonPlayerView: View {
                 if isThis && player.finished { T("✓ Finished").font(.hs(11)) }
             }
             .foregroundStyle(.white.opacity(0.7))
+            if isThis, let n = player.note {
+                D(n).font(.hs(12)).foregroundStyle(.white.opacity(0.85)).multilineTextAlignment(.center).frame(maxWidth: .infinity)
+            }
         }
         .padding(.horizontal, 24).padding(.top, 10).padding(.bottom, 24)
         .background(Color.black.opacity(0.25))
