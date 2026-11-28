@@ -218,9 +218,9 @@ struct FaithView: View {
                      destination: AnyView(PrayerWalkFeatureView())),
             ToolItem(symbol: "map", color: HS.faith, title: "Prayer Walk Map", sub: "A prayer for each place you pass",
                      destination: AnyView(PrayerWalkMapView())),
-            ToolItem(symbol: "bubble.left.and.text.bubble.right", color: HS.gold, title: "Faith Chat", sub: "Ask about faith, prayer and scripture",
-                     destination: AnyView(FaithCoachView())),
-        ], visible: 8)
+        ] + (UserDefaults.standard.object(forKey: "aiFeaturesOn") as? Bool ?? true
+             ? [ToolItem(symbol: "bubble.left.and.text.bubble.right", color: HS.gold, title: "Faith Chat", sub: "Ask about faith, prayer and scripture",
+                         destination: AnyView(FaithCoachView()))] : []), visible: 8)
         Spacer().frame(height: 10)
         ToolSection(title: "Practices", items: [
             ToolItem(symbol: "leaf", color: HS.body, title: "Fasting",

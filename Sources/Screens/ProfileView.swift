@@ -10,10 +10,14 @@ struct ProfileView: View {
     @State private var confirmErase = false
     @State private var sheet: Sheet?
     @AppStorage("faithStage") private var faithStage = "GROWING"
+    @AppStorage("distanceUnit") private var distanceUnit = "mi"
+    @AppStorage("aiFeaturesOn") private var aiOn = true
+    @AppStorage("sabbathDay") private var sabbathDay = 0
+    @ObservedObject private var steps = StepsModel.shared
     @AppStorage("faithTradition") private var faithTradition = "NON_DENOMINATIONAL"
     @ObservedObject private var bible = BibleState.shared
 
-    enum Sheet: String, Identifiable { case name, gender, language, cycleLength, periodLength, stepGoal, narrator, sermon, bibleLanguage, faithWalk, tradition; var id: String { rawValue } }
+    enum Sheet: String, Identifiable { case name, gender, language, cycleLength, periodLength, stepGoal, narrator, sermon, bibleLanguage, faithWalk, tradition, units; var id: String { rawValue } }
 
     var body: some View {
         NavigationStack {
@@ -47,11 +51,37 @@ struct ProfileView: View {
                                 item("calendar", "Period Length", tr("\(store.periodLength) days"), 0xEC4899) { sheet = .periodLength }
                             }
                         }
+                        // Same rows, in the same order, as Android's Goals.
                         group("Goals") {
                             item("figure.walk", "Daily Step Goal", tr("\(stepGoal.formatted()) steps"), 0x8B5CF6) { sheet = .stepGoal }
+                            item("ruler", "Distance Units", distanceUnit == "km" ? tr("Kilometers (km)") : tr("Miles (mi)"), 0x06B6D4) { sheet = .units }
+                            // A weekly day of rest: the step goal rests too. Tapping steps through Off, Sunday, Saturday.
+                            item("leaf", "Sabbath Rest", sabbathDay == 1 ? tr("Sundays: streaks and the step goal rest")
+                                 : sabbathDay == 7 ? tr("Saturdays: streaks and the step goal rest") : tr("Off · tap to choose Sunday or Saturday"), 0x8B5CF6) {
+                                sabbathDay = sabbathDay == 0 ? 1 : (sabbathDay == 1 ? 7 : 0)
+                            }
+                            item("figure.walk.motion", "Step Counter", !steps.available ? tr("Manual logging") : (steps.asked ? tr("Apple Health") : tr("Off · allow Apple Health")), 0x22C55E) {
+                                if steps.available && !steps.asked { Task { await steps.request() } } else { openURL(URL(string: "x-apple-health://")!) }
+                            }
                         }
                         // Same rows, in the same order, as Android's Faith and content.
                         group("Faith and content") {
+                            // Android's AiFeaturesSwitch: one switch for everything an AI writes.
+                            VStack(alignment: .leading, spacing: 6) {
+                                Toggle(isOn: $aiOn) {
+                                    VStack(alignment: .leading, spacing: 2) {
+                                        T("Use smart features").font(.hs(15, .semibold)).foregroundStyle(HS.text)
+                                        T(aiOn ? "On: Faith Chat and the Adaptive Coach's notes are generated for you."
+                                              : "Off: none of these run, and nothing you write is sent to the service.")
+                                            .font(.hs(12)).foregroundStyle(HS.textMuted)
+                                    }
+                                }
+                                .tint(HS.goldButton)
+                                .padding(.horizontal, 16).padding(.vertical, 14)
+                                .background(RoundedRectangle(cornerRadius: 14).fill(HS.cardFill))
+                                .overlay(RoundedRectangle(cornerRadius: 14).strokeBorder(Color(hex: 0xD9B49F).opacity(aiOn ? 0.55 : 0.22), lineWidth: 1))
+                                T("Grace and Michael, the narrators, are computer voices.").font(.hs(11)).foregroundStyle(HS.textSubtle)
+                            }
                             let now = Bible.known.first { $0.id == bible.translationId }
                             item("book", "Bible language", now.map { "\($0.language) · \($0.id)" } ?? "English", 0x0EA5E9) { sheet = .bibleLanguage }
                             let stage = Profile.faithStages.first { $0.0 == faithStage } ?? Profile.faithStages[2]
@@ -173,6 +203,8 @@ struct ProfileView: View {
                         selected: Bible.known.first { $0.id == bible.translationId }?.lang ?? "en") {
                 bible.translationId = Bible.defaultId(phoneLang: $0, catholic: faithTradition == "CATHOLIC")
             }
+        case .units:
+            ChoiceSheet(title: "Distance Units", options: [("mi", tr("Miles (mi)")), ("km", tr("Kilometers (km)"))], selected: distanceUnit) { distanceUnit = $0 }
         case .faithWalk:
             ChoiceSheet(title: "Your faith walk", options: Profile.faithStages.map { ($0.0, "\($0.1)  \(tr($0.2)) — \(tr($0.3))") },
                         selected: faithStage) { faithStage = $0 }

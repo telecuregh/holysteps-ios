@@ -214,7 +214,7 @@ struct HomeView: View {
     /// up to three things they usually do about now, the strongest pattern in their own days, and a reminder offer.
     /// Until there's enough to go on, how far along the learning is and a 10-second check-in to teach it.
     @ViewBuilder private var forYou: some View {
-        if let a = learned, a.on {
+        if let a = learned ?? Optional(learning.analysisForHome(store: store)), a.on {
             let labels = Learning.labels(gender: store.gender)
             let finding = a.findings.first
             VStack(alignment: .leading, spacing: 10) {
@@ -308,7 +308,7 @@ struct HomeView: View {
     /// same order all day.
     @ViewBuilder private var shortcuts: some View {
         let labels = Learning.labels(gender: store.gender)
-        let keys = shortcutKeys.filter { labels[$0] != nil }
+        let keys = (shortcutKeys.isEmpty ? learning.shortcuts(gender: store.gender) : shortcutKeys).filter { labels[$0] != nil }
         if !keys.isEmpty {
             GlassCard(padding: 14) {
                 VStack(alignment: .leading, spacing: 10) {

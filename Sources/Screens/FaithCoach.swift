@@ -218,8 +218,29 @@ struct FaithCoachView: View {
     }
 
     private var unlimited: Bool { account.canUse(.aiUnlimited) }
+    @AppStorage("aiFeaturesOn") private var aiOn = true
 
     var body: some View {
+        if aiOn { chat } else { turnedOff }
+    }
+
+    /// Android's AiTurnedOff.
+    private var turnedOff: some View {
+        ZStack {
+            HSBackground()
+            VStack(spacing: 12) {
+                T("Chat is turned off").font(.hs(22, .bold)).foregroundStyle(HS.text)
+                T("Smart features are off in Profile, so nothing you write is sent to the service.")
+                    .font(.hs(14)).foregroundStyle(HS.textMuted).multilineTextAlignment(.center)
+                GoldButton(title: "Turn smart features on") { aiOn = true }.padding(.horizontal, 40)
+            }
+            .padding(24)
+        }
+        .toolbar(.hidden, for: .navigationBar)
+        .hsBackButton()
+    }
+
+    private var chat: some View {
         ZStack {
             HSBackground()
             VStack(spacing: 0) {

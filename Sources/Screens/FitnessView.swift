@@ -113,6 +113,8 @@ struct FitnessView: View {
     @ObservedObject private var model = StepsModel.shared
     @ObservedObject private var router = TabRouter.shared
     @AppStorage("stepGoal") private var goal = 8000
+    @AppStorage("distanceUnit") private var unit = "mi"
+    @AppStorage("sabbathDay") private var sabbathDay = 0
     @State private var tab = 0
     @State private var showManual = false
     @State private var showGoal = false
@@ -198,9 +200,12 @@ struct FitnessView: View {
                     }
                 }
                 .frame(width: 168, height: 168)
-                T(target < goal ? "Goal today: \(target.formatted()) steps (a gentler day; usually \(goal.formatted()))" : "Goal: \(goal.formatted()) steps")
+                let sabbath = sabbathDay != 0 && Calendar.current.component(.weekday, from: Date()) == sabbathDay
+                T(sabbath ? "Sabbath rest: no step goal today"
+                  : (target < goal ? "Goal today: \(target.formatted()) steps (a gentler day; usually \(goal.formatted()))" : "Goal: \(goal.formatted()) steps"))
                     .font(.hs(13)).foregroundStyle(HS.textMuted).multilineTextAlignment(.center).padding(.top, 12)
                 T(progress >= 1 ? "Goal reached! +20 pts earned"
+                  : sabbath ? "Walk only if it refreshes you. Your streak is resting too."
                   : (progress >= 0.75 ? "So close, \((target - model.today).formatted()) more steps to your goal"
                      : "\((target - model.today).formatted()) steps to your goal · +20 pts when you hit it"))
                     .font(.hs(13, .semibold)).foregroundStyle(progress >= 1 ? HS.body : HS.gold)
@@ -211,7 +216,7 @@ struct FitnessView: View {
         .padding(.horizontal, 20)
         HStack(spacing: 12) {
             statCard("flame", "\(kcal)", "kcal", 0xF3D5C0)
-            statCard("mappin", String(format: "%.2f", km / 1.609344), "mi", 0x64A5E8)
+            statCard("mappin", String(format: "%.2f", unit == "km" ? km : km / 1.609344), unit, 0x64A5E8)
             statCard("timer", minutesText(model.today), "walking", 0x56B892)
         }
         .padding(.horizontal, 20).padding(.top, 14)

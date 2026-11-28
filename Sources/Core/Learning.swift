@@ -129,8 +129,8 @@ final class Learning: ObservableObject {
         var lastOfferDate = ""
     }
 
-    @Published private(set) var events: [RhythmsLogic.Event] = []
-    @Published private(set) var settings = Settings()
+    @Published private(set) var events: [RhythmsLogic.Event] = [] { didSet { homeCache = nil } }
+    @Published private(set) var settings = Settings() { didSet { homeCache = nil } }
 
     private let keepDays = 120, maxEvents = 6000
     private let defaults = UserDefaults.standard
@@ -193,6 +193,17 @@ final class Learning: ObservableObject {
         let findings: [WholeYou.Finding]
         let offer: RhythmsLogic.Routine?
     }
+
+    /// Home's copy of the analysis, worked out at most every 30 seconds: Home reads it while drawing, so what's learned
+    /// shows the moment Home appears instead of depending on a task having run.
+    private var homeCache: (at: Date, value: Analysis)?
+    @MainActor func analysisForHome(store: AppStore) -> Analysis {
+        if let c = homeCache, Date().timeIntervalSince(c.at) < 30 { return c.value }
+        let a = analyze(store: store)
+        homeCache = (Date(), a)
+        return a
+    }
+    func forgetHomeCache() { homeCache = nil }
 
     @MainActor func analyze(store: AppStore) -> Analysis {
         let ev = allEvents()

@@ -298,8 +298,7 @@ final class WalkRecorder: NSObject, ObservableObject, CLLocationManagerDelegate 
 
     /// The Lock Screen card: time walking (counts up), distance and steps, the plan's phase.
     private func liveState() -> HolyStepsActivityAttributes.ContentState {
-        let miles = distanceM / 1609.344
-        let detail = String(format: "%.2f mi", miles) + " · " + tr("\(steps.formatted()) steps")
+        let detail = "\(milesText(distanceM)) \(distanceUnitShort) · " + tr("\(steps.formatted()) steps")
         let phase = cursor.1.map { tr($0.kind.rawValue) } ?? tr("Walking")
         let total = plan.phases.reduce(0) { $0 + $1.seconds }
         return .init(headline: phase, detail: detail, endsAt: nil,
@@ -316,7 +315,7 @@ final class WalkRecorder: NSObject, ObservableObject, CLLocationManagerDelegate 
                            kcal: Int(kcal.rounded()), route: route)
         if activeSec >= 60 { WalkStore.shared.add(r); ActivityLog.shared.add(.walk) }
         finished = r
-        LiveActivities.end(.init(headline: tr("Walk complete"), detail: String(format: "%.2f mi", Double(r.distanceM) / 1609.344) + " · " + tr("\(r.steps.formatted()) steps"),
+        LiveActivities.end(.init(headline: tr("Walk complete"), detail: "\(milesText(Double(r.distanceM))) \(distanceUnitShort) · " + tr("\(r.steps.formatted()) steps"),
                                  endsAt: nil, since: nil, progress: 1, paused: false))
     }
 
@@ -335,12 +334,16 @@ final class WalkRecorder: NSObject, ObservableObject, CLLocationManagerDelegate 
 
 // MARK: - Screens
 
-func milesText(_ m: Double) -> String { String(format: "%.2f", m / 1609.344) }
+/// Profile › Distance Units (Android's DistanceUnit): miles unless kilometers were chosen.
+var usesKm: Bool { UserDefaults.standard.string(forKey: "distanceUnit") == "km" }
+var distanceUnitShort: String { usesKm ? "km" : "mi" }
+/// The distance in the chosen unit, two decimals (the name is kept from when it was miles only).
+func milesText(_ m: Double) -> String { String(format: "%.2f", m / (usesKm ? 1000 : 1609.344)) }
 func clock(_ s: Int) -> String { s >= 3600 ? String(format: "%d:%02d:%02d", s / 3600, s / 60 % 60, s % 60) : String(format: "%d:%02d", s / 60, s % 60) }
 func paceText(_ kmh: Double?) -> String {
     guard let kmh, kmh > 0.5 else { return "—" }
-    let minPerMile = 60 / (kmh / 1.609344)
-    return String(format: "%d:%02d", Int(minPerMile), Int((minPerMile - floor(minPerMile)) * 60))
+    let minPer = 60 / (usesKm ? kmh : kmh / 1.609344)
+    return String(format: "%d:%02d", Int(minPer), Int((minPer - floor(minPer)) * 60))
 }
 
 /// Start a Walk: outdoor or indoor, a plan, warm-up and cool-down, then the live screen.
@@ -436,8 +439,8 @@ struct WalkRecordingView: View {
                 T(walkCoachLine(cur.1, rec.band)).font(.hs(14)).foregroundStyle(HS.text).multilineTextAlignment(.center)
                 HStack {
                     tile("Time", clock(rec.activeSec), "")
-                    tile("Distance", milesText(rec.distanceM), "mi")
-                    tile("Pace", paceText(rec.speedKmh), "min/mi")
+                    tile("Distance", milesText(rec.distanceM), distanceUnitShort)
+                    tile("Pace", paceText(rec.speedKmh), "min/\(distanceUnitShort)")
                 }
                 HStack {
                     tile("Steps", rec.steps.formatted(), "")
@@ -488,7 +491,7 @@ struct WalkSummaryView: View {
                     WalkMapView(route: record.route, follow: false).frame(height: 260).clipShape(RoundedRectangle(cornerRadius: 18))
                 }
                 HStack(spacing: 10) {
-                    stat(milesText(Double(record.distanceM)), "mi")
+                    stat(milesText(Double(record.distanceM)), distanceUnitShort)
                     stat(clock(record.activeSec), "time")
                     stat(record.steps.formatted(), "steps")
                     stat("\(record.kcal)", "kcal")
@@ -571,7 +574,7 @@ struct WalkHistoryView: View {
                             VStack(alignment: .leading, spacing: 2) {
                                 D(w.start.formatted(.dateTime.weekday(.abbreviated).month().day().hour().minute().locale(I18n.shared.locale)))
                                     .font(.hs(14, .semibold)).foregroundStyle(HS.text)
-                                D("\(milesText(Double(w.distanceM))) mi · \(clock(w.activeSec)) · \(w.steps.formatted()) \(tr("steps"))")
+                                D("\(milesText(Double(w.distanceM))) \(distanceUnitShort) · \(clock(w.activeSec)) · \(w.steps.formatted()) \(tr("steps"))")
                                     .font(.hs(12)).foregroundStyle(HS.textMuted)
                             }
                         }

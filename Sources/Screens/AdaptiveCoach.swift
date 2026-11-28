@@ -135,6 +135,8 @@ final class AdaptiveCoachModel: ObservableObject {
 
         \(AIProxy.accuracy)
         """
+        // Smart features off in Profile: nothing leaves the phone, so the plain note is shown.
+        guard UserDefaults.standard.object(forKey: "aiFeaturesOn") as? Bool ?? true else { note = fallback; return }
         loading = true
         defer { loading = false }
         if let reply = try? await AIProxy.chat(system: system, user: s) {
