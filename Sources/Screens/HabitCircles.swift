@@ -65,9 +65,14 @@ enum InviteCode {
         let a = Array("ABCDEFGHJKLMNPQRSTUVWXYZ23456789")
         return prefix + "-" + String((0..<10).map { _ in a.randomElement()! })
     }
-    /// Accepts a bare code or a holysteps.org/join link.
+    /// Accepts a bare code or an invite link: https://holysteps.org/join?c=CODE (what every QR code holds, same as
+    /// Android), holysteps://join?c=CODE, or the older https://holysteps.org/join/CODE.
     static func clean(_ s: String) -> String {
         var t = s.trimmingCharacters(in: .whitespacesAndNewlines)
+        if let comps = URLComponents(string: t), comps.scheme != nil,
+           let c = comps.queryItems?.first(where: { ["c", "code"].contains($0.name.lowercased()) })?.value, !c.isEmpty {
+            return c.trimmingCharacters(in: .whitespacesAndNewlines).uppercased()
+        }
         if let r = t.range(of: "/", options: .backwards) { t = String(t[r.upperBound...]) }
         if let q = t.range(of: "code=") { t = String(t[q.upperBound...]) }
         return t.uppercased()
@@ -81,7 +86,15 @@ enum InviteCode {
         guard !c.isEmpty, !c.contains("/"), c.count <= 40, let d = try? await Firestore.get("inviteCodes/\(c)") else { return nil }
         return (d["type"].string, d["targetId"].string)
     }
-    static func link(_ code: String) -> URL { URL(string: "https://holysteps.org/join/\(code)")! }
+    /// The join link for a code, the same format Android uses (InviteLinks.url): the server's /join page and both apps
+    /// understand it, so any phone camera that scans the QR code opens HolySteps straight to joining.
+    /// [kind] is only for codes without a prefix (safety circle, shared baby log).
+    static func link(_ code: String, kind: String? = nil) -> URL {
+        var comps = URLComponents(string: "https://holysteps.org/join")!
+        comps.queryItems = [URLQueryItem(name: "c", value: code.trimmingCharacters(in: .whitespacesAndNewlines))]
+        if let kind, !code.contains("-") { comps.queryItems?.append(URLQueryItem(name: "t", value: kind)) }
+        return comps.url ?? URL(string: "https://holysteps.org/join")!
+    }
 }
 
 enum CircleMath {
@@ -261,6 +274,8 @@ struct CirclesView: View {
             }
             row("plus.circle", "Start a circle", "Pick a habit and invite your people") { creating = true }
             row("ticket", "Join with a code", "Paste the code or link a friend sent") { joining = true }
+            ScanQRButton(label: "Scan a circle's QR code") { c in Task { _ = await model.join(code: c, displayName: store.name) } }
+                .frame(maxWidth: .infinity).padding(.top, 4)
         }
         .task { await model.load() }
         .refreshable { await model.load() }
@@ -314,6 +329,7 @@ private struct NewCircleSheet: View {
                     ShareLink(item: InviteCode.link(made.inviteCode), message: Text(tr("Join my HolySteps circle: {0}").replacingOccurrences(of: "{0}", with: made.name))) {
                         T("Share invite").font(.hs(15, .semibold)).foregroundStyle(HS.onGold).frame(maxWidth: .infinity).padding(.vertical, 13).background(Capsule().fill(HS.goldButton))
                     }
+                    ShowQRButton(code: made.inviteCode).frame(maxWidth: .infinity)
                 } else if let t = pick {
                     D(t.emoji + " " + tr(t.title)).font(.hs(17, .semibold)).foregroundStyle(HS.text)
                     T(t.blurb).font(.hs(13)).foregroundStyle(HS.textMuted)
@@ -425,6 +441,7 @@ struct CircleDetailView: View {
                         HStack { Image(systemName: "square.and.arrow.up"); D(tr("Invite (code {0})").replacingOccurrences(of: "{0}", with: circle.inviteCode)).font(.hs(14, .semibold)) }
                             .foregroundStyle(HS.gold)
                     }
+                    ShowQRButton(code: circle.inviteCode)
                     Button(role: .destructive) { confirmLeave = true } label: { T("Leave circle").font(.hs(13)).foregroundStyle(.red.opacity(0.8)) }
                     Spacer().frame(height: 60)
                 }

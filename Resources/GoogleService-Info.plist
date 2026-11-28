@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>API_KEY</key>
+	<string>AIzaSyD56Y4fV2opc7FpFaMxAf45FuWtXZfPIgE</string>
+	<key>BUNDLE_ID</key>
+	<string>com.holysteps.app</string>
+	<key>PROJECT_ID</key>
+	<string>holysteps-a0689</string>
+	<key>STORAGE_BUCKET</key>
+	<string>holysteps-a0689.appspot.com</string>
+</dict>
+</plist>

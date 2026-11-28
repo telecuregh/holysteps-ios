@@ -262,7 +262,24 @@ final class AccountStore: ObservableObject {
     func start() async {
         guard configured else { return }
         if Keychain.get("refreshToken") == nil { await signUp() }
+        // After a reinstall the Keychain still holds the refresh token but UserDefaults lost the account id, and
+        // refreshAccount() needs the id before it would ever refresh the token: get the id back from the token first.
+        else if uid == nil { _ = await token(force: true) }
         await refreshAccount()
+    }
+
+    /// The account id, signing in first when there isn't one yet (no connection at launch, or a reinstall).
+    /// Everything that writes shared data (partner link, circles, groups) asks this instead of giving up.
+    func ensureUid() async -> String? {
+        if let uid { return uid }
+        await start()
+        return uid
+    }
+
+    /// Why ensureUid() came back empty, in words for the person.
+    var notConnectedMessage: String {
+        configured ? tr("Couldn't connect — check your internet connection and try again.")
+                   : tr("This build isn't connected to HolySteps accounts. Please update the app.")
     }
 
     private func endpoint(_ base: String) -> URL? {

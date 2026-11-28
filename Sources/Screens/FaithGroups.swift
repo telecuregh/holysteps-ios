@@ -47,7 +47,7 @@ final class FaithGroupsModel: ObservableObject {
     }
 
     func create(name: String, kind: GroupKind) async {
-        guard let uid else { message = tr("Still connecting. Try again in a moment."); return }
+        guard let uid = await AccountStore.shared.ensureUid() else { message = AccountStore.shared.notConnectedMessage; return }
         let n = String(name.trimmingCharacters(in: .whitespacesAndNewlines).prefix(60)); guard !n.isEmpty else { return }
         let id = Firestore.newId(), code = InviteCode.make("FAITH")
         do {
@@ -62,7 +62,7 @@ final class FaithGroupsModel: ObservableObject {
     }
 
     func join(_ code: String) async {
-        guard let uid else { message = tr("Still connecting. Try again in a moment."); return }
+        guard let uid = await AccountStore.shared.ensureUid() else { message = AccountStore.shared.notConnectedMessage; return }
         guard let inv = await InviteCode.resolve(code), inv.type == "faithLeague" else { message = tr("That code wasn't found. Check it and try again."); return }
         do { try await Firestore.commit([.update("faithLeagues/\(inv.target)", ["joinCode": .string(InviteCode.clean(code))], unions: ["memberUids": [.string(uid)]])]) }
         catch FSError.denied { message = tr("Joining a group needs a plan."); return }
@@ -166,6 +166,7 @@ struct FaithGroupsView: View {
                     }
                     HStack {
                         Button(tr("Join with code")) { joining = true }.buttonStyle(.bordered)
+                        ScanQRButton(label: "Scan") { c in Task { await m.join(c) } }
                         GoldButton(title: "Create a group") { creating = true }
                     }
                     if !m.message.isEmpty { D(m.message).font(.hs(13)).foregroundStyle(HS.textSecondary) }
@@ -216,6 +217,7 @@ private struct GroupDetailView: View {
                     HStack {
                         D(group["inviteCode"].string).font(.system(.callout, design: .monospaced)).foregroundStyle(HS.text).textSelection(.enabled)
                         ShareLink(item: group["inviteCode"].string, message: Text(tr("Join my HolySteps group. Open Faith, then Groups, tap \"Join with code\" and enter it."))) { Image(systemName: "square.and.arrow.up") }
+                        ShowQRButton(code: group["inviteCode"].string, label: "QR")
                     }
                     GlassCard {
                         VStack(alignment: .leading, spacing: 8) {

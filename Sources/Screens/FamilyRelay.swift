@@ -161,6 +161,7 @@ struct FamilyRelayView: View {
                 }.padding(.horizontal, 20)
             }
             Button { joining = true } label: { T("Join with a code").font(.hs(14, .semibold)).foregroundStyle(HS.peach) }
+            ScanQRButton(label: "Scan a relay QR code") { c in Task { await model.join(code: c, me: store.name) } }
         }
         .padding(.top, 20)
     }
@@ -218,6 +219,7 @@ struct FamilyRelayView: View {
             ShareLink(item: InviteCode.link(r.inviteCode), message: Text(tr("Join our family's HolySteps relay: {0}").replacingOccurrences(of: "{0}", with: r.name))) {
                 D(tr("Invite (code {0})").replacingOccurrences(of: "{0}", with: r.inviteCode)).font(.hs(14, .semibold)).foregroundStyle(HS.gold)
             }.padding(.top, 8)
+            ShowQRButton(code: r.inviteCode)
             if r.createdBy != model.uid {
                 Button { Task { await model.leave(r) } } label: { T("Leave the relay").font(.hs(13)).foregroundStyle(.red.opacity(0.8)) }
             }

@@ -82,7 +82,8 @@ struct OnboardingView: View {
     @State private var step = Step.welcome
     @State private var forward = true
     @State private var gender: String?
-    @State private var persona: EngagementStore.Persona?
+    /// Everything they came for, in the order they picked it. The first pick decides which tab opens first.
+    @State private var personas: [EngagementStore.Persona] = []
     @State private var name = ""
     @State private var lifeStage: String?
     @State private var lastPeriod: Date?
@@ -146,8 +147,8 @@ struct OnboardingView: View {
         switch step {
         case .welcome: welcome
         case .persona:
-            Scaffold(title: "What brings you\nhere?", subtitle: "We'll open the app where it helps you most. Everything else is one tap away.",
-                     enabled: persona != nil, next: next) {
+            Scaffold(title: "What brings you\nhere?", subtitle: "Choose all that apply. We'll open the app at your first choice; everything else is one tap away.",
+                     enabled: !personas.isEmpty, next: next) {
                 personaCard(.cycle, "🌸", "Cycle & women's health", "Periods, fertility, pregnancy, and how you feel through every phase.")
                 personaCard(.mensHealth, "💚", "Men's health", "Screenings, fitness, and mental health built for men.")
                 personaCard(.faith, "🕊️", "Faith & prayer", "Daily devotionals, scripture, sermons, and prayer.")
@@ -370,7 +371,7 @@ struct OnboardingView: View {
         ud.set(regularity, forKey: "cycleRegularity")
         ud.set(goals, forKey: "goals")
         ud.set(reminder, forKey: "reminderTime")
-        EngagementStore.setPersona(persona ?? .unset)
+        EngagementStore.setPersonas(personas)
         TabRouter.shared.tab = EngagementStore.openingTabIndex
         ud.set(true, forKey: "onboarded")
         let r = reminder
@@ -381,10 +382,12 @@ struct OnboardingView: View {
     // MARK: Pieces
 
     private func personaCard(_ p: EngagementStore.Persona, _ emoji: String, _ title: String, _ desc: String) -> some View {
-        option(emoji, title, desc, persona == p) {
-            persona = p
-            // The choice implies who they are; pre-select it on the next step (they can still change it).
-            if p == .cycle { gender = "female" } else if p == .mensHealth { gender = "male" }
+        option(emoji, title, desc, personas.contains(p)) {
+            if let i = personas.firstIndex(of: p) { personas.remove(at: i) } else { personas.append(p) }
+            // A women's or men's pick implies who they are: pre-select it on the next step (they can still change it),
+            // but only when it's one or the other.
+            let women = personas.contains(.cycle), men = personas.contains(.mensHealth)
+            if women && !men { gender = "female" } else if men && !women { gender = "male" }
         }
     }
 

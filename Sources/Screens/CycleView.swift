@@ -46,11 +46,12 @@ struct WomensCycleView: View {
                             ItalicAccent(text: "your rhythm & season", size: 19)
                         }
                         .padding(.top, 40).padding(.horizontal, 20).padding(.bottom, 12)
-                        SubTabs(tabs: ["Today", "Plan", "Insights", "More"], selected: $tab)
+                        SubTabs(tabs: ["Today", "Plan", "Insights", "Mental Health", "More"], selected: $tab)
                         switch tab {
                         case 0: today(rhythm)
                         case 1: plan(rhythm)
                         case 2: insights(rhythm)
+                        case 3: MentalHealthTab(men: false)
                         default: more
                         }
                         Spacer().frame(height: 100)
@@ -544,8 +545,8 @@ struct MensWellnessView: View {
                             D(Date().formatted(.dateTime.weekday(.wide).locale(I18n.shared.locale))).font(.hs(13)).foregroundStyle(HS.textMuted)
                         }
                         .padding(.top, 40).padding(.horizontal, 20).padding(.bottom, 12)
-                        SubTabs(tabs: ["Today", "Plan"], selected: $tab).padding(.bottom, 16)
-                        if tab == 0 { today(phase, color) } else { plan(phase, color) }
+                        SubTabs(tabs: ["Today", "Plan", "Mental Health"], selected: $tab).padding(.bottom, 16)
+                        if tab == 0 { today(phase, color) } else if tab == 1 { plan(phase, color) } else { MentalHealthTab(men: true) }
                         CoverCard(emoji: "❤️", title: "Body basics", subtitle: "Water, health numbers, habits and medicine reminders", tint: 0x8B5CF6) { BodyBasicsView().environmentObject(store) }
                             .padding(.horizontal, 20).padding(.top, 16)
                         CoverCard(emoji: "🛡️", title: "Checkups & self-checks", subtitle: "What's due for your age, vaccines and monthly self-checks", tint: 0x8B5CF6) { CheckupsView(women: false) }

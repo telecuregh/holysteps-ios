@@ -29,7 +29,7 @@ final class CycleCirclesModel: ObservableObject {
     }
 
     func create(name: String, displayName: String) async -> Bool {
-        guard let uid else { message = tr("Still connecting. Try again in a moment."); return false }
+        guard let uid = await AccountStore.shared.ensureUid() else { message = AccountStore.shared.notConnectedMessage; return false }
         let n = String(name.trimmingCharacters(in: .whitespacesAndNewlines).prefix(120))
         guard !n.isEmpty else { return false }
         let id = Firestore.newId(), code = InviteCode.make("CIRCLE")
@@ -43,7 +43,7 @@ final class CycleCirclesModel: ObservableObject {
     }
 
     func join(code: String, displayName: String) async {
-        guard let uid else { message = tr("Still connecting. Try again in a moment."); return }
+        guard let uid = await AccountStore.shared.ensureUid() else { message = AccountStore.shared.notConnectedMessage; return }
         guard let inv = await InviteCode.resolve(code), inv.type == "cycleCircle" else { message = tr("That code wasn't found. Check it and try again."); return }
         do {
             try await Firestore.commit([.update("cycleCircles/\(inv.target)", ["joinCode": .string(InviteCode.clean(code))],
@@ -128,6 +128,7 @@ struct CycleCirclesView: View {
                         Button(tr("Join with code")) { joining = true }.buttonStyle(.bordered)
                         GoldButton(title: "Start a circle") { creating = true }
                     }
+                    ScanQRButton(label: "Scan a circle's QR code") { c in Task { await m.join(code: c, displayName: store.name) } }
                     if !m.message.isEmpty { D(m.message).font(.hs(13)).foregroundStyle(HS.textSecondary) }
                     T(CircleSafety.rules).font(.hs(11)).foregroundStyle(HS.textMuted)
                 }.padding(20)
@@ -170,6 +171,7 @@ private struct CircleFeedView: View {
                             ShareLink(item: code, message: Text(tr("Join my HolySteps Cycle Circle. Open Cycle, then Cycle Circles, tap \"Join with code\" and enter it."))) {
                                 Image(systemName: "square.and.arrow.up")
                             }
+                            ShowQRButton(code: code, label: "QR")
                         }
                     }
                     GlassCard {

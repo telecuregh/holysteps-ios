@@ -107,7 +107,7 @@ final class PartnerCoachingModel: ObservableObject {
     }
 
     func invite(name: String) async {
-        guard let uid = AccountStore.shared.uid else { notice = tr("Still connecting. Try again in a moment."); return }
+        guard let uid = await AccountStore.shared.ensureUid() else { notice = AccountStore.shared.notConnectedMessage; return }
         let id = Firestore.newId(), code = InviteCode.make("LINK"), now = Firestore.nowMs
         do {
             try await Firestore.commit([.set("partnerLinks/\(id)", [
@@ -120,8 +120,8 @@ final class PartnerCoachingModel: ObservableObject {
     }
 
     func accept(_ input: String, name: String) async {
-        guard let uid = AccountStore.shared.uid else { notice = tr("Still connecting. Try again in a moment."); return }
-        guard let (code, secret) = PairCrypto.split(input, prefix: "LINK") else {
+        guard let uid = await AccountStore.shared.ensureUid() else { notice = AccountStore.shared.notConnectedMessage; return }
+        guard let (code, secret) = PairCrypto.split(InviteCode.clean(input), prefix: "LINK") else {
             notice = tr("That code isn't complete. Ask your partner to send the whole code again."); return
         }
         guard let inv = await InviteCode.resolve(code), inv.type == "partnerLink" else { notice = tr("That code wasn't found. Check it and try again."); return }
@@ -248,6 +248,7 @@ struct PartnerCoachingView: View {
                     .font(.hs(13)).foregroundStyle(HS.textSecondary).multilineTextAlignment(.center)
                 HStack {
                     Button(tr("I have a code")) { askCode = true }.foregroundStyle(HS.readable(0xA78BFA))
+                    ScanQRButton(label: "Scan") { c in Task { await m.accept(c, name: store.name) } }
                     if store.gender != "male" {
                         GoldButton(title: "Invite my partner") { Task { await m.invite(name: store.name) } }
                     }
@@ -279,6 +280,7 @@ struct PartnerCoachingView: View {
                             ShareLink(item: inv, message: Text(tr("Here's my HolySteps partner code. Open HolySteps, go to Partner coaching, tap \"I have a code\" and enter it."))) {
                                 Label(tr("Share code"), systemImage: "square.and.arrow.up")
                             }
+                            ShowQRButton(code: inv, label: "Show QR code to scan")
                         } else {
                             T("This invitation was made on another phone. Revoke it and invite again from here.").font(.hs(12)).foregroundStyle(HS.textMuted)
                         }
