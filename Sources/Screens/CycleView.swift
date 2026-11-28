@@ -380,16 +380,16 @@ struct WomensCycleView: View {
         ] : []) + [
             ToolItem(symbol: "heart", color: HS.cycle, title: "Mood and tests", sub: "A daily mood scale and a pregnancy-test log", destination: AnyView(CycleMoodTestsView())),
             ToolItem(symbol: "checklist", color: Color(hex: 0xF9A8D4), title: "Medicines & supplements", sub: "Reminders for pills, vitamins and supplements",
-                     destination: AnyView(BodyBasicsView().environmentObject(store))),
+                     destination: AnyView(BodyBasicsView(part: .medicines).environmentObject(store))),
         ], visible: 8)
         Spacer().frame(height: 14)
         ToolSection(title: "Body and health", items: [
             ToolItem(symbol: "cross.case", color: HS.cycle, title: "Checkups & self-checks", sub: "Screenings and vaccines for your age", badge: "New",
                      destination: AnyView(CheckupsView(women: true))),
             ToolItem(symbol: "heart.text.square", color: HS.cycle, title: "Know your numbers", sub: "Blood pressure, weight and check-ups",
-                     destination: AnyView(BodyBasicsView().environmentObject(store))),
-            ToolItem(symbol: "fork.knife", color: HS.body, title: "Food & water", sub: "Water, protein and real food", destination: AnyView(BodyBasicsView().environmentObject(store))),
-            ToolItem(symbol: "checklist", color: HS.faith, title: "Habits", sub: "Drinks, caffeine, screens and smoking", destination: AnyView(BodyBasicsView().environmentObject(store))),
+                     destination: AnyView(BodyBasicsView(part: .numbers).environmentObject(store))),
+            ToolItem(symbol: "fork.knife", color: HS.body, title: "Food & water", sub: "Water, protein and real food", destination: AnyView(BodyBasicsView(part: .food).environmentObject(store))),
+            ToolItem(symbol: "checklist", color: HS.faith, title: "Habits", sub: "Drinks, caffeine, screens and smoking", destination: AnyView(BodyBasicsView(part: .habits).environmentObject(store))),
         ])
         Spacer().frame(height: 14)
         ToolSection(title: "Support", items: (showPartner ? [
@@ -556,10 +556,19 @@ struct MensWellnessView: View {
                         if tab == 0 { today(phase, color) } else if tab == 2 { plan(phase, color) } else if tab == 3 { MentalHealthTab(men: true) }
                         if tab == 1 {
                         MensTabSectionHeader(emoji: "📋", title: "Track your body", subtitle: "Water, numbers, habits, medicines and check-ups")
-                        CoverCard(emoji: "❤️", title: "Body basics", subtitle: "Water, health numbers, habits and medicine reminders", tint: 0x8B5CF6) { BodyBasicsView().environmentObject(store) }
+                        // Android's "Track your body", one screen each.
+                        CoverCard(emoji: "💧", title: "Food & water", subtitle: "Water, protein and real food", tint: 0x8B5CF6) { BodyBasicsView(part: .food).environmentObject(store) }
                             .padding(.horizontal, 20).padding(.top, 16)
+                        CoverCard(emoji: "🏋️", title: "Strength log", subtitle: "Sets, reps and your next target", tint: 0x8B5CF6) { StrengthLogView() }
+                            .padding(.horizontal, 20).padding(.top, 12)
                         CoverCard(emoji: "🛡️", title: "Checkups & self-checks", subtitle: "What's due for your age, vaccines and monthly self-checks", tint: 0x8B5CF6) { CheckupsView(women: false) }
-                            .padding(.horizontal, 20).padding(.top, 16)
+                            .padding(.horizontal, 20).padding(.top, 12)
+                        CoverCard(emoji: "📋", title: "Know your numbers", subtitle: "Blood pressure, weight and check-ups", tint: 0x8B5CF6) { BodyBasicsView(part: .numbers).environmentObject(store) }
+                            .padding(.horizontal, 20).padding(.top, 12)
+                        CoverCard(emoji: "🍷", title: "Habits", subtitle: "Drinks, caffeine, screens and smoking", tint: 0x8B5CF6) { BodyBasicsView(part: .habits).environmentObject(store) }
+                            .padding(.horizontal, 20).padding(.top, 12)
+                        CoverCard(emoji: "💊", title: "Medicines & supplements", subtitle: "Private reminders for pills and vitamins", tint: 0x8B5CF6) { BodyBasicsView(part: .medicines).environmentObject(store) }
+                            .padding(.horizontal, 20).padding(.top, 12)
                         CoverCard(emoji: "🧠", title: "Mood check-in", subtitle: "A private 1-minute check, with 988 one tap away", tint: 0xA78BFA) { MoodCheckView() }
                             .padding(.horizontal, 20).padding(.top, 12)
                         CoverCard(emoji: "📊", title: "About you", subtitle: "What all of it says about you", tint: 0x38BDF8) { AboutYouView().environmentObject(store) }

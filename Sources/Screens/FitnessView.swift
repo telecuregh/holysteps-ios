@@ -324,6 +324,7 @@ struct FitnessView: View {
                 ToolItem(symbol: "map", color: HS.faith, title: "Prayer Walk Map", sub: "Pray for each place you pass", destination: AnyView(PrayerWalkMapView())),
                 ToolItem(symbol: "figure.strengthtraining.traditional", color: HS.body, title: "Workouts", sub: "\(Coach.routines.count - 1) guided sessions with a coach's voice",
                          destination: AnyView(WorkoutLibraryView())),
+                ToolItem(symbol: "dumbbell", color: HS.body, title: "Strength log", sub: "Sets, reps and your next target", destination: AnyView(StrengthLogView())),
                 ToolItem(symbol: "plus", color: HS.mind, title: "Log a Walk", sub: "Walked without your phone? Add it", action: { showManual = true }),
                 ToolItem(symbol: "bolt", color: HS.peach, title: "Body energy", sub: "How ready your body is today",
                          destination: AnyView(Gated(feature: .bodyEnergy) { BodyEnergyView() })),

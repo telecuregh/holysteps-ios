@@ -221,6 +221,9 @@ struct HealthImportButton: View {
 // MARK: - Screen
 
 struct BodyBasicsView: View {
+    /// One part on its own (Android has a screen for each); nil shows all four.
+    enum Part { case food, numbers, habits, medicines }
+    var part: Part? = nil
     @EnvironmentObject var store: AppStore
     @ObservedObject private var b = BodyStore.shared
     @ObservedObject private var meds = Medicines.shared
@@ -238,9 +241,10 @@ struct BodyBasicsView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 12) {
                     T("❤️ BODY").font(.hs(12, .bold)).foregroundStyle(HS.readable(0xF472B6))
-                    T("Body basics").font(.hs(24)).foregroundStyle(HS.text)
-                    T("Water, food, your health numbers, habits and medicine reminders. Information, not a diagnosis.").font(.hs(13)).foregroundStyle(HS.textSecondary)
+                    T(heading).font(.hs(24)).foregroundStyle(HS.text)
+                    T(intro).font(.hs(13)).foregroundStyle(HS.textSecondary)
 
+                    if show(.food) {
                     GlassCard {
                         VStack(alignment: .leading, spacing: 10) {
                             T("💧 Food & water today").font(.hs(15, .bold)).foregroundStyle(HS.text)
@@ -249,7 +253,9 @@ struct BodyBasicsView: View {
                             T("Most adults do well with water through the day, a palm of protein at each meal, and half the plate vegetables and fruit (MyPlate).").font(.hs(11)).foregroundStyle(HS.textMuted)
                         }
                     }
+                    }
 
+                    if show(.numbers) {
                     GlassCard {
                         VStack(alignment: .leading, spacing: 10) {
                             T("📋 Know your numbers").font(.hs(15, .bold)).foregroundStyle(HS.text)
@@ -281,7 +287,9 @@ struct BodyBasicsView: View {
                             T("Ranges from the American Heart Association, the ADA and NIH. Your doctor knows your full picture.").font(.hs(10)).foregroundStyle(HS.textSubtle)
                         }
                     }
+                    }
 
+                    if show(.habits) {
                     GlassCard {
                         VStack(alignment: .leading, spacing: 8) {
                             T("🍷 Habits today").font(.hs(15, .bold)).foregroundStyle(HS.text)
@@ -293,7 +301,9 @@ struct BodyBasicsView: View {
                             T("Want to quit smoking or vaping? Call 1-800-QUIT-NOW (free).").font(.hs(10)).foregroundStyle(HS.textSubtle)
                         }
                     }
+                    }
 
+                    if show(.medicines) {
                     GlassCard {
                         VStack(alignment: .leading, spacing: 10) {
                             HStack {
@@ -321,10 +331,33 @@ struct BodyBasicsView: View {
                             T("Reminders never show the medicine's name on the lock screen. Ask your pharmacist before changing how you take a medicine.").font(.hs(10)).foregroundStyle(HS.textSubtle)
                         }
                     }
+                    }
                 }.padding(20)
             }
         }
         .sheet(item: $editing) { m in MedicineEditor(med: m) { editing = nil } }
+    }
+
+    private func show(_ p: Part) -> Bool { part == nil || part == p }
+
+    private var heading: String {
+        switch part {
+        case .food: "Food & water"
+        case .numbers: "Know your numbers"
+        case .habits: "Habits"
+        case .medicines: "Medicines & supplements"
+        case nil: "Body basics"
+        }
+    }
+
+    private var intro: String {
+        switch part {
+        case .food: "Water, protein and real food, today. Information, not a diagnosis."
+        case .numbers: "Blood pressure, weight and your other health numbers, with the usual ranges. Information, not a diagnosis."
+        case .habits: "Drinks, caffeine, screens and smoking, today."
+        case .medicines: "Private reminders for pills, vitamins and supplements."
+        case nil: "Water, food, your health numbers, habits and medicine reminders. Information, not a diagnosis."
+        }
     }
 
     private func stepper(_ label: String, _ v: Int, _ unit: String, _ change: @escaping (Int) -> Void) -> some View {
