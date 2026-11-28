@@ -64,7 +64,7 @@ final class ReadingTogetherModel: ObservableObject {
             try await Firestore.commit([.set("readingGroups/\(id)/members/\(uid)", ["displayName": .string(String(displayName.prefix(160))), "joinedAt": .int(now), "done": .array([]), "updatedAt": .int(now)])])
             try await InviteCode.register(code, type: "readingGroup", target: id, uid: uid)
         } catch FSError.denied { message = tr("Starting a reading group needs a plan."); return }
-        catch { message = tr("Couldn't start the group. Check your connection and try again."); return }
+        catch { message = error.togetherText(tr("Couldn't start the group. Check your connection and try again.")); return }
         await load()
     }
 
@@ -78,7 +78,7 @@ final class ReadingTogetherModel: ObservableObject {
             try await Firestore.commit([.set("readingGroups/\(inv.target)/members/\(uid)", ["displayName": .string(String(displayName.prefix(160))),
                 "joinedAt": .int(old.map { $0["joinedAt"].int } ?? now), "done": .array(old?["done"].array ?? []), "updatedAt": .int(now)])])
         } catch FSError.denied { message = tr("Joining a reading group needs a plan."); return }
-        catch { message = tr("Couldn't join. Check your connection and try again."); return }
+        catch { message = error.togetherText(tr("Couldn't join. Check your connection and try again."), denied: TogetherText.codeRefused); return }
         await load()
     }
 

@@ -116,7 +116,7 @@ final class PartnerCoachingModel: ObservableObject {
             try await InviteCode.register(code, type: "partnerLink", target: id, uid: uid)
             PairKeys.put(id, PairCrypto.newSecret())
             await load()
-        } catch { notice = tr("Couldn't create the invitation. Check your connection and try again.") }
+        } catch { notice = error.togetherText(tr("Couldn't create the invitation. Check your connection and try again.")) }
     }
 
     func accept(_ input: String, name: String) async {

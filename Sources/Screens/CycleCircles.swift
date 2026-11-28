@@ -38,7 +38,7 @@ final class CycleCirclesModel: ObservableObject {
                 "name": .string(n), "memberUids": .array([.string(uid)]), "memberNames": .array([.string(String(displayName.prefix(100)))]),
                 "inviteCode": .string(code), "moderatorUid": .string(uid), "createdAt": .int(Firestore.nowMs)], mustNotExist: true)])
             try await InviteCode.register(code, type: "cycleCircle", target: id, uid: uid)
-        } catch { message = tr("Couldn't start the circle. Check your connection and try again."); return false }
+        } catch { message = error.togetherText(tr("Couldn't start the circle. Check your connection and try again.")); return false }
         await load(); return true
     }
 
@@ -49,7 +49,7 @@ final class CycleCirclesModel: ObservableObject {
             try await Firestore.commit([.update("cycleCircles/\(inv.target)", ["joinCode": .string(InviteCode.clean(code))],
                                                 unions: ["memberUids": [.string(uid)], "memberNames": [.string(String(displayName.prefix(100)))]])])
         } catch FSError.denied { message = tr("That circle is full (12 members), or joining it needs a plan."); return }
-        catch { message = tr("Couldn't join. Check your connection and try again."); return }
+        catch { message = error.togetherText(tr("Couldn't join. Check your connection and try again."), denied: TogetherText.codeRefused); return }
         await load()
     }
 
@@ -67,7 +67,7 @@ final class CycleCirclesModel: ObservableObject {
             try await Firestore.commit([.set("cycleCircles/\(circle)/posts/\(Firestore.newId())", [
                 "authorUid": .string(uid), "authorName": .string(anonymous ? "A member" : String(name.prefix(100))), "text": .string(t),
                 "createdAt": .int(Firestore.nowMs), "flagged": .bool(CircleSafety.needsFlag(t)), "hidden": .bool(false)], mustNotExist: true)])
-        } catch { message = tr("Couldn't post. Check your connection and try again."); return false }
+        } catch { message = error.togetherText(tr("Couldn't post. Check your connection and try again."), denied: tr("Couldn't post in this circle.")); return false }
         await loadPosts(circle); return true
     }
 

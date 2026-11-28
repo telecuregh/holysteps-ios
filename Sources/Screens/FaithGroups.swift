@@ -57,7 +57,7 @@ final class FaithGroupsModel: ObservableObject {
                 "missionName": .string(""), "missionKm": .int(0), "missionWhy": .string(""), "missionStart": .string("")], mustNotExist: true)])
             try await InviteCode.register(code, type: "faithLeague", target: id, uid: uid)
         } catch FSError.denied { message = tr("Starting a group needs a plan."); return }
-        catch { message = tr("Couldn't create the group. Check your connection and try again."); return }
+        catch { message = error.togetherText(tr("Couldn't create the group. Check your connection and try again.")); return }
         await load()
     }
 
@@ -66,7 +66,7 @@ final class FaithGroupsModel: ObservableObject {
         guard let inv = await InviteCode.resolve(code), inv.type == "faithLeague" else { message = tr("That code wasn't found. Check it and try again."); return }
         do { try await Firestore.commit([.update("faithLeagues/\(inv.target)", ["joinCode": .string(InviteCode.clean(code))], unions: ["memberUids": [.string(uid)]])]) }
         catch FSError.denied { message = tr("Joining a group needs a plan."); return }
-        catch { message = tr("Couldn't join. Check your connection and try again."); return }
+        catch { message = error.togetherText(tr("Couldn't join. Check your connection and try again."), denied: TogetherText.codeRefused); return }
         await load()
     }
 
@@ -75,7 +75,7 @@ final class FaithGroupsModel: ObservableObject {
         try? await Firestore.commit([.delete("faithLeagues/\(g.id)/weeklyStats/\(uid)")])
         try? await Firestore.commit([.delete("faithLeagues/\(g.id)/missionSteps/\(uid)")])
         do { try await Firestore.commit([.update("faithLeagues/\(g.id)", ["memberUids": .array(g["memberUids"].array.filter { $0.string != uid })])]) }
-        catch { message = tr("Couldn't leave. Check your connection and try again.") }
+        catch { message = error.togetherText(tr("Couldn't leave. Check your connection and try again."), denied: tr("Couldn't leave this group.")) }
         await load()
     }
 

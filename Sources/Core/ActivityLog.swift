@@ -19,6 +19,8 @@ final class ActivityLog: ObservableObject {
     }
 
     func add(_ e: Event, on date: Date = Date()) {
+        // What was done, and when, teaches Home's "For you" the person's routines (Learning, on this phone only).
+        Learning.shared.record(e)
         let k = AppStore.dayKey(date)
         var list = days[k] ?? []
         guard !list.contains(e.rawValue) else { return }

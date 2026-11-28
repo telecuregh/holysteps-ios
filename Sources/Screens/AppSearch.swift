@@ -24,6 +24,7 @@ struct AppFeature: Identifiable {
             AppFeature(title: "Sermons library", symbol: "mic", words: "sermon library all", target: .view { AnyView(SermonLibraryView()) }),
             AppFeature(title: "Sermons for what you're facing", symbol: "mic", words: "sermon grief anxiety fear facing topic", target: .view { AnyView(SermonTopicsView()) }),
             AppFeature(title: "True stories", symbol: "heart.text.square", words: "true story stories hope came through testimony", target: .view { AnyView(TrueStoriesView()) }),
+            AppFeature(title: "About you", symbol: "person.text.rectangle", words: "about you learned patterns routines rhythms insights habits", target: .view { AnyView(AboutYouView()) }),
             AppFeature(title: "Sermons through the Bible", symbol: "mic", words: "sermon book bible season", target: .view { AnyView(BibleSermonsView()) }),
             AppFeature(title: "Hymns", symbol: "music.note", words: "hymn music song", target: .view { AnyView(MusicView(tab: 1)) }),
             AppFeature(title: "Gospel songs", symbol: "music.note", words: "gospel worship music song my music", target: .view { AnyView(MusicView(tab: 0)) }),
@@ -106,9 +107,9 @@ struct AppSearchView: View {
             T(f.title).font(.hs(15)).foregroundStyle(HS.text)
         }
         switch f.target {
-        case .view(let make): NavigationLink { make() } label: { label }
-        case .sleep: Button { sleep = true } label: { label }
-        case .tab(let t, let faith): Button { router.open(tab: t, faith: faith); dismiss() } label: { label }
+        case .view(let make): NavigationLink { make().onAppear { Learning.shared.recordOpen(f.title) } } label: { label }
+        case .sleep: Button { Learning.shared.recordOpen(f.title); sleep = true } label: { label }
+        case .tab(let t, let faith): Button { Learning.shared.recordOpen(f.title); router.open(tab: t, faith: faith); dismiss() } label: { label }
         }
     }
 }

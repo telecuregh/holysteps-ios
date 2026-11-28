@@ -154,3 +154,23 @@ enum Firestore {
 
     static var nowMs: Int64 { Int64(Date().timeIntervalSince1970 * 1000) }
 }
+
+extension Error {
+    /// What to tell the person when a shared write (partner link, circle, group) fails. Only a real network failure
+    /// says "check your connection": a rule that refused it says why, so nobody is sent chasing their Wi-Fi.
+    func togetherText(_ offline: String, denied: String = TogetherText.planNeeded) -> String {
+        switch self as? FSError {
+        case .denied: return denied
+        case .notSignedIn: return AccountStore.shared.notConnectedMessage
+        case .failed(let code): return tr("HolySteps couldn't save that right now (error {0}). Try again in a moment.").replacingOccurrences(of: "{0}", with: "\(code)")
+        case nil: return offline
+        }
+    }
+}
+
+enum TogetherText {
+    static var planNeeded: String {
+        tr("Starting this needs a HolySteps plan on this iPhone's account. Open Profile → Plans to start one or redeem a code.")
+    }
+    static var codeRefused: String { tr("That code didn't work. Check it, or ask them for a new one.") }
+}

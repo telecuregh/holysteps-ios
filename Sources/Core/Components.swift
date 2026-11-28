@@ -279,7 +279,7 @@ struct ToolTile: View {
 
     var body: some View {
         if let d = item.destination {
-            NavigationLink { d } label: { face }.buttonStyle(.plain)
+            NavigationLink { d.onAppear { Learning.shared.recordOpen(item.title) } } label: { face }.buttonStyle(.plain)
         } else {
             Button { item.action?() } label: { face }.buttonStyle(.plain)
         }

@@ -15,6 +15,9 @@ struct HomeView: View {
     @ObservedObject private var router = TabRouter.shared
     @ObservedObject private var devState = DevotionalState.shared
     @ObservedObject private var checkIns = CheckInStore.shared
+    @ObservedObject private var learning = Learning.shared
+    @State private var learned: Learning.Analysis?
+    @State private var showCheckIn = false
     @State private var showSearch = false
     @State private var showVerseImage = false
     @State private var showNotifications = false
@@ -26,6 +29,7 @@ struct HomeView: View {
 
     enum HomeRoute: Hashable, Identifiable {
         case sleep, recap, prayer, journal, quiz, calmCheck, walk, memory, devotional, sanctuary, faithCoach, circles, season(String), bible(String?, Int?, Int?)
+        case feature(String), aboutYou
         var id: String { "\(self)" }
     }
 
@@ -43,6 +47,7 @@ struct HomeView: View {
                 VStack(alignment: .leading, spacing: 16) {
                     hero
                     nextUp.padding(.horizontal, 16)
+                    forYou.padding(.horizontal, 16)
                     SeasonHomeCard { route = .season($0.id) }.padding(.horizontal, 16)
                     rings.padding(.horizontal, 16)
                     dailyPlanCard.padding(.horizontal, 16)
@@ -76,6 +81,9 @@ struct HomeView: View {
                         case .circles: CirclesView()
                         case .season(let id): if let w = SeasonWalks.all.first(where: { $0.id == id }) { SeasonWalkView(walk: w) }
                         case .bible(let b, let c, let v): BibleReaderView(startBook: b, startCh: c, startVerse: v)
+                        case .feature(let title):
+                            if let f = AppFeature.all(gender: store.gender).first(where: { $0.title == title }), case .view(let make) = f.target { make() }
+                        case .aboutYou: AboutYouView()
                         }
                     }
                     .toolbar {
@@ -93,12 +101,16 @@ struct HomeView: View {
             .sheet(isPresented: $showVerseImage) { VerseImageView(card: verseCardData) }
             .sheet(isPresented: $showNotifications) { NotificationsView() }
             .sheet(isPresented: $showGoal) { StepGoalSheet() }
+            .sheet(isPresented: $showCheckIn) { CheckInSheet() }
             .fullScreenCover(item: $playing) { s in SermonPlayerView(sermon: s) }
             .task {
                 await inbox.refresh()
                 await steps.refresh()
                 week.refresh(store: store, stepsToday: steps.today)
+                learned = learning.analyze(store: store)
             }
+            .onChange(of: learning.events.count) { learned = learning.analyze(store: store) }
+            .onChange(of: checkIns.all.count) { learned = learning.analyze(store: store) }
             .onChange(of: log.days) { week.refresh(store: store, stepsToday: steps.today) }
             .onChange(of: steps.today) { week.refresh(store: store, stepsToday: steps.today) }
             .onChange(of: store.journal.count) { week.refresh(store: store, stepsToday: steps.today) }
@@ -189,6 +201,115 @@ struct HomeView: View {
                 FirstWeekCard(day: day) { go(firstWeek: $0) }
                 if day == 7 { FreeWeekPanel() }
             }
+        }
+    }
+
+    // MARK: For you
+
+    /// What HolySteps has learned about this person (Learning, on this phone only), kept to one small block:
+    /// up to three things they usually do about now, the strongest pattern in their own days, and a reminder offer.
+    /// Until there's enough to go on, how far along the learning is and a 10-second check-in to teach it.
+    @ViewBuilder private var forYou: some View {
+        if let a = learned, a.on {
+            let labels = Learning.labels(gender: store.gender)
+            let finding = a.findings.first
+            VStack(alignment: .leading, spacing: 10) {
+                HStack {
+                    T(a.now.isEmpty ? "For you" : "For you now").font(.hs(16, .bold)).foregroundStyle(HS.text).accessibilityAddTraits(.isHeader)
+                    Spacer()
+                    Button { route = .aboutYou } label: { T("About you ›").font(.hs(12, .semibold)).foregroundStyle(HS.faith) }
+                }
+                if !a.now.isEmpty {
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 8) {
+                            ForEach(a.now, id: \.id) { r in
+                                if let l = labels[r.key] {
+                                    Button { openLearned(r.key) } label: {
+                                        VStack(alignment: .leading, spacing: 3) {
+                                            HStack(spacing: 6) {
+                                                Image(systemName: l.symbol).foregroundStyle(HS.mind)
+                                                T(l.title).font(.hs(14, .semibold)).foregroundStyle(HS.text).lineLimit(1)
+                                            }
+                                            D(tr("Usually") + " " + RhythmsLogic.clock(r.minute)).font(.hs(11)).foregroundStyle(HS.textMuted)
+                                        }
+                                        .padding(12).frame(minWidth: 132, alignment: .leading)
+                                        .background(RoundedRectangle(cornerRadius: 14).fill(HS.mind.opacity(0.14)))
+                                        .overlay(RoundedRectangle(cornerRadius: 14).strokeBorder(HS.mind.opacity(0.35)))
+                                    }
+                                    .buttonStyle(.plain)
+                                }
+                            }
+                        }
+                    }
+                }
+                if let f = finding {
+                    Button { route = .aboutYou } label: {
+                        GlassCard {
+                            VStack(alignment: .leading, spacing: 4) {
+                                D(tr("WHAT YOUR DAYS SHOW") + " · " + tr(f.confidence.label).uppercased()).font(.hs(10, .semibold)).tracking(1).foregroundStyle(HS.faith)
+                                D(f.emoji + " " + tr(f.title)).font(.hs(15, .semibold)).foregroundStyle(HS.text).multilineTextAlignment(.leading)
+                                D(tr(f.detail)).font(.hs(13)).foregroundStyle(HS.textSecondary).lineLimit(3).multilineTextAlignment(.leading)
+                                if let tip = f.suggestion { D(tr("Try:") + " " + tr(tip)).font(.hs(13)).foregroundStyle(HS.text).multilineTextAlignment(.leading) }
+                                T("Learned on this phone only · see everything ›").font(.hs(11)).foregroundStyle(HS.textMuted)
+                            }
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                        }
+                    }
+                    .buttonStyle(.plain)
+                } else if a.offer == nil && a.now.isEmpty {
+                    GlassCard {
+                        VStack(alignment: .leading, spacing: 8) {
+                            T("✨ Getting to know you").font(.hs(15, .semibold)).foregroundStyle(HS.text)
+                            D(a.daysLearned <= 1
+                              ? tr("Use HolySteps as you normally do and check in once a day. In about a week, what helps you, your routines and your best times show up right here.")
+                              : tr("Day {0} of learning. Keep checking in: the more days it sees, the more it can tell you about what helps you.")
+                                .replacingOccurrences(of: "{0}", with: "\(a.daysLearned)"))
+                                .font(.hs(13)).foregroundStyle(HS.textSecondary)
+                            HStack(spacing: 10) {
+                                Button { showCheckIn = true } label: {
+                                    T("Check in (10 sec)").font(.hs(14, .semibold)).foregroundStyle(.white)
+                                        .padding(.horizontal, 14).padding(.vertical, 9)
+                                        .background(RoundedRectangle(cornerRadius: 12).fill(HS.mind))
+                                }
+                                Button { route = .aboutYou } label: { T("About you").font(.hs(14)).foregroundStyle(HS.faith) }
+                            }
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+                }
+                if let r = a.offer, let l = labels[r.key] {
+                    GlassCard {
+                        VStack(alignment: .leading, spacing: 8) {
+                            D("🔔 " + tr(l.title)).font(.hs(14, .semibold)).foregroundStyle(HS.text)
+                            D(tr("You've done this around {0} on {1} of the last 28 days. Want a gentle reminder then?")
+                                .replacingOccurrences(of: "{0}", with: RhythmsLogic.clock(r.minute)).replacingOccurrences(of: "{1}", with: "\(r.days)"))
+                                .font(.hs(13)).foregroundStyle(HS.textSecondary)
+                            HStack(spacing: 10) {
+                                Button { learning.remind(r, title: l.title); learned = learning.analyze(store: store) } label: {
+                                    T("Yes, remind me").font(.hs(14, .semibold)).foregroundStyle(.white)
+                                        .padding(.horizontal, 14).padding(.vertical, 9)
+                                        .background(RoundedRectangle(cornerRadius: 12).fill(HS.mind))
+                                }
+                                Button { learning.decline(r.id); learned = learning.analyze(store: store) } label: { T("No thanks").font(.hs(14)).foregroundStyle(HS.textMuted) }
+                            }
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+                }
+            }
+        }
+    }
+
+    /// Opens a learned shortcut the way search would.
+    private func openLearned(_ key: String) {
+        if key == "move:walk" { route = .walk; return }
+        let title = String(key.dropFirst("open:".count))
+        Learning.shared.recordOpen(title)
+        guard let f = AppFeature.all(gender: store.gender).first(where: { $0.title == title }) else { return }
+        switch f.target {
+        case .tab(let t, let faith): router.open(tab: t, faith: faith)
+        case .sleep: route = .sleep
+        case .view: route = .feature(title)
         }
     }
 
