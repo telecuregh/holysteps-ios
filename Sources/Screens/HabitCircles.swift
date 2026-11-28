@@ -155,8 +155,18 @@ final class CirclesModel: ObservableObject {
         loading = false
     }
 
+    private var creating = false
+
     func create(_ t: HabitTemplate, name: String, habit: String, displayName: String) async -> HabitCircle? {
-        guard let uid else { message = tr("Couldn't reach HolySteps. Try again in a moment."); return nil }
+        guard let uid = await AccountStore.shared.ensureUid() else { message = AccountStore.shared.notConnectedMessage; return nil }
+        // A friend streak still waiting for its friend keeps its code: hand that one back instead of a new streak
+        // (and a new code) on every tap, as Android does.
+        if t.id == "friend_streak", let waiting = circles.first(where: { $0.isFriendStreak && $0.ownerUid == uid && $0.memberUids.count < 2 }) {
+            return waiting
+        }
+        guard !creating else { return nil }
+        creating = true
+        defer { creating = false }
         let id = Firestore.newId(), code = InviteCode.make(t.id == "friend_streak" ? "FRIEND" : "HABIT"), now = Firestore.nowMs
         let fields: [String: FSValue] = [
             "name": .string(String((name.isEmpty ? tr(t.title) : name).prefix(240))), "templateId": .string(t.id),
@@ -339,6 +349,7 @@ private struct NewCircleSheet: View {
                     }
                     T(t.proof.needs).font(.hs(12)).foregroundStyle(HS.textSecondary)
                     GoldButton(title: "Create") {
+                        guard !busy else { return }
                         busy = true
                         Task { made = await model.create(t, name: name, habit: habit, displayName: store.name); busy = false }
                     }

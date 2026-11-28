@@ -230,7 +230,7 @@ final class Learning: ObservableObject {
     }
 
     /// First shortcuts from the onboarding picks, before anything is learned.
-    static func starters(gender: String) -> [String] {
+    @MainActor static func starters(gender: String) -> [String] {
         var t: [String] = []
         let cycle = gender == "male" ? "Men" : "Women"
         for p in EngagementStore.personas {
