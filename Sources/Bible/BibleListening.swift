@@ -50,7 +50,8 @@ final class BibleListening: NSObject, ObservableObject, AVSpeechSynthesizerDeleg
     /// Who is reading: "Grace", "Michael" or "your phone's voice".
     @Published private(set) var reader = ""
     /// The narrator chosen for the recorded chapters: a VoicePacks narrator id, or "device".
-    @Published var narrator: String = UserDefaults.standard.string(forKey: "bibleNarrator") ?? "af_heart" {
+    /// A narrator set to the phone's voice in an older version moves to Grace: the phone's voice is no longer offered.
+    @Published var narrator: String = UserDefaults.standard.string(forKey: "bibleNarrator").flatMap { $0 == VoicePacks.deviceVoice ? nil : $0 } ?? "af_heart" {
         didSet { UserDefaults.standard.set(narrator, forKey: "bibleNarrator") }
     }
 

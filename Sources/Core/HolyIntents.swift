@@ -46,11 +46,11 @@ struct SanctuaryIntent: AppIntent {
 }
 
 struct FaithCoachIntent: AppIntent {
-    static let title: LocalizedStringResource = "Talk to my faith coach"
-    static let description = IntentDescription("Open the private faith coach.")
+    static let title: LocalizedStringResource = "Open Faith Chat"
+    static let description = IntentDescription("Ask about faith, prayer and scripture.")
     static let openAppWhenRun = true
     @MainActor func perform() async throws -> some IntentResult {
-        if FaithCoach.available { open(.faithCoach) } else { TabRouter.shared.open(tab: 1) }
+        open(.faithCoach)
         return .result()
     }
 }
@@ -72,8 +72,8 @@ struct HolyShortcuts: AppShortcutsProvider {
                     shortTitle: "Breath prayer", systemImageName: "wind")
         AppShortcut(intent: SanctuaryIntent(), phrases: ["Open the sanctuary in \(.applicationName)"],
                     shortTitle: "Sanctuary", systemImageName: "headphones")
-        AppShortcut(intent: FaithCoachIntent(), phrases: ["Talk to my faith coach in \(.applicationName)"],
-                    shortTitle: "Faith coach", systemImageName: "sparkles")
+        AppShortcut(intent: FaithCoachIntent(), phrases: ["Open Faith Chat in \(.applicationName)", "Talk to my faith coach in \(.applicationName)"],
+                    shortTitle: "Faith Chat", systemImageName: "bubble.left.and.text.bubble.right")
         AppShortcut(intent: PrayIntent(), phrases: ["Pray with \(.applicationName)", "Open my prayers in \(.applicationName)"],
                     shortTitle: "Pray", systemImageName: "hands.sparkles")
     }

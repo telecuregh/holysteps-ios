@@ -205,7 +205,11 @@ struct FaithView: View {
         PrayerGardenCard().padding(.top, 4)
         SpiritStressCard().padding(.top, 12)
         Spacer().frame(height: 16)
-        ToolSection(title: "Ways to pray", items: [
+        let tradition = Profile.traditions.first { $0.0 == Profile.tradition && $0.0 != "NON_DENOMINATIONAL" }
+        ToolSection(title: "Ways to pray", items: (tradition.map { t in
+            [ToolItem(symbol: "building.columns", color: HS.peach, title: tr("{0} practice").replacingOccurrences(of: "{0}", with: tr(t.2)),
+                      sub: "Today's prayers from your tradition", badge: t.1, destination: AnyView(TraditionPracticeView()))]
+        } ?? []) + [
             ToolItem(symbol: "hands.sparkles", color: HS.faith, title: "Pray about…", sub: "A guide for any need, for you or someone you love",
                      destination: AnyView(PrayAboutView())),
             ToolItem(symbol: "checklist", color: HS.peach, title: "Prayer List", sub: "\(store.prayers.count - answered) praying · \(answered) answered",
@@ -214,8 +218,9 @@ struct FaithView: View {
                      destination: AnyView(PrayerWalkFeatureView())),
             ToolItem(symbol: "map", color: HS.faith, title: "Prayer Walk Map", sub: "A prayer for each place you pass",
                      destination: AnyView(PrayerWalkMapView())),
-        ] + (FaithCoach.available ? [ToolItem(symbol: "sparkles", color: HS.gold, title: "Faith coach", sub: "Private, on this iPhone", badge: "New",
-                     destination: AnyView(FaithCoachView()))] : []), visible: 8)
+            ToolItem(symbol: "bubble.left.and.text.bubble.right", color: HS.gold, title: "Faith Chat", sub: "Ask about faith, prayer and scripture",
+                     destination: AnyView(FaithCoachView())),
+        ], visible: 8)
         Spacer().frame(height: 10)
         ToolSection(title: "Practices", items: [
             ToolItem(symbol: "leaf", color: HS.body, title: "Fasting",

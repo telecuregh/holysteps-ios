@@ -9,8 +9,11 @@ struct ProfileView: View {
     @AppStorage("stepGoal") private var stepGoal = 8000
     @State private var confirmErase = false
     @State private var sheet: Sheet?
+    @AppStorage("faithStage") private var faithStage = "GROWING"
+    @AppStorage("faithTradition") private var faithTradition = "NON_DENOMINATIONAL"
+    @ObservedObject private var bible = BibleState.shared
 
-    enum Sheet: String, Identifiable { case name, gender, language, cycleLength, periodLength, stepGoal, narrator, sermon; var id: String { rawValue } }
+    enum Sheet: String, Identifiable { case name, gender, language, cycleLength, periodLength, stepGoal, narrator, sermon, bibleLanguage, faithWalk, tradition; var id: String { rawValue } }
 
     var body: some View {
         NavigationStack {
@@ -47,8 +50,15 @@ struct ProfileView: View {
                         group("Goals") {
                             item("figure.walk", "Daily Step Goal", tr("\(stepGoal.formatted()) steps"), 0x8B5CF6) { sheet = .stepGoal }
                         }
+                        // Same rows, in the same order, as Android's Faith and content.
                         group("Faith and content") {
-                            item("mic", "Narrator", VoicePacks.narrators.first { $0.id == listening.narrator }?.name ?? tr("Phone voice"), 0x8B5CF6) { sheet = .narrator }
+                            let now = Bible.known.first { $0.id == bible.translationId }
+                            item("book", "Bible language", now.map { "\($0.language) · \($0.id)" } ?? "English", 0x0EA5E9) { sheet = .bibleLanguage }
+                            let stage = Profile.faithStages.first { $0.0 == faithStage } ?? Profile.faithStages[2]
+                            item("leaf", "Faith Walk", "\(stage.1) \(tr(stage.2))", 0xF59E0B) { sheet = .faithWalk }
+                            let trad = Profile.traditions.first { $0.0 == faithTradition } ?? Profile.traditions[3]
+                            item("building.columns", "Faith Tradition", "\(trad.1) \(tr(trad.2))", 0x8B5CF6) { sheet = .tradition }
+                            item("mic", "Narrator", VoicePacks.narrators.first { $0.id == listening.narrator }?.name ?? "Grace", 0x8B5CF6) { sheet = .narrator }
                             item("calendar.badge.clock", "Weekly sermon", tr("Day and reminder"), 0x8B5CF6) { sheet = .sermon }
                         }
                         group("Reminders and routines") {
@@ -150,9 +160,25 @@ struct ProfileView: View {
         case .periodLength: NumberSheet(title: "Period Length", suffix: "days", range: 1...14, value: store.periodLength) { store.periodLength = $0 }
         case .stepGoal: StepGoalSheet()
         case .narrator:
-            ChoiceSheet(title: "Narrator voice", options: VoicePacks.narrators.map { ($0.id, $0.name) } + [(VoicePacks.deviceVoice, tr("Phone voice"))],
+            // Grace and the other recorded voices only: the phone's own voice never reads in HolySteps.
+            ChoiceSheet(title: "Narrator voice", options: VoicePacks.narrators.map { ($0.id, $0.name) },
                         selected: listening.narrator, note: "Applies to Bible listening.") { listening.narrator = $0 }
         case .sermon: SermonSettingsView()
+        case .bibleLanguage:
+            let langs = Bible.languages(Bible.known)
+            ChoiceSheet(title: "Bible language", options: langs.map { l in
+                            let n = Bible.known.filter { $0.lang == l.code }.count
+                            return (l.code, "\(l.name)  ·  \(n) \(tr(n == 1 ? "Bible" : "Bibles"))")
+                        },
+                        selected: Bible.known.first { $0.id == bible.translationId }?.lang ?? "en") {
+                bible.translationId = Bible.defaultId(phoneLang: $0, catholic: faithTradition == "CATHOLIC")
+            }
+        case .faithWalk:
+            ChoiceSheet(title: "Your faith walk", options: Profile.faithStages.map { ($0.0, "\($0.1)  \(tr($0.2)) — \(tr($0.3))") },
+                        selected: faithStage) { faithStage = $0 }
+        case .tradition:
+            ChoiceSheet(title: "Your faith tradition", options: Profile.traditions.map { ($0.0, "\($0.1)  \(tr($0.2)) — \(tr($0.3))") },
+                        selected: faithTradition) { faithTradition = $0 }
         }
     }
 }

@@ -105,9 +105,8 @@ final class StepsModel: ObservableObject {
     }
 }
 
-/// Android's WalkScreen (the Fitness tab): the photo, "Move with Purpose", and Today, Train and Progress. Live walks
-/// with the map, the Form Coach, leagues and circles come with the health and community phases; until then they are
-/// left out rather than shown empty.
+/// Android's WalkScreen (the Fitness tab): the photo, "Move with Purpose", and Today, Train, Progress and Together,
+/// with the same sections, in the same order, as Android.
 struct FitnessView: View {
     @EnvironmentObject var store: AppStore
     @ObservedObject private var checkIns = CheckInStore.shared
@@ -321,11 +320,15 @@ struct FitnessView: View {
         VStack(spacing: 0) {
             ProgramsEntryCard().padding(.horizontal, 20).padding(.bottom, 12)
             ToolSection(title: "Train", items: [
+                // Same list, in the same order, as Android's Fitness → Train.
                 ToolItem(symbol: "map", color: HS.faith, title: "Prayer Walk Map", sub: "Pray for each place you pass", destination: AnyView(PrayerWalkMapView())),
+                ToolItem(symbol: "camera", color: HS.peach, title: "Form Coach", sub: "Squats, push-ups, lunges and more, checked on-device",
+                         badge: AccountStore.shared.canUse(.formCoach) ? nil : "👑", destination: AnyView(FormCoachPickerView())),
                 ToolItem(symbol: "figure.strengthtraining.traditional", color: HS.body, title: "Workouts", sub: "\(Coach.routines.count - 1) guided sessions with a coach's voice",
                          destination: AnyView(WorkoutLibraryView())),
-                ToolItem(symbol: "dumbbell", color: HS.body, title: "Strength log", sub: "Sets, reps and your next target", destination: AnyView(StrengthLogView())),
+                ToolItem(symbol: "dumbbell", color: HS.body, title: "Strength log", sub: "Sets, reps, weight and your bests", destination: AnyView(StrengthLogView())),
                 ToolItem(symbol: "plus", color: HS.mind, title: "Log a Walk", sub: "Walked without your phone? Add it", action: { showManual = true }),
+                ToolItem(symbol: "brain.head.profile", color: HS.faith, title: "Adaptive Coach", sub: "Sleep and stress shape today's plan", destination: AnyView(AdaptiveCoachView())),
                 ToolItem(symbol: "bolt", color: HS.peach, title: "Body energy", sub: "How ready your body is today",
                          destination: AnyView(Gated(feature: .bodyEnergy) { BodyEnergyView() })),
                 ToolItem(symbol: "target", color: HS.body, title: "Step goal", sub: "\(goal.formatted()) steps a day", action: { showGoal = true }),
