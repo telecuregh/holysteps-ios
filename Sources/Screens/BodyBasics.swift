@@ -139,6 +139,7 @@ final class Medicines: ObservableObject {
                     let n = UNMutableNotificationContent()
                     n.title = tr("HolySteps reminder")
                     n.body = tr("Time for your \(timeText(mins)) medicine.")
+                    n.userInfo = ["route": "feature:Body basics"]
                     n.sound = .default
                     var dc = DateComponents(); dc.hour = mins / 60; dc.minute = mins % 60
                     c.add(UNNotificationRequest(identifier: "med-\(m.id)-\(mins)", content: n, trigger: UNCalendarNotificationTrigger(dateMatching: dc, repeats: true)))

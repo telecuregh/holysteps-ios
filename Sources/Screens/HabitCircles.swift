@@ -83,8 +83,12 @@ enum InviteCode {
     }
     static func resolve(_ code: String) async -> (type: String, target: String)? {
         let c = clean(code)
-        guard !c.isEmpty, !c.contains("/"), c.count <= 40, let d = try? await Firestore.get("inviteCodes/\(c)") else { return nil }
-        return (d["type"].string, d["targetId"].string)
+        // Same shape as Android's InviteLinks (letters, digits and dashes), so a pasted value can't change the request.
+        guard c.range(of: "^[A-Z0-9-]{4,40}$", options: .regularExpression) != nil, let d = try? await Firestore.get("inviteCodes/\(c)") else { return nil }
+        // The group id is used in a document path: only a plain id is accepted.
+        let target = d["targetId"].string
+        guard target.range(of: "^[A-Za-z0-9_-]{1,128}$", options: .regularExpression) != nil else { return nil }
+        return (d["type"].string, target)
     }
     /// The join link for a code, the same format Android uses (InviteLinks.url): the server's /join page and both apps
     /// understand it, so any phone camera that scans the QR code opens HolySteps straight to joining.
@@ -254,7 +258,8 @@ struct CirclesView: View {
     @ObservedObject private var account = AccountStore.shared
     @State private var creating = false
     @State private var joining = false
-    @State private var code = ""
+    /// Filled in when this screen was opened from an invite link (JoinInviteView).
+    @State private var code = InviteInbox.take("HABIT")
     @State private var paywall: Feature?
 
     var body: some View {

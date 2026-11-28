@@ -280,6 +280,8 @@ final class Learning: ObservableObject {
                 let content = UNMutableNotificationContent()
                 content.title = tr(title)
                 content.body = tr("You usually do this about now.")
+                // Tapping it opens that screen, as on Android.
+                content.userInfo = ["route": r.key == "move:walk" ? "walk" : "feature:" + r.key.replacingOccurrences(of: "open:", with: "")]
                 var dc = DateComponents(); dc.hour = r.minute / 60; dc.minute = r.minute % 60
                 if wd > 0 { dc.weekday = wd }
                 c.add(UNNotificationRequest(identifier: "rhythm.\(r.id).\(wd)", content: content,

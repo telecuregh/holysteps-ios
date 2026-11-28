@@ -135,7 +135,8 @@ struct FaithGroupsView: View {
     @StateObject private var m = FaithGroupsModel()
     @State private var joining = false
     @State private var creating = false
-    @State private var code = ""
+    /// Filled in when this screen was opened from an invite link (JoinInviteView).
+    @State private var code = InviteInbox.take("FAITH")
     @State private var name = ""
     @State private var kind = GroupKind.SMALL_GROUP
 

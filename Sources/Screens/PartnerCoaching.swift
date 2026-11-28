@@ -213,7 +213,8 @@ struct PartnerCoachingView: View {
     @EnvironmentObject var store: AppStore
     @StateObject private var m = PartnerCoachingModel()
     @State private var askCode = false
-    @State private var code = ""
+    /// Filled in when this screen was opened from an invite link (JoinInviteView).
+    @State private var code = InviteInbox.take("LINK")
 
     var body: some View {
         ZStack {

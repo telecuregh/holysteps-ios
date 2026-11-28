@@ -68,6 +68,7 @@ final class SafetyModel: NSObject, ObservableObject, CLLocationManagerDelegate {
                 n.title = a["kind"].string == "SOS" ? tr("\(a["name"].string) sent an SOS") : tr("\(a["name"].string) hasn't checked in")
                 n.body = tr("Open HolySteps to see where they are. If they may be in danger, call \(emergency).")
                 n.sound = .default; n.interruptionLevel = .timeSensitive
+                n.userInfo = ["route": "feature:Safety circle"]
                 try? await UNUserNotificationCenter.current().add(UNNotificationRequest(identifier: a.id, content: n, trigger: nil))
             }
         }
@@ -115,6 +116,7 @@ final class SafetyModel: NSObject, ObservableObject, CLLocationManagerDelegate {
         let n = UNMutableNotificationContent()
         n.title = tr("Are you OK?"); n.body = tr("Your safe-walk timer is up. Open HolySteps and tap I'm OK, or your circle is told in 3 minutes.")
         n.sound = .default; n.interruptionLevel = .timeSensitive
+        n.userInfo = ["route": "feature:Safety circle"]
         let t = max(1, dueAt / 1000 - Date().timeIntervalSince1970)
         UNUserNotificationCenter.current().add(UNNotificationRequest(identifier: "safetyCheckIn", content: n, trigger: UNTimeIntervalNotificationTrigger(timeInterval: t, repeats: false)))
     }
@@ -176,7 +178,8 @@ struct SafetyCircleView: View {
     @ObservedObject private var s = SafetyModel.shared
     @Environment(\.openURL) private var openURL
     @State private var joining = false
-    @State private var code = ""
+    /// Filled in when this screen was opened from an invite link (JoinInviteView).
+    @State private var code = InviteInbox.take("safety")
     @State private var hours = 2
     @State private var due = 0
     @State private var leaving = false
@@ -195,7 +198,8 @@ struct SafetyCircleView: View {
                     if s.sosActive {
                         GoldButton(title: "I'm safe now") { Task { await s.imSafe() } }
                     }
-                    Button { openURL(URL(string: "tel://\(s.emergency)")!) } label: { Label(tr("Call \(s.emergency)"), systemImage: "phone.fill") }.buttonStyle(.bordered).tint(.red)
+                    // Only the digits of the saved number (a typo with a space must not crash the SOS screen).
+                    Button { if let u = URL(string: "tel://" + (s.emergency.filter(\.isNumber).isEmpty ? "911" : s.emergency.filter(\.isNumber))) { openURL(u) } } label: { Label(tr("Call \(s.emergency)"), systemImage: "phone.fill") }.buttonStyle(.bordered).tint(.red)
                     if !s.message.isEmpty { D(s.message).font(.hs(13)).foregroundStyle(HS.textSecondary) }
                     if s.inCircle { circle } else {
                         GlassCard {
@@ -269,7 +273,10 @@ struct SafetyCircleView: View {
             ForEach(s.walks) { w in
                 let age = Firestore.nowMs - w["updatedAt"].int, ended = w["shareUntil"].int > 0 && w["shareUntil"].int < Firestore.nowMs
                 Button {
-                    openURL(URL(string: "http://maps.apple.com/?ll=\(w["lat"].double),\(w["lng"].double)&q=\(w["displayName"].string.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")")!)
+                    // Built with URLComponents so a name with & or # can't change the map link.
+                    var map = URLComponents(string: "https://maps.apple.com/")!
+                    map.queryItems = [URLQueryItem(name: "ll", value: "\(w["lat"].double),\(w["lng"].double)"), URLQueryItem(name: "q", value: w["displayName"].string)]
+                    if let u = map.url { openURL(u) }
                 } label: {
                     HStack {
                         D(w["sos"].bool ? "🆘" : "🚶")

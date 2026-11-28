@@ -98,7 +98,8 @@ struct CycleCirclesView: View {
     @StateObject private var m = CycleCirclesModel()
     @State private var joining = false
     @State private var creating = false
-    @State private var code = ""
+    /// Filled in when this screen was opened from an invite link (JoinInviteView).
+    @State private var code = InviteInbox.take("CIRCLE")
     @State private var name = ""
 
     var body: some View {

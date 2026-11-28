@@ -3,9 +3,13 @@ import SwiftUI
 
 /// Siri, Shortcuts, Spotlight and the Action button. "Hey Siri, today's verse in HolySteps" answers without opening
 /// the app; the others open HolySteps straight to the right screen.
-enum QuickRoute: String, Identifiable {
+enum QuickRoute: Identifiable, Hashable {
     case prayerWalk, breathPrayer, faithCoach, sanctuary
-    var id: String { rawValue }
+    /// A screen from the search catalog, by its title (a tapped reminder opens it, as Android's open_route does).
+    case feature(String)
+    /// An invite link (holysteps://join?c=… or https://holysteps.org/join?c=…); nil when the link isn't valid.
+    case invite(InviteInbox.Invite?)
+    var id: String { "\(self)" }
 }
 
 @MainActor
@@ -82,6 +86,8 @@ struct HolyShortcuts: AppShortcutsProvider {
 /// Shows the screen a shortcut asked for, over whatever tab is open.
 struct QuickRouteScreen: View {
     let route: QuickRoute
+    @EnvironmentObject private var store: AppStore
+    @Environment(\.dismiss) private var dismiss
     var body: some View {
         NavigationStack {
             switch route {
@@ -89,6 +95,23 @@ struct QuickRouteScreen: View {
             case .breathPrayer: BreathPrayerView()
             case .faithCoach: FaithCoachView()
             case .sanctuary: SpatialSanctuaryView()
+            case .invite(let i): JoinInviteView(invite: i)
+            case .feature(let title):
+                Group {
+                    if let f = AppFeature.all(gender: store.gender).first(where: { $0.title == title }) {
+                        switch f.target {
+                        case .view(let make): make()
+                        case .sleep: SleepView()
+                        case .tab: EmptyView()
+                        }
+                    }
+                }
+                .toolbar {
+                    ToolbarItem(placement: .topBarLeading) {
+                        Button { dismiss() } label: { Image(systemName: "chevron.left").font(.system(size: 17, weight: .semibold)) }
+                            .accessibilityLabel(tr("Back"))
+                    }
+                }
             }
         }
     }

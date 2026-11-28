@@ -167,12 +167,29 @@ struct RootTabView: View {
 final class TabRouter: ObservableObject {
     static let shared = TabRouter()
     @Published var tab = 0
-    /// Faith's section: 0 Today, 1 Bible, 2 Listen, 3 Mind.
+    /// Faith's section: 0 Today, 1 Pray, 2 Bible, 3 Listen, 4 Mind, 5 Together.
     @Published var faithTab = 0
     /// A screen a Siri shortcut or the Action button asked for.
     @Published var quick: QuickRoute?
 
     func open(tab: Int, faith: Int? = nil) { if let faith { faithTab = faith }; self.tab = tab }
+
+    /// Where a tapped notification goes (its userInfo "route"), like Android's open_route: "feature:<search title>",
+    /// "tab:<n>", "walk", or the older "cycle" and "wellness" (the Women or Men tab).
+    @MainActor func open(route: String) {
+        if route == "cycle" || route == "wellness" { open(tab: 3); return }
+        if route == "walk" { open(tab: 2); return }
+        if route.hasPrefix("tab:"), let n = Int(route.dropFirst(4)), (0...4).contains(n) { open(tab: n); return }
+        guard route.hasPrefix("feature:") else { return }
+        let title = String(route.dropFirst("feature:".count))
+        let gender = UserDefaults.standard.string(forKey: "gender") ?? ""
+        guard let f = AppFeature.all(gender: gender).first(where: { $0.title == title }) else { return }
+        switch f.target {
+        case .tab(let t, let faith): open(tab: t, faith: faith)
+        case .sleep: quick = .feature("Sleep stories")
+        case .view: quick = .feature(title)
+        }
+    }
 }
 
 /// The thin outline cross Android draws for the Faith tab ("M12,3 L12,21 M6.5,8.5 L17.5,8.5" on a 24 grid).

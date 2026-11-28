@@ -67,6 +67,7 @@ enum Profile {
         let content = UNMutableNotificationContent()
         content.title = tr("Time with God")
         content.body = tr("Your verse and today's prayer are ready.")
+        content.userInfo = ["route": "tab:1"]
         content.sound = .default
         let trigger = UNCalendarNotificationTrigger(dateMatching: DateComponents(hour: r.3, minute: r.4), repeats: true)
         try? await c.add(UNNotificationRequest(identifier: "daily", content: content, trigger: trigger))

@@ -6,7 +6,7 @@ options:
 settings:
   base:
     SWIFT_VERSION: "5.0"
-    MARKETING_VERSION: "1.3.0"
+    MARKETING_VERSION: "1.4.0"   # TestFlight builds set 1.4.<build number>, so every update has a new version
     CURRENT_PROJECT_VERSION: "2"
 packages:
   LiveKit:
@@ -29,6 +29,10 @@ targets:
         HSJournalingEnabled: true
         UIAppFonts: [PlayfairDisplay-Italic.ttf, Inter-Regular.ttf, Inter-Medium.ttf, Inter-SemiBold.ttf, Inter-Bold.ttf, Fraunces-Medium.ttf, Fraunces-SemiBold.ttf]
         UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait]
+        # holysteps://join?c=CODE: the website's "Open in HolySteps" for invites (Android uses the same address).
+        CFBundleURLTypes:
+          - CFBundleURLName: com.holysteps.app
+            CFBundleURLSchemes: [holysteps]
     entitlements:
       path: HolySteps.entitlements
       properties:

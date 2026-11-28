@@ -524,6 +524,7 @@ enum SermonReminder {
                let s = week.current(epoch) {
                 let c = UNMutableNotificationContent()
                 c.title = tr("This week's sermon is ready 🎙️")
+                c.userInfo = ["route": "feature:This week's sermon"]
                 c.body = tr(s.title) + " · " + s.minutesLabel
                 c.sound = .default
                 let comps = cal.dateComponents([.year, .month, .day, .hour, .minute], from: fire)

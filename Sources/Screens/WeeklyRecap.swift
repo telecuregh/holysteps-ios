@@ -112,6 +112,7 @@ enum RecapReminder {
         let content = UNMutableNotificationContent()
         content.title = tr("Your week is ready")
         content.body = tr("See your week with God and your body.")
+        content.userInfo = ["route": "feature:Your week"]
         let t = UNCalendarNotificationTrigger(dateMatching: DateComponents(hour: 19, minute: 0, weekday: weekday), repeats: true)
         try? await c.add(UNNotificationRequest(identifier: id, content: content, trigger: t))
     }

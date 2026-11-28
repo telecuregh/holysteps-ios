@@ -213,7 +213,12 @@ final class NotificationRouter: NSObject, UNUserNotificationCenterDelegate, Obse
     @Published var ringing = false
 
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse) async {
-        if response.notification.request.content.userInfo["wake"] as? Bool == true { await MainActor.run { ringing = true } }
+        let info = response.notification.request.content.userInfo
+        if info["wake"] as? Bool == true { await MainActor.run { ringing = true } }
+        // A tapped reminder opens its screen (Android's open_route).
+        if response.actionIdentifier == UNNotificationDefaultActionIdentifier, let route = info["route"] as? String {
+            await MainActor.run { TabRouter.shared.open(route: route) }
+        }
     }
     func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification) async -> UNNotificationPresentationOptions {
         if notification.request.content.userInfo["wake"] as? Bool == true { await MainActor.run { ringing = true } }

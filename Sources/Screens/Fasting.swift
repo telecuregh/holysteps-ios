@@ -65,6 +65,7 @@ final class FastStore: ObservableObject {
             let n = UNMutableNotificationContent()
             n.title = tr("Your fast is complete")
             n.body = tr("You reached your goal. Break your fast gently and give thanks.")
+            n.userInfo = ["route": "feature:Fasting"]
             let secs = max(60, FastLogic.goalAt(start, hours).timeIntervalSinceNow)
             c.add(UNNotificationRequest(identifier: "fast.done", content: n, trigger: UNTimeIntervalNotificationTrigger(timeInterval: secs, repeats: false)))
         }

@@ -126,7 +126,8 @@ struct ReadingTogetherView: View {
     @StateObject private var m = ReadingTogetherModel()
     @State private var picking = false
     @State private var joining = false
-    @State private var code = ""
+    /// Filled in when this screen was opened from an invite link (JoinInviteView).
+    @State private var code = InviteInbox.take("READ")
 
     var body: some View {
         ZStack {

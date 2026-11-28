@@ -76,6 +76,14 @@ struct FaithView: View {
                 HStack {
                     D("— " + tr(verse.ref)).font(.hs(13, .semibold)).foregroundStyle(HS.peach)
                     Spacer()
+                    // Android's "Ask Faith Chat →" on today's Scripture (only while smart features are on).
+                    if UserDefaults.standard.object(forKey: "aiFeaturesOn") as? Bool ?? true {
+                        NavigationLink { FaithCoachView() } label: { T("Ask Faith Chat →").font(.hs(13)).foregroundStyle(HS.peach).frame(minHeight: 44) }
+                            .buttonStyle(.plain)
+                    }
+                }
+                HStack {
+                    Spacer()
                     ShareLink(item: VerseShare.text(verse.shown, tr(verse.ref))) {
                         T("Share ↗").font(.hs(13)).foregroundStyle(HS.peach).frame(minHeight: 44)
                     }
@@ -218,9 +226,7 @@ struct FaithView: View {
                      destination: AnyView(PrayerWalkFeatureView())),
             ToolItem(symbol: "map", color: HS.faith, title: "Prayer Walk Map", sub: "A prayer for each place you pass",
                      destination: AnyView(PrayerWalkMapView())),
-        ] + (UserDefaults.standard.object(forKey: "aiFeaturesOn") as? Bool ?? true
-             ? [ToolItem(symbol: "bubble.left.and.text.bubble.right", color: HS.gold, title: "Faith Chat", sub: "Ask about faith, prayer and scripture",
-                         destination: AnyView(FaithCoachView()))] : []), visible: 8)
+        ], visible: 8)
         Spacer().frame(height: 10)
         ToolSection(title: "Practices", items: [
             ToolItem(symbol: "leaf", color: HS.body, title: "Fasting",
@@ -270,7 +276,15 @@ struct FaithView: View {
                      destination: AnyView(PrayerJournalView(section: 1))),
             ToolItem(symbol: "note.text", color: HS.peach, title: "Sermon notes", sub: "\(SermonNotesStore.shared.notes.count) notes · private to you",
                      destination: AnyView(SermonNotesView())),
-        ])
+        ] + (UserDefaults.standard.object(forKey: "aiFeaturesOn") as? Bool ?? true ? [faithChatItem] : []))
+    }
+
+    /// Android's Reflect › Faith Chat: the free questions left, or "Ask anything" with a plan.
+    private var faithChatItem: ToolItem {
+        let unlimited = AccountStore.shared.canUse(.aiUnlimited)
+        return ToolItem(symbol: "bubble.left.and.text.bubble.right", color: HS.peach, title: "Faith Chat",
+                        sub: unlimited ? "Ask anything about faith" : "\(FreeAiQuota.queriesLeft) free questions left",
+                        badge: unlimited ? nil : "FREE", destination: AnyView(FaithCoachView()))
     }
 
     @ViewBuilder private var listen: some View {
