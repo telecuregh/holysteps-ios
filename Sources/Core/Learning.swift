@@ -209,6 +209,45 @@ final class Learning: ObservableObject {
                         offer: offer)
     }
 
+    /// Home's "Your shortcuts": what this person actually uses most (the last four weeks, recent use counting more,
+    /// half-weight after two weeks, as Android's RhythmsLogic.favorites). Until there's history, what they picked in
+    /// "What brings you here?". At most six, and the order only changes once a day so Home stays predictable.
+    @MainActor func shortcuts(gender: String) -> [String] {
+        let today = AppStore.dayKey()
+        if defaults.string(forKey: "learnShortcutsDay") == today, let kept = defaults.stringArray(forKey: "learnShortcuts"), !kept.isEmpty { return kept }
+        let labels = Learning.labels(gender: gender)
+        let nowMs = Int64(Date().timeIntervalSince1970 * 1000), window = Int64(RhythmsLogic.windowDays) * 86_400_000
+        let half = 14.0 * 86_400_000
+        var score: [String: Double] = [:]
+        for e in allEvents() where e.ms >= nowMs - window && labels[e.key] != nil {
+            score[e.key, default: 0] += exp(-Double(nowMs - e.ms) / half * log(2))
+        }
+        var out = score.sorted { $0.value > $1.value }.prefix(6).map(\.key)
+        for k in Learning.starters(gender: gender) where out.count < 6 && !out.contains(k) && labels[k] != nil { out.append(k) }
+        defaults.set(today, forKey: "learnShortcutsDay")
+        defaults.set(out, forKey: "learnShortcuts")
+        return out
+    }
+
+    /// First shortcuts from the onboarding picks, before anything is learned.
+    static func starters(gender: String) -> [String] {
+        var t: [String] = []
+        let cycle = gender == "male" ? "Men" : "Women"
+        for p in EngagementStore.personas {
+            switch p {
+            case .faith: t += ["Prayer List", "Devotional Plans", "Read the Bible", "Sermons for what you're facing"]
+            case .fitness: t += ["Steps", "Body basics"]
+            case .cycle, .mensHealth: t += [cycle, "Mood check-in"]
+            case .unset: break
+            }
+        }
+        t += ["Read the Bible", "Prayer List", "Faith Journal", "Sleep stories", "Mood check-in", "Steps"]
+        var seen = Set<String>(), keys: [String] = []
+        for x in t where seen.insert(x).inserted { keys.append("open:\(x)") }
+        if EngagementStore.personas.contains(.fitness) { keys.insert("move:walk", at: 0) }
+        return keys
+    }
+
     func decline(_ id: String) { settings.declined.insert(id); settings.lastOfferDate = AppStore.dayKey(); saveSettings(); objectWillChange.send() }
     func hide(_ id: String) { settings.hidden.insert(id); saveSettings(); cancel(id) }
     func setOn(_ on: Bool) { settings.on = on; saveSettings() }

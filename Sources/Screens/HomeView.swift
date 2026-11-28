@@ -17,6 +17,7 @@ struct HomeView: View {
     @ObservedObject private var checkIns = CheckInStore.shared
     @ObservedObject private var learning = Learning.shared
     @State private var learned: Learning.Analysis?
+    @State private var shortcutKeys: [String] = []
     @State private var showCheckIn = false
     @State private var showSearch = false
     @State private var showVerseImage = false
@@ -45,15 +46,15 @@ struct HomeView: View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
+                    // Only what this person does: the one thing for right now, what they usually do about now, today's
+                    // four steps, the shortcuts they use most, and today's verse. Everything else lives on the tabs.
                     hero
                     nextUp.padding(.horizontal, 16)
                     forYou.padding(.horizontal, 16)
                     SeasonHomeCard { route = .season($0.id) }.padding(.horizontal, 16)
-                    rings.padding(.horizontal, 16)
                     dailyPlanCard.padding(.horizontal, 16)
+                    shortcuts.padding(.horizontal, 16)
                     verseCard.padding(.horizontal, 16)
-                    tiles.padding(.horizontal, 16)
-                    quickAccess.padding(.horizontal, 16)
                     if week.dayNumber >= 7 || week.done.contains(7) { weekStrip.padding(.horizontal, 16) }
                     footer.padding(.horizontal, 16).padding(.bottom, 24)
                 }
@@ -108,6 +109,7 @@ struct HomeView: View {
                 await steps.refresh()
                 week.refresh(store: store, stepsToday: steps.today)
                 learned = learning.analyze(store: store)
+                shortcutKeys = learning.shortcuts(gender: store.gender)
             }
             .onChange(of: learning.events.count) { learned = learning.analyze(store: store) }
             .onChange(of: checkIns.all.count) { learned = learning.analyze(store: store) }
@@ -294,6 +296,40 @@ struct HomeView: View {
                             }
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+                }
+            }
+        }
+    }
+
+    /// The six things this person uses most (learned on this phone; their onboarding picks until then). Same place,
+    /// same order all day.
+    @ViewBuilder private var shortcuts: some View {
+        let labels = Learning.labels(gender: store.gender)
+        let keys = shortcutKeys.filter { labels[$0] != nil }
+        if !keys.isEmpty {
+            GlassCard(padding: 14) {
+                VStack(alignment: .leading, spacing: 10) {
+                    HStack {
+                        T("Your shortcuts").font(.hs(13, .semibold)).foregroundStyle(HS.textMuted)
+                        Spacer()
+                        T("What you use most").font(.hs(11)).foregroundStyle(HS.textMuted)
+                    }
+                    LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 10), count: 3), spacing: 10) {
+                        ForEach(keys, id: \.self) { k in
+                            if let l = labels[k] {
+                                Button { openLearned(k) } label: {
+                                    VStack(spacing: 6) {
+                                        ZStack {
+                                            RoundedRectangle(cornerRadius: 12).fill(HS.overlay(0.08))
+                                            Image(systemName: l.symbol).font(.system(size: 20)).foregroundStyle(HS.gold)
+                                        }.frame(height: 48)
+                                        T(l.title).font(.hs(11, .medium)).foregroundStyle(HS.text).lineLimit(1).minimumScaleFactor(0.8)
+                                    }
+                                }
+                                .buttonStyle(.plain)
+                            }
+                        }
                     }
                 }
             }
