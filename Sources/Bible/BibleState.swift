@@ -44,7 +44,7 @@ final class BibleState: ObservableObject {
 
     private init() {
         let d = UserDefaults.standard
-        translationId = d.string(forKey: "bibleTranslation") ?? Bible.defaultId(phoneLang: I18n.shared.bibleLang)
+        translationId = d.string(forKey: "bibleTranslation") ?? "KJV"   // King James first for everyone; anyone can change it
         lastBook = d.string(forKey: "bibleLastBook") ?? "John"
         lastCh = max(1, d.integer(forKey: "bibleLastCh"))
         chaptersRead = Set(d.stringArray(forKey: "bibleChaptersRead") ?? [])

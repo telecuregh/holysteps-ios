@@ -126,7 +126,7 @@ final class BibleListening: NSObject, ObservableObject, AVSpeechSynthesizerDeleg
             // Grace has recorded the whole King James Bible; other translations say so plainly.
             error = tr(translation == "KJV"
                        ? "Grace's recording couldn't be loaded. Check your connection and try again."
-                       : "Grace reads the King James Bible. Switch to the King James Version to listen.")
+                       : "No audio yet for this translation. The King James Version has audio.")
             loading = false; playing = false
             return
         }
