@@ -80,6 +80,19 @@ final class EngagementStore: ObservableObject {
         UserDefaults.standard.set(p.rawValue, forKey: "hsPersona")
     }
 
+    /// Everything picked in "What brings you here?", in the order chosen (several are allowed).
+    static var personas: [Persona] {
+        let saved = (UserDefaults.standard.string(forKey: "hsPersonas") ?? "").split(separator: ",").compactMap { Persona(rawValue: String($0)) }
+        return saved.isEmpty ? (persona == .unset ? [] : [persona]) : saved
+    }
+
+    /// Saves every pick; the first one is the persona that decides the opening tab.
+    static func setPersonas(_ list: [Persona]) {
+        let clean = list.filter { $0 != .unset }
+        UserDefaults.standard.set(clean.map(\.rawValue).joined(separator: ","), forKey: "hsPersonas")
+        setPersona(clean.first ?? .unset)
+    }
+
     /// The tab index to open first based on persona (matches RootTabView tab order).
     static var openingTabIndex: Int {
         switch persona {
