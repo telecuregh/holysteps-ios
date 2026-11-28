@@ -40,6 +40,29 @@ enum Profile {
                 "💪 Build daily faith habits", "🕊️ Find peace from anxiety", "✨ Walk in my God-given purpose", freedomGoal]
     }
 
+    /// Android's Season: one picker for life stage and cycle goal (Profile › Life Stage).
+    static let seasons: [(id: String, emoji: String, label: String, description: String, stage: String, goal: String?)] = [
+        ("PERIODS", "🌸", "I have periods", "Regular or irregular — your plan follows your cycle", "CYCLING", "TRACK"),
+        ("CONCEIVE", "👶", "Trying to get pregnant", "Fertile-window tracking and encouragement while you wait", "CYCLING", "CONCEIVE"),
+        ("PREGNANT", "🤰", "Pregnant", "Week-by-week notes and pregnancy-safe movement; no period predictions", "CYCLING", "PREGNANT"),
+        ("POSTPARTUM", "🍼", "Just had a baby", "Gentle recovery, rest and mood check-ins for the months after birth", "CYCLING", "POSTPARTUM"),
+        ("PERIMENOPAUSE", "🌗", "My periods are changing", "Perimenopause — shifting cycles, hot flashes or poorer sleep", "PERIMENOPAUSE", nil),
+        ("MENOPAUSE", "🌿", "My periods have stopped", "Menopause — no cycle tracking; a plan built for this season", "POSTMENOPAUSE", nil),
+    ]
+    static var season: String {
+        switch lifeStage {
+        case "POSTMENOPAUSE": return "MENOPAUSE"
+        case "PERIMENOPAUSE": return "PERIMENOPAUSE"
+        default:
+            switch cycleGoal { case "CONCEIVE": return "CONCEIVE"; case "PREGNANT": return "PREGNANT"; case "POSTPARTUM": return "POSTPARTUM"; default: return "PERIODS" }
+        }
+    }
+    static func setSeason(_ id: String) {
+        guard let s = seasons.first(where: { $0.id == id }) else { return }
+        UserDefaults.standard.set(s.stage, forKey: "lifeStage")
+        if let g = s.goal { UserDefaults.standard.set(g, forKey: "cycleGoal") }
+    }
+
     static var onboarded: Bool { UserDefaults.standard.bool(forKey: "onboarded") }
     static var lifeStage: String { UserDefaults.standard.string(forKey: "lifeStage") ?? "CYCLING" }
     static var faithStage: String { UserDefaults.standard.string(forKey: "faithStage") ?? "GROWING" }

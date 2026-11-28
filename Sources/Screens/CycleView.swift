@@ -3,8 +3,12 @@ import SwiftUI
 /// The fourth tab: Android's CycleScreen for women (Today, Plan, Insights, More), and a men's wellness rhythm for men.
 struct CycleView: View {
     @EnvironmentObject var store: AppStore
+    /// Android's wellnessScreen: men see Men, women past menopause see Vitality, everyone else sees the cycle.
+    @AppStorage("lifeStage") private var lifeStage = "CYCLING"
     var body: some View {
-        if store.gender == "male" { MensWellnessView() } else { CycleLockGate { WomensCycleView() } }
+        if store.gender == "male" { MensWellnessView() }
+        else if lifeStage == "POSTMENOPAUSE" { VitalityView() }
+        else { CycleLockGate { WomensCycleView() } }
     }
 }
 

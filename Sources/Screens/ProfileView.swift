@@ -17,7 +17,8 @@ struct ProfileView: View {
     @AppStorage("faithTradition") private var faithTradition = "NON_DENOMINATIONAL"
     @ObservedObject private var bible = BibleState.shared
 
-    enum Sheet: String, Identifiable { case name, gender, language, cycleLength, periodLength, stepGoal, narrator, sermon, bibleLanguage, faithWalk, tradition, units; var id: String { rawValue } }
+    enum Sheet: String, Identifiable { case name, gender, language, cycleLength, periodLength, stepGoal, narrator, sermon, bibleLanguage, faithWalk, tradition, units, season; var id: String { rawValue } }
+    @AppStorage("lifeStage") private var lifeStage = "CYCLING"
 
     var body: some View {
         NavigationStack {
@@ -47,6 +48,11 @@ struct ProfileView: View {
                             item(store.gender == "male" ? "person" : "person", "I am",
                                  store.gender == "male" ? tr("A man") : (store.gender == "female" ? tr("A woman") : tr("Tap to choose")), 0x14B8A6) { sheet = .gender }
                             if store.gender != "male" {
+                                let season = Profile.seasons.first { $0.id == Profile.season } ?? Profile.seasons[0]
+                                item("leaf", "Life Stage", "\(season.emoji) \(tr(season.label))", 0x14B8A6) { sheet = .season }
+                            }
+                            // Past menopause there is no cycle to set (Android hides these rows too).
+                            if store.gender != "male" && lifeStage != "POSTMENOPAUSE" {
                                 item("arrow.triangle.2.circlepath", "Cycle Length", tr("\(store.cycleLength) days"), 0xEC4899) { sheet = .cycleLength }
                                 item("calendar", "Period Length", tr("\(store.periodLength) days"), 0xEC4899) { sheet = .periodLength }
                             }
@@ -209,6 +215,9 @@ struct ProfileView: View {
         case .faithWalk:
             ChoiceSheet(title: "Your faith walk", options: Profile.faithStages.map { ($0.0, "\($0.1)  \(tr($0.2)) — \(tr($0.3))") },
                         selected: faithStage) { faithStage = $0 }
+        case .season:
+            ChoiceSheet(title: "Your season", options: Profile.seasons.map { ($0.id, "\($0.emoji)  \(tr($0.label)) — \(tr($0.description))") },
+                        selected: Profile.season) { Profile.setSeason($0); lifeStage = UserDefaults.standard.string(forKey: "lifeStage") ?? "CYCLING" }
         case .tradition:
             ChoiceSheet(title: "Your faith tradition", options: Profile.traditions.map { ($0.0, "\($0.1)  \(tr($0.2)) — \(tr($0.3))") },
                         selected: faithTradition) { faithTradition = $0 }

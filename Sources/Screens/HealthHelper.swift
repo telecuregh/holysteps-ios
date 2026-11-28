@@ -97,7 +97,7 @@ enum HealthHelper {
             var y: CGFloat = 54
             func draw(_ text: String, size: CGFloat, bold: Bool = false, gap: CGFloat = 6) {
                 let attr: [NSAttributedString.Key: Any] = [.font: bold ? UIFont.boldSystemFont(ofSize: size) : UIFont.systemFont(ofSize: size), .foregroundColor: UIColor.black]
-                let rect = (text as NSString).boundingRect(with: CGSize(width: 504, height: .greatestFiniteMagnitude), options: .usesLineFragmentOrigin, attributes: attr, context: nil)
+                let rect = (text as NSString).boundingRect(with: CGSize(width: 504, height: CGFloat.greatestFiniteMagnitude), options: .usesLineFragmentOrigin, attributes: attr, context: nil)
                 if y + rect.height > 740 { ctx.beginPage(); y = 54 }
                 (text as NSString).draw(with: CGRect(x: 54, y: y, width: 504, height: rect.height), options: .usesLineFragmentOrigin, attributes: attr, context: nil)
                 y += rect.height + gap

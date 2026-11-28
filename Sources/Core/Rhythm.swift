@@ -57,12 +57,17 @@ struct Rhythm {
     let cycleLength: Int
     let phase: CyclePhase?
     let mens: MensPhase
+    /// Past menopause: no cycle, so the plan follows the Vitality week (Android's isPostMenopause).
+    let postMeno: Bool
 
     init(store: AppStore, date: Date = Date()) {
         male = store.gender == "male"
         cycleLength = store.cycleLength
         mens = MensPhase.today(date)
-        if let last = store.periodStarts.max() {
+        postMeno = !male && UserDefaults.standard.string(forKey: "lifeStage") == "POSTMENOPAUSE"
+        if postMeno {
+            cycleDay = nil; phase = nil
+        } else if let last = store.periodStarts.max() {
             let d = CycleLogic.cycleDay(lastStart: last, length: cycleLength, today: date)
             cycleDay = d
             phase = CyclePhase.forDay(d, periodLength: store.periodLength, cycleLength: cycleLength)
@@ -74,6 +79,10 @@ struct Rhythm {
         if male {
             let z: EnergyZone = switch mens { case .peak: .high; case .build: .steady; case .rest: .low; case .reset: .recover }
             return (z, "\(mens.emoji) \(mens.label), \(mens.tip)")
+        }
+        if postMeno {
+            let f = Vitality.focus()
+            return (f.zone, "\(f.emoji) \(f.description)")
         }
         guard let phase, let day = cycleDay else {
             return (.steady, "🌸 Log your last period and this plan syncs to your cycle. Until then, a steady day.")

@@ -10,7 +10,7 @@ struct AppFeature: Identifiable {
     var id: String { title }
 
     static func all(gender: String) -> [AppFeature] {
-        let cycle = gender == "male" ? "Men" : "Women"
+        let cycle = gender == "male" ? "Men" : UserDefaults.standard.string(forKey: "lifeStage") == "POSTMENOPAUSE" ? "Vitality" : "Women"
         var list: [AppFeature] = [
             AppFeature(title: "Read the Bible", symbol: "book", words: "bible scripture chapter verse translation read", target: .view { AnyView(BibleReaderView()) }),
             AppFeature(title: "Highlights and notes", symbol: "highlighter", words: "highlight note bookmark", target: .view { AnyView(HighlightsView()) }),
@@ -33,6 +33,7 @@ struct AppFeature: Identifiable {
             AppFeature(title: "Form Coach", symbol: "camera", words: "form coach camera reps squats push-ups lunges curls sit-ups posture", target: .view { AnyView(FormCoachPickerView()) }),
             AppFeature(title: "Strength log", symbol: "dumbbell", words: "strength lift weights sets reps bench squat deadlift gym", target: .view { AnyView(StrengthLogView()) }),
             AppFeature(title: "Mind tracks", symbol: "brain", words: "mind tracks stress pressure anger purpose comparison boundaries mental load", target: .view { AnyView(MindTracksView()) }),
+            AppFeature(title: "Bible Journeys", symbol: "map", words: "bible journeys walk routes emmaus exodus bethlehem paul steps stops story", target: .view { AnyView(JourneysView()) }),
             AppFeature(title: "Morning light", symbol: "sun.max", words: "morning light sunlight daylight outside wake sleep lux circadian", target: .view { AnyView(MorningLightView()) }),
             AppFeature(title: "My reminders", symbol: "bell.badge", words: "reminders water drink move stand bed bedtime self care notification", target: .view { AnyView(MyRemindersView()) }),
             AppFeature(title: "Health helper", symbol: "cross.case", words: "health helper medicine pill taken mood take it easy doctor summary pdf headache", target: .view { AnyView(HealthHelperView()) }),

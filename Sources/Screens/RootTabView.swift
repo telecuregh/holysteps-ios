@@ -9,12 +9,14 @@ struct RootTabView: View {
     @EnvironmentObject var appearance: Appearance
     @ObservedObject private var router = TabRouter.shared
     @Environment(\.horizontalSizeClass) private var hSizeClass
+    @AppStorage("lifeStage") private var lifeStage = "CYCLING"
     private var tab: Int { router.tab }
     private var isIPad: Bool { hSizeClass == .regular }
 
     private var tabs: [(label: String, symbol: String)] {
         [("Home", "house.fill"), ("Faith", "cross"), ("Fitness", "figure.run"),
-         (store.gender == "male" ? "Men" : "Women", store.gender == "male" ? "dumbbell" : "arrow.triangle.2.circlepath"),
+         store.gender == "male" ? ("Men", "dumbbell")
+            : lifeStage == "POSTMENOPAUSE" ? ("Vitality", "leaf") : ("Women", "arrow.triangle.2.circlepath"),
          ("Profile", "person")]
     }
 
