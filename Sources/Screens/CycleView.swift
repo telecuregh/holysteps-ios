@@ -367,38 +367,41 @@ struct WomensCycleView: View {
         ShareWithHusbandCard().padding(.horizontal, 20).padding(.top, 12)
         BodyEnergyEntryCard().padding(.horizontal, 20).padding(.top, 12)
         NewParentsEntryCard().padding(.horizontal, 20).padding(.top, 12)
-        CoverCard(emoji: "🤕", title: "Headache diary", subtitle: "Log headaches and see what goes with yours") { HeadacheView() }
-            .padding(.horizontal, 20).padding(.top, 12)
-        CoverCard(emoji: "❤️", title: "Body basics", subtitle: "Water, health numbers, habits and medicine reminders", tint: 0xF472B6) { BodyBasicsView().environmentObject(store) }
-            .padding(.horizontal, 20).padding(.top, 12)
-        CoverCard(emoji: "🩺", title: "Checkups & self-checks", subtitle: "Screenings and vaccines for your age, and monthly self-checks", tint: 0xF472B6) { CheckupsView(women: true) }
-            .padding(.horizontal, 20).padding(.top, 12)
-        CoverCard(emoji: "💜", title: "Women's Mental Health", subtitle: "Audio guidance for anxiety, PMS/PMDD, postpartum, grief, burnout and self-worth. Private. On-device.", tint: 0xF472B6) { WomenMindView() }
-            .padding(.horizontal, 20).padding(.top, 12)
-        CoverCard(emoji: "🧠", title: "Mood check-in", subtitle: "A private 1-minute check, with 988 one tap away", tint: 0xA78BFA) { MoodCheckView() }
-            .padding(.horizontal, 20).padding(.top, 12)
-        CoverCard(emoji: "🌸", title: "Mood and tests", subtitle: "A daily mood scale and a pregnancy-test log", tint: 0xF472B6) { CycleMoodTestsView() }
-            .padding(.horizontal, 20).padding(.top, 12)
-        if showSeverity {
-            CoverCard(emoji: "📈", title: "Symptom severity", subtitle: "For PMS, PMDD, PCOS or endometriosis: rate pain and mood daily", tint: 0xF472B6) { SeverityView().environmentObject(store) }
-                .padding(.horizontal, 20).padding(.top, 12)
-        }
-        CoverCard(emoji: "🤰", title: "Pregnancy tools", subtitle: "Kick counter, contraction timer and appointments", tint: 0xF472B6) { PregnancyToolsView() }
-            .padding(.horizontal, 20).padding(.top, 12)
-        CoverCard(emoji: "📥", title: "Bring your data", subtitle: "Move your period history from Flo, Clue or Apple Health", tint: 0xF472B6) { BringDataView().environmentObject(store) }
-            .padding(.horizontal, 20).padding(.top, 12)
-        if showPartner {
-            CoverCard(emoji: "💞", title: "Partner coaching", subtitle: "Your partner gets a daily tip on how to support you, never your data", tint: 0xF472B6) { PartnerCoachingView().environmentObject(store) }
-                .padding(.horizontal, 20).padding(.top, 12)
-        }
-        if showCircles {
-            CoverCard(emoji: "🌸", title: "Cycle Circles", subtitle: "Small private support circles, up to 12 women, by invitation", tint: 0xF472B6) { CycleCirclesView().environmentObject(store) }
-                .padding(.horizontal, 20).padding(.top, 12)
-        }
-        if showSkin {
-            CoverCard(emoji: "🪞", title: "Skin journal", subtitle: "A private photo a day, and how your skin follows your cycle", tint: 0xF472B6) { SkinJournalView().environmentObject(store) }
-                .padding(.horizontal, 20).padding(.top, 12)
-        }
+        // ── More, in three clear groups like Android (CycleScreen.kt): your cycle, your body, and support ──
+        Spacer().frame(height: 16)
+        ToolSection(title: "Your cycle", items: (showSkin ? [
+            ToolItem(symbol: "face.smiling", color: Color(hex: 0xF9A8D4), title: "Skin Journal", sub: "A private photo a day, matched to your cycle",
+                     destination: AnyView(SkinJournalView().environmentObject(store))),
+        ] : []) + [
+            ToolItem(symbol: "brain.head.profile", color: Color(hex: 0xF472B6), title: "Headaches", sub: "See if they line up with your period", destination: AnyView(HeadacheView())),
+        ] + (showSeverity ? [
+            ToolItem(symbol: "waveform.path.ecg", color: HS.cycle, title: "Symptom severity", sub: "Rate pain and mood daily, and compare the week before your period",
+                     destination: AnyView(SeverityView().environmentObject(store))),
+        ] : []) + [
+            ToolItem(symbol: "heart", color: HS.cycle, title: "Mood and tests", sub: "A daily mood scale and a pregnancy-test log", destination: AnyView(CycleMoodTestsView())),
+            ToolItem(symbol: "checklist", color: Color(hex: 0xF9A8D4), title: "Medicines & supplements", sub: "Reminders for pills, vitamins and supplements",
+                     destination: AnyView(BodyBasicsView().environmentObject(store))),
+        ], visible: 8)
+        Spacer().frame(height: 14)
+        ToolSection(title: "Body and health", items: [
+            ToolItem(symbol: "cross.case", color: HS.cycle, title: "Checkups & self-checks", sub: "Screenings and vaccines for your age", badge: "New",
+                     destination: AnyView(CheckupsView(women: true))),
+            ToolItem(symbol: "heart.text.square", color: HS.cycle, title: "Know your numbers", sub: "Blood pressure, weight and check-ups",
+                     destination: AnyView(BodyBasicsView().environmentObject(store))),
+            ToolItem(symbol: "fork.knife", color: HS.body, title: "Food & water", sub: "Water, protein and real food", destination: AnyView(BodyBasicsView().environmentObject(store))),
+            ToolItem(symbol: "checklist", color: HS.faith, title: "Habits", sub: "Drinks, caffeine, screens and smoking", destination: AnyView(BodyBasicsView().environmentObject(store))),
+        ])
+        Spacer().frame(height: 14)
+        ToolSection(title: "Support", items: (showPartner ? [
+            ToolItem(symbol: "heart", color: Color(hex: 0xF472B6), title: "Partner Coaching", sub: "Daily tips for your partner, no raw data",
+                     destination: AnyView(PartnerCoachingView().environmentObject(store))),
+        ] : []) + (showCircles ? [
+            ToolItem(symbol: "person.3", color: HS.cycle, title: "Cycle Circles", sub: "A small, moderated support group", destination: AnyView(CycleCirclesView().environmentObject(store))),
+        ] : []) + [
+            ToolItem(symbol: "brain.head.profile", color: Color(hex: 0xF472B6), title: "Women's Mental Health", sub: "Talks, everyday audio and stories, read by Grace", badge: "New",
+                     destination: AnyView(WomenMindView())),
+            ToolItem(symbol: "face.smiling", color: Color(hex: 0xA78BFA), title: "Mood check-in", sub: "A private 1-minute check, with 988 one tap away", destination: AnyView(MoodCheckView())),
+        ], visible: 8)
         if hiddenToolCount > 0 {
             Button { withAnimation { showAllTools = true } } label: {
                 HStack(spacing: 12) {
@@ -416,6 +419,8 @@ struct WomensCycleView: View {
             .buttonStyle(.plain)
             .padding(.horizontal, 20).padding(.top, 12)
         }
+        CoverCard(emoji: "📥", title: "Bring your data", subtitle: "Move your period history from Flo, Clue or Apple Health", tint: 0xF472B6) { BringDataView().environmentObject(store) }
+            .padding(.horizontal, 20).padding(.top, 12)
         // Pregnancy-loss entry — quiet door, only shown when not already active
         PregnancyLossEntry().padding(.horizontal, 20).padding(.top, 12)
         GlassCard {
@@ -545,13 +550,19 @@ struct MensWellnessView: View {
                             D(Date().formatted(.dateTime.weekday(.wide).locale(I18n.shared.locale))).font(.hs(13)).foregroundStyle(HS.textMuted)
                         }
                         .padding(.top, 40).padding(.horizontal, 20).padding(.bottom, 12)
-                        SubTabs(tabs: ["Today", "Plan", "Mental Health"], selected: $tab).padding(.bottom, 16)
-                        if tab == 0 { today(phase, color) } else if tab == 1 { plan(phase, color) } else { MentalHealthTab(men: true) }
+                        // The same four sections as Android's men's tab (MensHealthScreen.kt): Today, Body, Plan, Mental Health.
+                        // The trackers, screenings and faith tools live in Body only, so Today and Plan stay short.
+                        SubTabs(tabs: ["Today", "Body", "Plan", "Mental Health"], selected: $tab).padding(.bottom, 16)
+                        if tab == 0 { today(phase, color) } else if tab == 2 { plan(phase, color) } else if tab == 3 { MentalHealthTab(men: true) }
+                        if tab == 1 {
+                        MensTabSectionHeader(emoji: "📋", title: "Track your body", subtitle: "Water, numbers, habits, medicines and check-ups")
                         CoverCard(emoji: "❤️", title: "Body basics", subtitle: "Water, health numbers, habits and medicine reminders", tint: 0x8B5CF6) { BodyBasicsView().environmentObject(store) }
                             .padding(.horizontal, 20).padding(.top, 16)
                         CoverCard(emoji: "🛡️", title: "Checkups & self-checks", subtitle: "What's due for your age, vaccines and monthly self-checks", tint: 0x8B5CF6) { CheckupsView(women: false) }
                             .padding(.horizontal, 20).padding(.top, 16)
                         CoverCard(emoji: "🧠", title: "Mood check-in", subtitle: "A private 1-minute check, with 988 one tap away", tint: 0xA78BFA) { MoodCheckView() }
+                            .padding(.horizontal, 20).padding(.top, 12)
+                        CoverCard(emoji: "📊", title: "About you", subtitle: "What all of it says about you", tint: 0x38BDF8) { AboutYouView().environmentObject(store) }
                             .padding(.horizontal, 20).padding(.top, 12)
 
                         // ── HEALTH SCREENINGS ──────────────────────────────
@@ -616,6 +627,7 @@ struct MensWellnessView: View {
                                 .padding(.horizontal, 20).padding(.top, 8)
                         }
 
+                        }
                         Spacer().frame(height: 100)
                     }
                 }

@@ -355,7 +355,7 @@ struct HomeView: View {
     private func openRightNow(_ r: RightNow.Route) {
         switch r {
         case .verses: ActivityLog.shared.add(.verse); openVerse(AppContent.verseOfTheDay().ref)
-        case .audio: router.open(tab: 1, faith: 2)
+        case .audio: router.open(tab: 1, faith: 3)
         case .faith: router.open(tab: 1, faith: 0)
         case .calmCheck: route = .calmCheck
         case .walk: route = .walk
@@ -652,7 +652,7 @@ struct HomeView: View {
             if CrisisLine.has988 {
                 Button { openURL(URL(string: "tel:988")!) } label: { T("Call or text 988").font(.hs(13, .semibold)).foregroundStyle(HS.gold) }
             }
-            Button { router.open(tab: 1, faith: 3) } label: { T("Safety help").font(.hs(13)).foregroundStyle(HS.textMuted) }
+            Button { router.open(tab: 1, faith: 4) } label: { T("Safety help").font(.hs(13)).foregroundStyle(HS.textMuted) }
             Spacer()
         }
         .padding(.horizontal, 6)

@@ -18,18 +18,16 @@ struct FaithView: View {
                             ScreenPhoto(name: "screen_faith").id("top")
                             header
                             Spacer().frame(height: 4)
-                            // At most four sections: praying lives in Today.
-                            SubTabs(tabs: ["Today", "Bible", "Listen", "Mind", "Together"], selected: $router.faithTab)
+                            // The same six sections, in the same order, as Android's Faith tab (FaithScreen.kt).
+                            SubTabs(tabs: ["Today", "Pray", "Bible", "Listen", "Mind", "Together"], selected: $router.faithTab)
                             Spacer().frame(height: 16)
                             switch router.faithTab {
-                            case 0:
-                                today
-                                Spacer().frame(height: 16)
-                                pray
-                            case 1: bibleTab
-                            case 2: listen
-                            case 4: CommunityView()
-            default: mind
+                            case 0: today
+                            case 1: pray
+                            case 2: bibleTab
+                            case 3: listen
+                            case 4: mind
+                            default: together
                             }
                             Spacer().frame(height: 100)
                         }
@@ -65,6 +63,8 @@ struct FaithView: View {
     // MARK: Today
 
     @ViewBuilder private var today: some View {
+        FriendStreakCard()
+        Spacer().frame(height: 12)
         QuizRow()
         Spacer().frame(height: 16)
         SectionHeader(title: "Today's Scripture")
@@ -202,13 +202,39 @@ struct FaithView: View {
 
     @ViewBuilder private var pray: some View {
         let answered = store.prayers.filter(\.answered).count
-        PrayerGardenCard().padding(.top, 12)
+        PrayerGardenCard().padding(.top, 4)
         SpiritStressCard().padding(.top, 12)
+        Spacer().frame(height: 16)
         ToolSection(title: "Ways to pray", items: [
             ToolItem(symbol: "checklist", color: HS.peach, title: "Prayer List", sub: "\(store.prayers.count - answered) praying · \(answered) answered",
                      destination: AnyView(PrayerJournalView(section: 0))),
+            ToolItem(symbol: "figure.walk", color: HS.body, title: "Prayer Walk", sub: "Pray as you walk", badge: "+40 pts",
+                     destination: AnyView(PrayerWalkFeatureView())),
+            ToolItem(symbol: "map", color: HS.faith, title: "Prayer Walk Map", sub: "A prayer for each place you pass",
+                     destination: AnyView(PrayerWalkMapView())),
         ] + (FaithCoach.available ? [ToolItem(symbol: "sparkles", color: HS.gold, title: "Faith coach", sub: "Private, on this iPhone", badge: "New",
                      destination: AnyView(FaithCoachView()))] : []), visible: 8)
+        Spacer().frame(height: 10)
+        ToolSection(title: "Practices", items: [
+            ToolItem(symbol: "alarm", color: HS.peach, title: "Wake-up alarm", sub: "Wake to scripture and prayer", destination: AnyView(WakeAlarmView())),
+        ])
+    }
+
+    /// Android's Together section: community, then family and friends.
+    @ViewBuilder private var together: some View {
+        ToolSection(title: "Community", items: [
+            ToolItem(symbol: "building.columns", color: HS.peach, title: "My church", sub: "Follow the sermon: passages and outline", destination: AnyView(ChurchTab())),
+            ToolItem(symbol: "heart", color: HS.cycle, title: "Prayer Wall", sub: "Testimonies, requests and today's question", destination: AnyView(PrayerWallView())),
+            ToolItem(symbol: "person.3", color: HS.faith, title: "Faith Leagues", sub: "Weekly board with your group", destination: AnyView(FaithGroupsView())),
+            ToolItem(symbol: "bolt", color: HS.peach, title: "Scripture Duels", sub: "Head-to-head verse recall", destination: AnyView(DuelsView())),
+        ])
+        Spacer().frame(height: 10)
+        ToolSection(title: "Family and friends", items: [
+            ToolItem(symbol: "book", color: HS.mind, title: "Read together", sub: "A Bible plan with friends: see who has read today", badge: "Free",
+                     destination: AnyView(ReadingTogetherView())),
+            ToolItem(symbol: "flame", color: HS.cycle, title: "Family Faith Relay", sub: "Pass the baton daily", destination: AnyView(FamilyRelayView())),
+            ToolItem(symbol: "person.2", color: HS.body, title: "Kids Profiles", sub: "A safe space for each child", badge: "New", destination: AnyView(KidsProfilesView())),
+        ])
     }
 
     @ViewBuilder private var bibleTab: some View {
@@ -219,11 +245,15 @@ struct FaithView: View {
             ToolItem(symbol: "book", color: HS.faith, title: "Devotional Plans",
                      sub: dev.readToday ? "Day \(max(1, dev.day - 1)) · done today" : "Day \(dev.day) · continue",
                      badge: dev.readToday ? "✓" : nil, destination: AnyView(DevotionalView())),
-            ToolItem(symbol: "highlighter", color: HS.body, title: "Highlights and notes", sub: "\(bible.highlights.count) saved",
-                     destination: AnyView(HighlightsView())),
+            ToolItem(symbol: "figure.walk", color: HS.body, title: "Walk through the Bible", sub: "Walk the distance of Bible journeys", badge: "Free",
+                     destination: AnyView(BibleWalkView())),
             ToolItem(symbol: "brain.head.profile", color: HS.gold, title: "Verse Memory", sub: "\(VerseMemory.mastered.count) of \(VerseMemory.all.count) mastered",
                      destination: AnyView(VerseMemoryView())),
+            ToolItem(symbol: "highlighter", color: HS.body, title: "Highlights and notes", sub: "\(bible.highlights.count) saved",
+                     destination: AnyView(HighlightsView())),
         ])
+        Spacer().frame(height: 12)
+        ProgramsEntryCard().padding(.horizontal, 20)
         Spacer().frame(height: 16)
         ToolSection(title: "Reflect", items: [
             ToolItem(symbol: "book.closed", color: HS.body, title: "Faith Journal", sub: "\(store.journal.count) entries",
@@ -234,12 +264,9 @@ struct FaithView: View {
     @ViewBuilder private var listen: some View {
         WeeklySermonCard(more: true)
         Spacer().frame(height: 16)
-        ToolSection(title: "Sleep", items: [
-            ToolItem(symbol: "moon.stars", color: Color(hex: 0x8B5CF6), title: "Sleep stories", sub: "Long Bible stories to fall asleep to",
-                     destination: AnyView(SleepView())),
-        ])
         ToolSection(title: "Audio", items: [
-            ToolItem(symbol: "waveform.and.mic", color: HS.faith, title: "Guided Prayer", sub: "Morning, evening, sleep and crisis sessions", destination: AnyView(AudioPrayerView())),
+            ToolItem(symbol: "headphones", color: HS.mind, title: "Audio Sanctuary", sub: "Guided prayer and soundscapes", badge: "+15 pts", destination: AnyView(AudioPrayerView())),
+            ToolItem(symbol: "moon.stars", color: HS.mind, title: "Bible Sleep Stories", sub: "Stories and night prayers for sleep", destination: AnyView(SleepView())),
             ToolItem(symbol: "music.note", color: HS.peach, title: "Hymns", sub: "Sung hymns and country gospel", destination: AnyView(MusicView(tab: 1))),
             ToolItem(symbol: "music.note", color: HS.peach, title: "Gospel songs", sub: "Songs on Bible passages, and your own music", destination: AnyView(MusicView(tab: 0))),
         ])
@@ -247,12 +274,14 @@ struct FaithView: View {
 
     @ViewBuilder private var mind: some View {
         CrisisCard().padding(.horizontal, 20)
-        ToolSection(title: "Freedom", items: [
-            ToolItem(symbol: "flame", color: Color(hex: 0xFF6B35), title: "Break Free", sub: "Daily habit-breaking streak tracker",
-                     destination: AnyView(FreedomView())),
+        ToolSection(title: "Check in", items: [
+            ToolItem(symbol: "brain.head.profile", color: HS.mind, title: "Mood check-in", sub: "A private 1-minute check, kept on this phone", destination: AnyView(MoodCheckView())),
+            ToolItem(symbol: "heart", color: HS.cycle, title: "Calm Check", sub: "See your heart settle as you pray", destination: AnyView(CalmCheckView())),
+            ToolItem(symbol: "wind", color: HS.mind, title: "Breathing Pace", sub: "Count your breaths, then slow them", destination: AnyView(BreathPaceView())),
         ])
-        Spacer().frame(height: 16)
+        Spacer().frame(height: 10)
         ToolSection(title: "Support", items: [
+            ToolItem(symbol: "shield", color: HS.body, title: "Freedom", sub: "Private help to break free", destination: AnyView(FreedomView())),
             ToolItem(symbol: "hands.sparkles", color: HS.faith, title: "Sermons for what you're facing", sub: "Anxiety, grief, loneliness, anger and more",
                      destination: AnyView(SermonTopicsView())),
             ToolItem(symbol: "book", color: HS.faith, title: "Sermons through the Bible", sub: "A new book every week, Genesis to Revelation",
@@ -265,10 +294,6 @@ struct FaithView: View {
                      destination: AnyView(QuickSermonView(id: "joel_greatest_story"))),
         ])
         ToolSection(title: "Calm", items: [
-            ToolItem(symbol: "heart.text.square", color: HS.mind, title: "Calm check", sub: "Your heart rate and calm in 30 seconds",
-                     destination: AnyView(CalmCheckView())),
-            ToolItem(symbol: "wind", color: HS.mind, title: "Breathing pace", sub: "How fast you breathe, in one minute",
-                     destination: AnyView(BreathPaceView())),
             ToolItem(symbol: "hand.tap", color: HS.mind, title: "Breath prayer", sub: "Your phone breathes with you, eyes closed", badge: "New",
                      destination: AnyView(BreathPrayerView())),
             ToolItem(symbol: "headphones", color: HS.faith, title: "Spatial Sanctuary", sub: "Rain, creek and chapel bell all around you", badge: "New",
