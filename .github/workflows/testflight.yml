@@ -39,31 +39,19 @@ jobs:
           [ -z "$ASC_KEY_P8" ] && missing="$missing ASC_KEY_P8"
           if [ -n "$missing" ]; then echo "::error::Add these repository secrets first:$missing"; exit 1; fi
 
-      - name: Write the Firebase config (GoogleService-Info.plist)
+      - name: Check the Firebase config (GoogleService-Info.plist)
         # Without this file the app has no account at all: partner invites, circles, groups, backups and plans all stop
-        # at "Still connecting". The key is the Firebase Web/Android API key of project holysteps-a0689, kept in the
-        # FIREBASE_API_KEY secret so it isn't published in this public repository.
+        # at "Still connecting". It is committed in Resources/ (the key is the same public client key every APK carries;
+        # Firebase security comes from the Firestore rules). A FIREBASE_API_KEY secret, if set, replaces the key.
         env:
           FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
         run: |
-          if [ -z "$FIREBASE_API_KEY" ]; then
-            echo "::error::Add the FIREBASE_API_KEY repository secret (Settings › Secrets and variables › Actions). Without it the app can't sign in."
-            exit 1
+          f=Resources/GoogleService-Info.plist
+          if [ -n "$FIREBASE_API_KEY" ]; then plutil -replace API_KEY -string "$FIREBASE_API_KEY" "$f"; fi
+          if ! plutil -extract API_KEY raw "$f" >/dev/null 2>&1; then
+            echo "::error::$f is missing or has no API_KEY. Without it the app can't sign in."; exit 1
           fi
-          umask 077
-          cat > Resources/GoogleService-Info.plist <<PLIST
-          <?xml version="1.0" encoding="UTF-8"?>
-          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-          <plist version="1.0">
-          <dict>
-            <key>API_KEY</key><string>${FIREBASE_API_KEY}</string>
-            <key>PROJECT_ID</key><string>holysteps-a0689</string>
-            <key>BUNDLE_ID</key><string>com.holysteps.app</string>
-            <key>STORAGE_BUCKET</key><string>holysteps-a0689.appspot.com</string>
-          </dict>
-          </plist>
-          PLIST
-          plutil -lint Resources/GoogleService-Info.plist
+          plutil -lint "$f"
 
       - name: Install XcodeGen and generate the project
         run: brew install xcodegen && xcodegen generate

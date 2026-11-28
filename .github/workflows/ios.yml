@@ -13,6 +13,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Development build (no accounts)
+        # The UI tests expect a development build: every feature open and no Firebase account made per run.
+        run: rm -f Resources/GoogleService-Info.plist
+
       - name: Show Xcode version
         run: xcodebuild -version && sw_vers -productVersion
 
