@@ -68,6 +68,9 @@ struct ProfileView: View {
                         group("Devices") {
                             link("applewatch", "Rings & watches", WearableModel.shared.on ? tr("Connected") : tr("Connect"), 0x56B892) { RingsWatchesView() }
                         }
+                        group("Calling HolySteps support?") {
+                            SupportCodeCard()
+                        }
                         group("About") {
                             link("questionmark.circle", "How HolySteps works", "", 0xD9B49F) { HowItWorksView() }
                             link("hand.raised", "Our promises to you", "", 0xD9B49F) { TrustView() }
