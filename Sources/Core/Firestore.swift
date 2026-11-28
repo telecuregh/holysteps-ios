@@ -60,6 +60,8 @@ enum FSWrite {
     /// Change only the named fields (the document must exist), with optional counter steps.
     case update(String, [String: FSValue], increments: [String: Int64] = [:], unions: [String: [FSValue]] = [:])
     case delete(String)
+    /// Change only the named fields, creating the document if it isn't there yet (Android's set(…, merge)).
+    case merge(String, [String: FSValue])
     /// Create a new document whose named fields get the server's time (a Timestamp, for rules that compare with request.time).
     case createStamped(String, [String: FSValue], serverTime: [String])
 }
@@ -144,6 +146,8 @@ enum Firestore {
                 return x
             case .delete(let p):
                 return ["delete": "\(b)/\(p)"]
+            case .merge(let p, let f):
+                return ["update": ["name": "\(b)/\(p)", "fields": f.mapValues(\.json)], "updateMask": ["fieldPaths": Array(f.keys)]]
             case .createStamped(let p, let f, let st):
                 return ["update": ["name": "\(b)/\(p)", "fields": f.mapValues(\.json)], "currentDocument": ["exists": false],
                         "updateTransforms": st.map { ["fieldPath": $0, "setToServerValue": "REQUEST_TIME"] }]
