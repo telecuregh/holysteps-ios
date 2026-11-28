@@ -284,17 +284,17 @@ final class SmokeUITests: XCTestCase {
         sleep(1)
         XCTAssertTrue(faithShown, "Pray in today's plan should open Faith")
         XCTAssertTrue(reader, "Open should show the verse in the Bible")
-        // Your shortcuts start from the onboarding picks; a fresh account gets Sleep stories among them.
+        // Your shortcuts: the things this person uses most (their onboarding picks until there's history).
         app.swipeUp()
-        let sleepTile = button(app, containing: "Sleep stories")
-        XCTAssertTrue(sleepTile.waitForExistence(timeout: 5))
-        sleepTile.tap()
-        let opened = app.staticTexts["Rest well tonight"].waitForExistence(timeout: 5)
-        shot(app, "43-sleep")
-        dump(app, opened)
-        XCTAssertTrue(opened, "Sleep should open from Home")
-        tab(app, "Back").tap()
-        sleep(1)
+        let shortcuts = app.staticTexts["Your shortcuts"].waitForExistence(timeout: 5)
+        shot(app, "43-shortcuts")
+        XCTAssertTrue(shortcuts, "Home should show Your shortcuts")
+        let first = button(app, containing: "Prayer List")
+        if first.waitForExistence(timeout: 3) {
+            first.tap(); sleep(2); shot(app, "43b-shortcut-opened")
+            if tab(app, "Back").waitForExistence(timeout: 3) { tab(app, "Back").tap() }
+            sleep(1)
+        }
 
         app.swipeDown(); app.swipeDown(); sleep(1)
         tab(app, "Search").tap()
